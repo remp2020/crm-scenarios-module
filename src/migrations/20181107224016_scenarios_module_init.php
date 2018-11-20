@@ -13,7 +13,7 @@ class ScenariosModuleInit extends AbstractMigration
             ->addIndex('code', ['unique' => true])
             ->create();
 
-        $this->table('scenarios_accords')
+        $this->table('scenarios_scenarios')
             ->addColumn('name', 'string', ['null' => false])
             ->addColumn('visual', 'json')
             ->addColumn('created_at', 'datetime', ['null' => false])
@@ -21,20 +21,20 @@ class ScenariosModuleInit extends AbstractMigration
             ->addIndex('name', ['unique' => true])
             ->create();
 
-        $this->table('scenarios_accord_triggers')
-            ->addColumn('accord_id', 'integer', ['null' => false])
+        $this->table('scenarios_triggers')
+            ->addColumn('scenario_id', 'integer', ['null' => false])
             ->addColumn('event_id', 'integer', ['null' => false])
             ->addColumn('name', 'string', ['null' => false])
             ->addColumn('uuid', 'string', ['limit' => 36, 'null' => false])
-            ->addForeignKey('accord_id', 'scenarios_accords', 'id')
+            ->addForeignKey('scenario_id', 'scenarios_scenarios', 'id')
             ->addForeignKey('event_id', 'scenarios_events', 'id')
-            ->addIndex(['accord_id', 'event_id'], ['unique' => true])
-            ->addIndex(['accord_id', 'name'], ['unique' => true])
+            ->addIndex(['scenario_id', 'event_id'], ['unique' => true])
+            ->addIndex(['scenario_id', 'name'], ['unique' => true])
             ->addIndex(['uuid'], ['unique' => true])
             ->create();
 
         $this->table('scenarios_elements')
-            ->addColumn('accord_id', 'integer', ['null' => false])
+            ->addColumn('scenario_id', 'integer', ['null' => false])
             ->addColumn('uuid', 'string', ['limit' => 36, 'null' => false])
             ->addColumn('name', 'string', ['null' => false])
             ->addColumn('type', 'enum', [
@@ -44,17 +44,17 @@ class ScenariosModuleInit extends AbstractMigration
             ->addColumn('segment_code', 'string', ['null' => true])
             ->addColumn('wait_time', 'integer', ['null' => true])
             ->addColumn('action_code', 'string', ['null' => true])
-            ->addForeignKey('accord_id', 'scenarios_accords', 'id')
-            ->addIndex(['accord_id', 'name'], ['unique' => true])
+            ->addForeignKey('scenario_id', 'scenarios_scenarios', 'id')
+            ->addIndex(['scenario_id', 'name'], ['unique' => true])
             ->addIndex(['uuid'], ['unique' => true])
             ->create();
 
-        $this->table('scenarios_accord_trigger_elements')
-            ->addColumn('accord_trigger_id', 'integer', ['null' => false])
+        $this->table('scenarios_trigger_elements')
+            ->addColumn('trigger_id', 'integer', ['null' => false])
             ->addColumn('element_id', 'integer', ['null' => false])
             ->addForeignKey(
-                'accord_trigger_id',
-                'scenarios_accord_triggers',
+                'trigger_id',
+                'scenarios_triggers',
                 'id',
                 ['delete' => 'CASCADE'])
             ->addForeignKey(
@@ -62,7 +62,7 @@ class ScenariosModuleInit extends AbstractMigration
                 'scenarios_elements',
                 'id',
                 ['delete' => 'CASCADE'])
-            ->addIndex(['accord_trigger_id', 'element_id'], ['unique' => true])
+            ->addIndex(['trigger_id', 'element_id'], ['unique' => true])
             ->create();
 
         $this->table('scenarios_element_elements', [])

@@ -7,18 +7,18 @@ use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
-use Crm\ScenariosModule\Repository\AccordsRepository;
+use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Application\BadRequestException;
 use Nette\Http\Response;
 
 class ScenariosInfoApiHandler extends ApiHandler
 {
-    private $accordsRepository;
+    private $scenariosRepository;
 
     public function __construct(
-        AccordsRepository $accordsRepository
+        ScenariosRepository $scenariosRepository
     ) {
-        $this->accordsRepository = $accordsRepository;
+        $this->scenariosRepository = $scenariosRepository;
     }
 
     public function params()
@@ -48,7 +48,7 @@ class ScenariosInfoApiHandler extends ApiHandler
         $params = $paramsProcessor->getValues();
 
         try {
-            $result = $this->accordsRepository->getAccord($params['id']);
+            $result = $this->scenariosRepository->getScenario($params['id']);
         } catch (BadRequestException $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S400_BAD_REQUEST);
@@ -60,7 +60,7 @@ class ScenariosInfoApiHandler extends ApiHandler
         }
 
         if (!$result) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Accord with ID [{$params['id']}] not found."]);
+            $response = new JsonResponse(['status' => 'error', 'message' => "Scenario with ID [{$params['id']}] not found."]);
             $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }

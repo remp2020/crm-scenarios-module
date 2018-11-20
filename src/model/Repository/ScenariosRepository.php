@@ -9,13 +9,9 @@ use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 
-class AccordsRepository extends Repository
+class ScenariosRepository extends Repository
 {
-    protected $tableName = 'scenarios_accords';
-
-    private $accordTriggersRepository;
-
-    private $accordTriggerElementsRepository;
+    protected $tableName = 'scenarios_scenarios';
 
     private $elementsRepository;
 
@@ -23,59 +19,63 @@ class AccordsRepository extends Repository
 
     private $eventsRepository;
 
+    private $triggersRepository;
+
+    private $triggerElementsRepository;
+
     public function __construct(
         Context $database,
         IStorage $cacheStorage = null,
-        AccordTriggersRepository $accordTriggersRepository,
-        AccordTriggerElementsRepository $accordTriggerElementsRepository,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
-        EventsRepository $eventsRepository
+        EventsRepository $eventsRepository,
+        TriggersRepository $triggersRepository,
+        TriggerElementsRepository $triggerElementsRepository
     ) {
         parent::__construct($database, $cacheStorage);
 
-        $this->accordTriggersRepository = $accordTriggersRepository;
-        $this->accordTriggerElementsRepository = $accordTriggerElementsRepository;
         $this->elementsRepository = $elementsRepository;
         $this->elementElementsRepository = $elementElementsRepository;
         $this->eventsRepository = $eventsRepository;
+        $this->triggersRepository = $triggersRepository;
+        $this->triggerElementsRepository = $triggerElementsRepository;
     }
 
     /**
      * @param array $data
-     * @return false|int - Returns false when accordID provided for update is not found
+     * @return false|int - Returns false when scenarioID provided for update is not found
      * @throws BadRequestException
      * @throws \Exception
      */
     public function createOrUpdate(array $data)
     {
-        $accordData['name'] = $data['title'];
-        $accordData['visual'] = json_encode($data['visual']);
-        $accordData['created_at'] = new DateTime();
-        $accordData['modified_at'] = new DateTime();
+        $scenarioData['name'] = $data['title'];
+        $scenarioData['visual'] = json_encode($data['visual']);
+        $scenarioData['created_at'] = new DateTime();
+        $scenarioData['modified_at'] = new DateTime();
 
-        // save or update accord details
+        // save or update scenario details
         if (isset($data['id'])) {
-            $accord = $this->find($data['id']);
-            if (!$accord) {
+            $scenario = $this->find($data['id']);
+            if (!$scenario) {
                 return false;
             }
-            $this->update($accord, $accordData);
+            $this->update($scenario, $scenarioData);
         } else {
-            $accord = $this->insert($accordData);
-            if (!$accord) {
-                throw new \Exception("Unable to save accord.");
+            $scenario = $this->insert($scenarioData);
+            if (!$scenario) {
+                throw new \Exception("Unable to save scenario.");
             }
         }
-        $accordID = $accord->getPrimary();
+        $scenarioID = $scenario->getPrimary();
 
         // TODO: move whole block to elements repository
-        // add elements of accord
-        $this->elementsRepository->removeAllByAccord($accordID);
+        // add elements of scenario
+        $this->elementsRepository->removeAllByScenario($scenarioID);
         $elementPairs = [];
         foreach ($data['elements'] as $element) {
             $elementData = [
-                'accord_id' => $accordID,
+                'scenario_id' => $scenarioID,
                 'uuid' => $element->id,
                 'name' => $element->title,
                 'type' => $element->type,
@@ -135,9 +135,9 @@ class AccordsRepository extends Repository
             }
         }
 
-        // TODO: move whole block to accordTriggers repository
+        // TODO: move whole block to triggers repository
         // process triggers (root elements)
-        $this->accordTriggersRepository->removeAllByAccordID($accordID);
+        $this->triggersRepository->removeAllByScenarioID($scenarioID);
         foreach ($data['triggers'] as $trigger) {
             if ($trigger->type !== 'event') {
                 throw new BadRequestException("Unknown trigger type [{$trigger->type}].");
@@ -147,106 +147,106 @@ class AccordsRepository extends Repository
                 throw new BadRequestException("Unknown event type [{$trigger->event->code}].");
             }
             $triggerData = [
-                'accord_id' => $accordID,
+                'scenario_id' => $scenarioID,
                 'event_id' => $event->getPrimary(),
                 'uuid' => $trigger->id,
                 'name' => $trigger->title,
             ];
-            $accordTrigger = $this->accordTriggersRepository->insert($triggerData);
+            $newTrigger = $this->triggersRepository->insert($triggerData);
 
             // insert links from triggers
             foreach ($trigger->elements as $triggerElement) {
                 $triggerElementID = $this->elementsRepository->findBy('uuid', $triggerElement)->getPrimary();
                 $triggerElementData = [
-                    'accord_trigger_id' => $accordTrigger->getPrimary(),
+                    'trigger_id' => $newTrigger->getPrimary(),
                     'element_id' => $triggerElementID,
                 ];
             }
 
-            $this->accordTriggerElementsRepository->insert($triggerElementData);
+            $this->triggerElementsRepository->insert($triggerElementData);
         }
 
-        return $accordID;
+        return $scenarioID;
     }
 
 
     /**
-     * Load whole accord with all triggers and elements.
+     * Load whole scenario with all triggers and elements.
      *
-     * @param int $accordID
-     * @return array|false if accord was not found
+     * @param int $scenarioID
+     * @return array|false if scenario was not found
      * @throws BadRequestException
      */
-    public function getAccord(int $accordID)
+    public function getScenario(int $scenarioID)
     {
-        $accord = $this->find($accordID);
-        if (!$accord) {
+        $scenario = $this->find($scenarioID);
+        if (!$scenario) {
             return false;
         }
 
-        $triggers = $this->getTriggers($accord);
+        $triggers = $this->getTriggers($scenario);
         if (empty($triggers)) {
-            throw new BadRequestException("No triggers owned by accord with ID [{$accordID}].");
+            throw new BadRequestException("No triggers owned by scenario with ID [{$scenarioID}].");
         }
 
-        $elements = $this->getElements($accord);
+        $elements = $this->getElements($scenario);
         if (empty($elements)) {
-            throw new BadRequestException("No elements owned by accord with ID [{$accordID}].");
+            throw new BadRequestException("No elements owned by scenario with ID [{$scenarioID}].");
         }
 
         $result = [
-            'id' => $accord->id,
-            'title' => $accord->name,
+            'id' => $scenario->id,
+            'title' => $scenario->name,
             'triggers' => $triggers,
             'elements' => $elements,
-            'visual' => json_decode($accord->visual),
+            'visual' => json_decode($scenario->visual),
         ];
 
         return $result;
     }
 
-    private function getTriggers(ActiveRow $accord): array
+    private function getTriggers(ActiveRow $scenario): array
     {
         $triggers = [];
-        foreach ($accord->related('scenarios_accord_triggers')->fetchAll() as $accordTrigger) {
+        foreach ($scenario->related('scenarios_triggers')->fetchAll() as $scenarioTrigger) {
             $trigger = [
-                'id' => $accordTrigger->uuid,
-                'title' => $accordTrigger->name,
+                'id' => $scenarioTrigger->uuid,
+                'title' => $scenarioTrigger->name,
                 'type' => 'event',
                 'event' => [
-                    'code' => $accordTrigger->event->code
+                    'code' => $scenarioTrigger->event->code
                 ],
                 'elements' => [],
             ];
 
-            foreach ($accordTrigger->related('scenarios_accord_trigger_elements') as $triggerElement) {
+            foreach ($scenarioTrigger->related('scenarios_trigger_elements') as $triggerElement) {
                 $trigger['elements'][] = $triggerElement->element->uuid;
             }
 
-            $triggers[$accordTrigger->uuid] = $trigger;
+            $triggers[$scenarioTrigger->uuid] = $trigger;
         }
 
         return $triggers;
     }
 
-    private function getElements(ActiveRow $accord): array
+    private function getElements(ActiveRow $scenario): array
     {
         $elements = [];
-        foreach ($accord->related('scenarios_elements')->fetchAll() as $accordElement) {
+        foreach ($scenario->related('scenarios_elements')->fetchAll() as $scenarioElement) {
             $element = [
-                'id' => $accordElement->uuid,
-                'title' => $accordElement->name,
-                'type' => $accordElement->type,
+                'id' => $scenarioElement->uuid,
+                'title' => $scenarioElement->name,
+                'type' => $scenarioElement->type,
             ];
 
-            $descendants = $this->getElementDescendants($accordElement);
+            $descendants = $this->getElementDescendants($scenarioElement);
 
-            switch ($accordElement->type) {
+            switch ($scenarioElement->type) {
                 case 'action':
                     $element['action'] = [
                         'type' => 'email',
                         'email' => [
-                            'code' => $accordElement->action_code,
+                            'code' => $scenarioElement->action_code,
                         ],
                     ];
                     $element['action']['descendants'] = array_merge(
@@ -256,14 +256,14 @@ class AccordsRepository extends Repository
                     break;
                 case 'segment':
                     $element['segment'] = [
-                        'code' => $accordElement->segment_code,
+                        'code' => $scenarioElement->segment_code,
                     ];
                     $element['segment']['descendants_positive'] = $descendants['descendants_positive'];
                     $element['segment']['descendants_negative'] = $descendants['descendants_negative'];
                     break;
                 case 'wait':
                     $element['wait'] = [
-                        'minutes' => $accordElement->wait_time,
+                        'minutes' => $scenarioElement->wait_time,
                     ];
                     $element['wait']['descendants'] = array_merge(
                         $descendants['descendants_positive'],
@@ -271,10 +271,10 @@ class AccordsRepository extends Repository
                     );
                     break;
                 default:
-                    throw new \Exception("Unable to load element uuid [{$accordElement->uuid}] - unknown element type [{$accordElement->type}].");
+                    throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - unknown element type [{$scenarioElement->type}].");
             }
 
-            $elements[$accordElement->uuid] = $element;
+            $elements[$scenarioElement->uuid] = $element;
         }
 
         return $elements;

@@ -6,11 +6,11 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 
-	- Crm\ScenariosModule\Repository\AccordsRepository
-	- Crm\ScenariosModule\Repository\AccordTriggersRepository
-	- Crm\ScenariosModule\Repository\AccordTriggerElementsRepository
 	- Crm\ScenariosModule\Repository\ElementsRepository
 	- Crm\ScenariosModule\Repository\ElementElementsRepository
 	- Crm\ScenariosModule\Repository\EventsRepository
+	- Crm\ScenariosModule\Repository\ScenariosRepository
+	- Crm\ScenariosModule\Repository\TriggersRepository
+	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
 	- Crm\ScenariosModule\Seeders\ScenariosSeeder

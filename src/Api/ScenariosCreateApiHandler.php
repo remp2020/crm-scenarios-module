@@ -7,22 +7,22 @@ use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
-use Crm\ScenariosModule\Repository\AccordsRepository;
+use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;
 use Nette\Http\Response;
 
 class ScenariosCreateApiHandler extends ApiHandler
 {
-    private $accordsRepository;
-
     private $request;
 
+    private $scenariosRepository;
+
     public function __construct(
-        AccordsRepository $accordsRepository,
-        Request $request
+        Request $request,
+        ScenariosRepository $scenariosRepository
     ) {
-        $this->accordsRepository = $accordsRepository;
         $this->request = $request;
+        $this->scenariosRepository = $scenariosRepository;
     }
 
     public function params()
@@ -67,21 +67,21 @@ class ScenariosCreateApiHandler extends ApiHandler
         $params = $paramsProcessor->getValues();
 
         try {
-            $accordID = $this->accordsRepository->createOrUpdate($params);
+            $scenarioID = $this->scenariosRepository->createOrUpdate($params);
         } catch (\Exception $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
             return $response;
         }
 
-        if (!$accordID) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Provided accord ID [{$params['id']}] not found."]);
+        if (!$scenarioID) {
+            $response = new JsonResponse(['status' => 'error', 'message' => "Provided scenario ID [{$params['id']}] not found."]);
             $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }
 
         try {
-            $result = $this->accordsRepository->getAccord($accordID);
+            $result = $this->scenariosRepository->getScenario($scenarioID);
         } catch (\Exception $exception) {
             // any error at this moment means there is issue on our side
             $response = new JsonResponse(['status' => 'error', 'message' => 'Transaction error: ' . $exception->getMessage()]);
