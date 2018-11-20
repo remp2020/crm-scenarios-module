@@ -82,17 +82,17 @@ class ScenariosRepository extends Repository
             ];
 
             switch ($element->type) {
-                case 'action':
+                case ElementsRepository::ELEMENT_TYPE_ACTION:
                     // TODO: check type of action?
                     $elementData['action_code'] = $element->action->email->code;
                     $elementPairs[$element->id]['positive'] = $element->action->descendants;
                     break;
-                case 'segment':
+                case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $elementData['segment_code'] = $element->segment->code;
                     $elementPairs[$element->id]['positive'] = $element->segment->descendants_positive;
                     $elementPairs[$element->id]['negative'] = $element->segment->descendants_negative;
                     break;
-                case 'wait':
+                case ElementsRepository::ELEMENT_TYPE_WAIT:
                     $elementData['wait_time'] = $element->wait->minutes;
                     $elementPairs[$element->id]['positive'] = $element->wait->descendants;
                     break;
@@ -139,7 +139,7 @@ class ScenariosRepository extends Repository
         // process triggers (root elements)
         $this->triggersRepository->removeAllByScenarioID($scenarioID);
         foreach ($data['triggers'] as $trigger) {
-            if ($trigger->type !== 'event') {
+            if ($trigger->type !== TriggersRepository::TRIGGER_TYPE_EVENT) {
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }
             $event = $this->eventsRepository->findBy('code', $trigger->event->code);
@@ -201,7 +201,7 @@ class ScenariosRepository extends Repository
             $trigger = [
                 'id' => $scenarioTrigger->uuid,
                 'title' => $scenarioTrigger->name,
-                'type' => 'event',
+                'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                 'event' => [
                     'code' => $scenarioTrigger->event->code
                 ],
@@ -231,30 +231,30 @@ class ScenariosRepository extends Repository
             $descendants = $this->getElementDescendants($scenarioElement);
 
             switch ($scenarioElement->type) {
-                case 'action':
-                    $element['action'] = [
+                case ElementsRepository::ELEMENT_TYPE_ACTION:
+                    $element[ElementsRepository::ELEMENT_TYPE_ACTION] = [
                         'type' => 'email',
                         'email' => [
                             'code' => $scenarioElement->action_code,
                         ],
                     ];
-                    $element['action']['descendants'] = array_merge(
+                    $element[ElementsRepository::ELEMENT_TYPE_ACTION]['descendants'] = array_merge(
                         array_keys($descendants['descendants_positive']),
                         array_keys($descendants['descendants_negative'])
                     );
                     break;
-                case 'segment':
-                    $element['segment'] = [
+                case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT] = [
                         'code' => $scenarioElement->segment_code,
                     ];
-                    $element['segment']['descendants_positive'] = $descendants['descendants_positive'];
-                    $element['segment']['descendants_negative'] = $descendants['descendants_negative'];
+                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT]['descendants_positive'] = $descendants['descendants_positive'];
+                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT]['descendants_negative'] = $descendants['descendants_negative'];
                     break;
-                case 'wait':
-                    $element['wait'] = [
+                case ElementsRepository::ELEMENT_TYPE_WAIT:
+                    $element[ElementsRepository::ELEMENT_TYPE_WAIT] = [
                         'minutes' => $scenarioElement->wait_time,
                     ];
-                    $element['wait']['descendants'] = array_merge(
+                    $element[ElementsRepository::ELEMENT_TYPE_WAIT]['descendants'] = array_merge(
                         $descendants['descendants_positive'],
                         $descendants['descendants_negative']
                     );
