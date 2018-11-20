@@ -3,7 +3,6 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
-use Nette\Application\BadRequestException;
 use Nette\Caching\IStorage;
 use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
@@ -44,8 +43,8 @@ class ScenariosRepository extends Repository
     /**
      * @param array $data
      * @return false|int - Returns false when scenarioID provided for update is not found
-     * @throws BadRequestException
-     * @throws \Exception
+     * @throws ScenarioInvalidDataException - when unable to create / update scenario because of invalid data
+     * @throws \Exception - when internal error occurs
      */
     public function createOrUpdate(array $data)
     {
@@ -64,6 +63,7 @@ class ScenariosRepository extends Repository
         } else {
             $scenario = $this->insert($scenarioData);
             if (!$scenario) {
+                // TODO: catch obvious errors from DB
                 throw new \Exception("Unable to save scenario.");
             }
         }
@@ -97,7 +97,7 @@ class ScenariosRepository extends Repository
                     $elementPairs[$element->id]['positive'] = $element->wait->descendants;
                     break;
                 default:
-                    throw new BadRequestException("Unknown element type [{$element->type}].");
+                    throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
             }
 
             $this->elementsRepository->insert($elementData);
@@ -140,11 +140,11 @@ class ScenariosRepository extends Repository
         $this->triggersRepository->removeAllByScenarioID($scenarioID);
         foreach ($data['triggers'] as $trigger) {
             if ($trigger->type !== 'event') {
-                throw new BadRequestException("Unknown trigger type [{$trigger->type}].");
+                throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }
             $event = $this->eventsRepository->findBy('code', $trigger->event->code);
             if (!$event) {
-                throw new BadRequestException("Unknown event type [{$trigger->event->code}].");
+                throw new ScenarioInvalidDataException("Unknown event type [{$trigger->event->code}].");
             }
             $triggerData = [
                 'scenario_id' => $scenarioID,
@@ -175,7 +175,6 @@ class ScenariosRepository extends Repository
      *
      * @param int $scenarioID
      * @return array|false if scenario was not found
-     * @throws BadRequestException
      */
     public function getScenario(int $scenarioID)
     {
@@ -184,21 +183,11 @@ class ScenariosRepository extends Repository
             return false;
         }
 
-        $triggers = $this->getTriggers($scenario);
-        if (empty($triggers)) {
-            throw new BadRequestException("No triggers owned by scenario with ID [{$scenarioID}].");
-        }
-
-        $elements = $this->getElements($scenario);
-        if (empty($elements)) {
-            throw new BadRequestException("No elements owned by scenario with ID [{$scenarioID}].");
-        }
-
         $result = [
             'id' => $scenario->id,
             'title' => $scenario->name,
-            'triggers' => $triggers,
-            'elements' => $elements,
+            'triggers' => $this->getTriggers($scenario),
+            'elements' => $this->getElements($scenario),
             'visual' => json_decode($scenario->visual),
         ];
 

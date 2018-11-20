@@ -7,9 +7,11 @@ use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
+use Crm\ScenariosModule\Repository\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;
 use Nette\Http\Response;
+use Tracy\Debugger;
 
 class ScenariosCreateApiHandler extends ApiHandler
 {
@@ -68,7 +70,12 @@ class ScenariosCreateApiHandler extends ApiHandler
 
         try {
             $scenarioID = $this->scenariosRepository->createOrUpdate($params);
+        } catch (ScenarioInvalidDataException $exception) {
+            $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
+            $response->setHttpCode(Response::S409_CONFLICT);
+            return $response;
         } catch (\Exception $exception) {
+            Debugger::log($exception, Debugger::EXCEPTION);
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
             return $response;
@@ -80,11 +87,12 @@ class ScenariosCreateApiHandler extends ApiHandler
             return $response;
         }
 
-        try {
-            $result = $this->scenariosRepository->getScenario($scenarioID);
-        } catch (\Exception $exception) {
+        $result = $this->scenariosRepository->getScenario($scenarioID);
+        if (!$result) {
             // any error at this moment means there is issue on our side
-            $response = new JsonResponse(['status' => 'error', 'message' => 'Transaction error: ' . $exception->getMessage()]);
+            $message = "Unable to find created / updated scenario with ID [{$scenarioID}]";
+            Debugger::log($message, Debugger::EXCEPTION);
+            $response = new JsonResponse(['status' => 'error', 'message' => $message]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
             return $response;
         }
