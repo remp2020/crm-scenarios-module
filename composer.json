@@ -1,0 +1,19 @@
+{
+  "name": "remp/crm-scenarios-module",
+  "description": "CRM Scenarios Module",
+  "version": "0.0.1",
+  "type": "library",
+  "homepage": "https://remp2020.com",
+  "license": "MIT",
+  "require": {
+    "php": "^7.1",
+    "remp/crm-application-module": "0.0.1"
+  },
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Crm\\ScenariosModule\\": "src/"
+    },
+    "classmap": ["src/"]
+  }
+}
