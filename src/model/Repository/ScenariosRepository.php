@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
 use Nette\Caching\IStorage;
+use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
@@ -12,6 +13,8 @@ use Nette\Utils\Json;
 class ScenariosRepository extends Repository
 {
     protected $tableName = 'scenarios_scenarios';
+
+    private $connection;
 
     private $elementsRepository;
 
@@ -26,6 +29,7 @@ class ScenariosRepository extends Repository
     public function __construct(
         Context $database,
         IStorage $cacheStorage = null,
+        Connection $connection,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
         EventsRepository $eventsRepository,
@@ -34,6 +38,7 @@ class ScenariosRepository extends Repository
     ) {
         parent::__construct($database, $cacheStorage);
 
+        $this->connection = $connection;
         $this->elementsRepository = $elementsRepository;
         $this->elementElementsRepository = $elementElementsRepository;
         $this->eventsRepository = $eventsRepository;
@@ -49,6 +54,8 @@ class ScenariosRepository extends Repository
      */
     public function createOrUpdate(array $data)
     {
+        $this->connection->beginTransaction();
+
         $scenarioData['name'] = $data['title'];
         $scenarioData['visual'] = Json::encode($data['visual']);
         $scenarioData['modified_at'] = new DateTime();
@@ -57,6 +64,7 @@ class ScenariosRepository extends Repository
         if (isset($data['id'])) {
             $scenario = $this->find((int)$data['id']);
             if (!$scenario) {
+                $this->connection->commit();
                 return false;
             }
             $this->update($scenario, $scenarioData);
@@ -94,6 +102,7 @@ class ScenariosRepository extends Repository
                     $elementPairs[$element->id]['positive'] = $element->wait->descendants;
                     break;
                 default:
+                    $this->connection->rollback();
                     throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
             }
 
@@ -105,6 +114,7 @@ class ScenariosRepository extends Repository
         foreach ($elementPairs as $parentUUID => $descendants) {
             $parent = $this->elementsRepository->findBy('uuid', $parentUUID);
             if (!$parent) {
+                $this->connection->rollback();
                 throw new \Exception("Unable to find element with uuid [{$parentUUID}]");
             }
 
@@ -114,6 +124,7 @@ class ScenariosRepository extends Repository
             foreach ($descendants['positive'] as $descendantUUID) {
                 $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
                 if (!$descendant) {
+                    $this->connection->rollback();
                     throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
                 }
                 $elementElementsData = [
@@ -130,6 +141,7 @@ class ScenariosRepository extends Repository
             foreach ($descendants['negative'] as $descendantUUID) {
                 $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
                 if (!$descendant) {
+                    $this->connection->rollback();
                     throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
                 }
                 $elementElementsData = [
@@ -146,10 +158,12 @@ class ScenariosRepository extends Repository
         $this->triggersRepository->removeAllByScenarioID($scenarioID);
         foreach ($data['triggers'] as $trigger) {
             if ($trigger->type !== TriggersRepository::TRIGGER_TYPE_EVENT) {
+                $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }
             $event = $this->eventsRepository->findBy('code', $trigger->event->code);
             if (!$event) {
+                $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown event type [{$trigger->event->code}].");
             }
             $triggerData = [
@@ -164,6 +178,7 @@ class ScenariosRepository extends Repository
             foreach ($trigger->elements as $triggerElementUUID) {
                 $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
                 if (!$triggerElement) {
+                    $this->connection->rollback();
                     throw new \Exception("Unable to find element with uuid [{$triggerElementUUID}]");
                 }
                 $triggerElementData = [
@@ -175,6 +190,7 @@ class ScenariosRepository extends Repository
             $this->triggerElementsRepository->insert($triggerElementData);
         }
 
+        $this->connection->commit();
         return $this->find($scenarioID);
     }
 
