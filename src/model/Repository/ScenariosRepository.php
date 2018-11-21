@@ -12,7 +12,7 @@ use Nette\Utils\Json;
 
 class ScenariosRepository extends Repository
 {
-    protected $tableName = 'scenarios_scenarios';
+    protected $tableName = 'scenarios';
 
     private $connection;
 
