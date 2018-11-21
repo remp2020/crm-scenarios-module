@@ -31,7 +31,7 @@ class ScenariosCreateApiHandler extends ApiHandler
     {
         return [
             new InputParam(InputParam::TYPE_POST, 'id', InputParam::OPTIONAL),
-            new InputParam(InputParam::TYPE_POST, 'title', InputParam::REQUIRED),
+            new InputParam(InputParam::TYPE_POST, 'name', InputParam::REQUIRED),
             new InputParam(InputParam::TYPE_POST, 'triggers', InputParam::REQUIRED),
             new InputParam(InputParam::TYPE_POST, 'elements', InputParam::REQUIRED),
             new InputParam(InputParam::TYPE_POST, 'visual', InputParam::REQUIRED),
@@ -52,7 +52,7 @@ class ScenariosCreateApiHandler extends ApiHandler
         if ($this->request->getHeader('Content-Type') === 'application/json') {
             $body = json_decode($this->request->getRawBody());
             $_POST['id'] = $body->id ?? null;
-            $_POST['title'] = $body->title ?? null;
+            $_POST['name'] = $body->name ?? null;
             $_POST['triggers'] = $body->triggers ?? null;
             $_POST['elements'] = $body->elements ?? null;
             $_POST['visual'] = $body->visual ?? null;

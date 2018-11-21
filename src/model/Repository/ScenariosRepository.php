@@ -56,7 +56,7 @@ class ScenariosRepository extends Repository
     {
         $this->connection->beginTransaction();
 
-        $scenarioData['name'] = $data['title'];
+        $scenarioData['name'] = $data['name'];
         $scenarioData['visual'] = Json::encode($data['visual']);
         $scenarioData['modified_at'] = new DateTime();
 
@@ -85,7 +85,7 @@ class ScenariosRepository extends Repository
             $elementData = [
                 'scenario_id' => $scenarioID,
                 'uuid' => $element->id,
-                'name' => $element->title,
+                'name' => $element->name,
                 'type' => $element->type,
             ];
 
@@ -172,7 +172,7 @@ class ScenariosRepository extends Repository
                 'scenario_id' => $scenarioID,
                 'event_id' => $event->id,
                 'uuid' => $trigger->id,
-                'name' => $trigger->title,
+                'name' => $trigger->name,
             ];
             $newTrigger = $this->triggersRepository->insert($triggerData);
 
@@ -212,7 +212,7 @@ class ScenariosRepository extends Repository
 
         $result = [
             'id' => $scenario->id,
-            'title' => $scenario->name,
+            'name' => $scenario->name,
             'triggers' => $this->getTriggers($scenario),
             'elements' => $this->getElements($scenario),
             'visual' => Json::decode($scenario->visual, Json::FORCE_ARRAY),
@@ -227,7 +227,7 @@ class ScenariosRepository extends Repository
         foreach ($scenario->related('scenarios_triggers')->fetchAll() as $scenarioTrigger) {
             $trigger = [
                 'id' => $scenarioTrigger->uuid,
-                'title' => $scenarioTrigger->name,
+                'name' => $scenarioTrigger->name,
                 'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                 'event' => [
                     'code' => $scenarioTrigger->event->code
@@ -251,7 +251,7 @@ class ScenariosRepository extends Repository
         foreach ($scenario->related('scenarios_elements')->fetchAll() as $scenarioElement) {
             $element = [
                 'id' => $scenarioElement->uuid,
-                'title' => $scenarioElement->name,
+                'name' => $scenarioElement->name,
                 'type' => $scenarioElement->type,
             ];
 
