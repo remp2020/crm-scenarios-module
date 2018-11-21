@@ -55,7 +55,7 @@ class ScenariosRepository extends Repository
 
         // save or update scenario details
         if (isset($data['id'])) {
-            $scenario = $this->find($data['id']);
+            $scenario = $this->find((int)$data['id']);
             if (!$scenario) {
                 return false;
             }
@@ -64,7 +64,7 @@ class ScenariosRepository extends Repository
             $scenarioData['created_at'] = $scenarioData['modified_at'];
             $scenario = $this->insert($scenarioData);
         }
-        $scenarioID = $scenario->getPrimary();
+        $scenarioID = $scenario->id;
 
         // TODO: move whole block to elements repository
         // add elements of scenario
@@ -102,17 +102,23 @@ class ScenariosRepository extends Repository
 
         // TODO: move whole block to elementElements repository
         // process elements' descendants
-        foreach ($elementPairs as $parent => $descendants) {
-            $parentID = $this->elementsRepository->findBy('uuid', $parent)->getPrimary();
+        foreach ($elementPairs as $parentUUID => $descendants) {
+            $parent = $this->elementsRepository->findBy('uuid', $parentUUID);
+            if (!$parent) {
+                throw new \Exception("Unable to find element with uuid [{$parentUUID}]");
+            }
 
             if (!isset($descendants['positive'])) {
                 continue;
             }
-            foreach ($descendants['positive'] as $descendant) {
-                $descendantID = $this->elementsRepository->findBy('uuid', $descendant)->getPrimary();
+            foreach ($descendants['positive'] as $descendantUUID) {
+                $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
+                if (!$descendant) {
+                    throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
+                }
                 $elementElementsData = [
-                    'parent_element_id' => $parentID,
-                    'child_element_id' => $descendantID,
+                    'parent_element_id' => $parent->id,
+                    'child_element_id' => $descendant->id,
                     'positive' => 1,
                 ];
                 $this->elementElementsRepository->insert($elementElementsData);
@@ -121,11 +127,14 @@ class ScenariosRepository extends Repository
             if (!isset($descendants['negative'])) {
                 continue;
             }
-            foreach ($descendants['negative'] as $descendant) {
-                $descendantID = $this->elementsRepository->findBy('uuid', $descendant)->getPrimary();
+            foreach ($descendants['negative'] as $descendantUUID) {
+                $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
+                if (!$descendant) {
+                    throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
+                }
                 $elementElementsData = [
-                    'parent_element_id' => $parentID,
-                    'child_element_id' => $descendantID,
+                    'parent_element_id' => $parent->id,
+                    'child_element_id' => $descendant->id,
                     'positive' => 0,
                 ];
                 $this->elementElementsRepository->insert($elementElementsData);
@@ -145,18 +154,21 @@ class ScenariosRepository extends Repository
             }
             $triggerData = [
                 'scenario_id' => $scenarioID,
-                'event_id' => $event->getPrimary(),
+                'event_id' => $event->id,
                 'uuid' => $trigger->id,
                 'name' => $trigger->title,
             ];
             $newTrigger = $this->triggersRepository->insert($triggerData);
 
             // insert links from triggers
-            foreach ($trigger->elements as $triggerElement) {
-                $triggerElementID = $this->elementsRepository->findBy('uuid', $triggerElement)->getPrimary();
+            foreach ($trigger->elements as $triggerElementUUID) {
+                $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
+                if (!$triggerElement) {
+                    throw new \Exception("Unable to find element with uuid [{$triggerElementUUID}]");
+                }
                 $triggerElementData = [
-                    'trigger_id' => $newTrigger->getPrimary(),
-                    'element_id' => $triggerElementID,
+                    'trigger_id' => $newTrigger->id,
+                    'element_id' => $triggerElement->id,
                 ];
             }
 

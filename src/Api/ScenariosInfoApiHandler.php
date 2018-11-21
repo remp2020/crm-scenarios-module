@@ -48,7 +48,7 @@ class ScenariosInfoApiHandler extends ApiHandler
         $params = $paramsProcessor->getValues();
 
         try {
-            $result = $this->scenariosRepository->getScenario($params['id']);
+            $result = $this->scenariosRepository->getScenario((int)$params['id']);
         } catch (\Exception $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
