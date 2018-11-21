@@ -18,7 +18,6 @@ class ScenariosModuleInit extends AbstractMigration
             ->addColumn('visual', 'json')
             ->addColumn('created_at', 'datetime', ['null' => false])
             ->addColumn('modified_at', 'datetime', ['null' => false])
-            ->addIndex('name', ['unique' => true])
             ->create();
 
         $this->table('scenarios_triggers')
@@ -29,7 +28,6 @@ class ScenariosModuleInit extends AbstractMigration
             ->addForeignKey('scenario_id', 'scenarios_scenarios', 'id')
             ->addForeignKey('event_id', 'scenarios_events', 'id')
             ->addIndex(['scenario_id', 'event_id'], ['unique' => true])
-            ->addIndex(['scenario_id', 'name'], ['unique' => true])
             ->addIndex(['uuid'], ['unique' => true])
             ->create();
 
@@ -45,7 +43,6 @@ class ScenariosModuleInit extends AbstractMigration
             ->addColumn('wait_time', 'integer', ['null' => true])
             ->addColumn('action_code', 'string', ['null' => true])
             ->addForeignKey('scenario_id', 'scenarios_scenarios', 'id')
-            ->addIndex(['scenario_id', 'name'], ['unique' => true])
             ->addIndex(['uuid'], ['unique' => true])
             ->create();
 
