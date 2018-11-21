@@ -49,10 +49,6 @@ class ScenariosInfoApiHandler extends ApiHandler
 
         try {
             $result = $this->scenariosRepository->getScenario($params['id']);
-        } catch (BadRequestException $exception) {
-            $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
-            $response->setHttpCode(Response::S400_BAD_REQUEST);
-            return $response;
         } catch (\Exception $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
