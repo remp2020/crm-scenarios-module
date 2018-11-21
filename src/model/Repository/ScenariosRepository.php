@@ -51,7 +51,6 @@ class ScenariosRepository extends Repository
     {
         $scenarioData['name'] = $data['title'];
         $scenarioData['visual'] = Json::encode($data['visual']);
-        $scenarioData['created_at'] = new DateTime();
         $scenarioData['modified_at'] = new DateTime();
 
         // save or update scenario details
@@ -62,6 +61,7 @@ class ScenariosRepository extends Repository
             }
             $this->update($scenario, $scenarioData);
         } else {
+            $scenarioData['created_at'] = $scenarioData['modified_at'];
             $scenario = $this->insert($scenarioData);
             if (!$scenario) {
                 // TODO: catch obvious errors from DB
