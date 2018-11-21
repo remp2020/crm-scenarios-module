@@ -193,7 +193,7 @@ class ScenariosRepository extends Repository
         }
 
         $this->connection->commit();
-        return $this->find($scenarioID);
+        return $scenario;
     }
 
 
