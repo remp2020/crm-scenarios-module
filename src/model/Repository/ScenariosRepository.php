@@ -7,6 +7,7 @@ use Nette\Caching\IStorage;
 use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
+use Nette\Utils\Json;
 
 class ScenariosRepository extends Repository
 {
@@ -49,7 +50,7 @@ class ScenariosRepository extends Repository
     public function createOrUpdate(array $data)
     {
         $scenarioData['name'] = $data['title'];
-        $scenarioData['visual'] = json_encode($data['visual']);
+        $scenarioData['visual'] = Json::encode($data['visual']);
         $scenarioData['created_at'] = new DateTime();
         $scenarioData['modified_at'] = new DateTime();
 
@@ -188,7 +189,7 @@ class ScenariosRepository extends Repository
             'title' => $scenario->name,
             'triggers' => $this->getTriggers($scenario),
             'elements' => $this->getElements($scenario),
-            'visual' => json_decode($scenario->visual),
+            'visual' => Json::decode($scenario->visual, Json::FORCE_ARRAY),
         ];
 
         return $result;
