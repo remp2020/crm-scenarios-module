@@ -74,9 +74,12 @@ class ScenariosRepository extends Repository
         }
         $scenarioID = $scenario->id;
 
+        // remove old values
+        $this->elementsRepository->removeAllByScenario($scenarioID);
+        $this->triggersRepository->removeAllByScenarioID($scenarioID);
+
         // TODO: move whole block to elements repository
         // add elements of scenario
-        $this->elementsRepository->removeAllByScenario($scenarioID);
         $elementPairs = [];
         foreach ($data['elements'] as $element) {
             $elementData = [
@@ -155,7 +158,6 @@ class ScenariosRepository extends Repository
 
         // TODO: move whole block to triggers repository
         // process triggers (root elements)
-        $this->triggersRepository->removeAllByScenarioID($scenarioID);
         foreach ($data['triggers'] as $trigger) {
             if ($trigger->type !== TriggersRepository::TRIGGER_TYPE_EVENT) {
                 $this->connection->rollback();
