@@ -43,7 +43,7 @@ class ScenariosRepository extends Repository
 
     /**
      * @param array $data
-     * @return false|int - Returns false when scenarioID provided for update is not found
+     * @return false|ActiveRow - Returns false when scenarioID provided for update is not found
      * @throws ScenarioInvalidDataException - when unable to create / update scenario because of invalid data
      * @throws \Exception - when internal error occurs
      */
@@ -63,10 +63,6 @@ class ScenariosRepository extends Repository
         } else {
             $scenarioData['created_at'] = $scenarioData['modified_at'];
             $scenario = $this->insert($scenarioData);
-            if (!$scenario) {
-                // TODO: catch obvious errors from DB
-                throw new \Exception("Unable to save scenario.");
-            }
         }
         $scenarioID = $scenario->getPrimary();
 
@@ -167,7 +163,7 @@ class ScenariosRepository extends Repository
             $this->triggerElementsRepository->insert($triggerElementData);
         }
 
-        return $scenarioID;
+        return $this->find($scenarioID);
     }
 
 

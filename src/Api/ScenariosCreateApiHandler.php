@@ -69,7 +69,7 @@ class ScenariosCreateApiHandler extends ApiHandler
         $params = $paramsProcessor->getValues();
 
         try {
-            $scenarioID = $this->scenariosRepository->createOrUpdate($params);
+            $scenario = $this->scenariosRepository->createOrUpdate($params);
         } catch (ScenarioInvalidDataException $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S409_CONFLICT);
@@ -81,16 +81,16 @@ class ScenariosCreateApiHandler extends ApiHandler
             return $response;
         }
 
-        if (!$scenarioID) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Provided scenario ID [{$params['id']}] not found."]);
+        if (!$scenario) {
+            $response = new JsonResponse(['status' => 'error', 'message' => "Scenario with provided ID [{$params['id']}] not found."]);
             $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }
 
-        $result = $this->scenariosRepository->getScenario($scenarioID);
+        $result = $this->scenariosRepository->getScenario($scenario->id);
         if (!$result) {
             // any error at this moment means there is issue on our side
-            $message = "Unable to find created / updated scenario with ID [{$scenarioID}]";
+            $message = "Unable to load scenario with ID [{$scenario->id}]";
             Debugger::log($message, Debugger::EXCEPTION);
             $response = new JsonResponse(['status' => 'error', 'message' => $message]);
             $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
