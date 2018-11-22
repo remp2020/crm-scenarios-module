@@ -6,8 +6,6 @@ use Crm\ApiModule\Api\ApiRoutersContainerInterface;
 use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\CrmModule;
-use Crm\ApplicationModule\SeederManager;
-use Crm\ScenariosModule\Seeders\ScenariosSeeder;
 
 class ScenariosModule extends CrmModule
 {
@@ -23,10 +21,5 @@ class ScenariosModule extends CrmModule
             \Crm\ScenariosModule\Api\ScenariosCreateApiHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
-    }
-
-    public function registerSeeders(SeederManager $seederManager)
-    {
-        $seederManager->addSeeder($this->getInstance(ScenariosSeeder::class));
     }
 }

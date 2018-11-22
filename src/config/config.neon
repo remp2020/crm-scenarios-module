@@ -13,7 +13,5 @@ services:
 	- Crm\ScenariosModule\Repository\TriggersRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
-	- Crm\ScenariosModule\Seeders\ScenariosSeeder
-
 	# exceptions
 	- Crm\ScenariosModule\Repository\ScenarioInvalidDataException

@@ -163,14 +163,15 @@ class ScenariosRepository extends Repository
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }
-            $event = $this->eventsRepository->findBy('code', $trigger->event->code);
-            if (!$event) {
+
+            // TODO: add proper validation of event code after registration is implemented
+            if (!in_array($trigger->event->code, ['user_created', 'new_payment'])) {
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown event type [{$trigger->event->code}].");
             }
             $triggerData = [
                 'scenario_id' => $scenarioID,
-                'event_id' => $event->id,
+                'event_code' => $trigger->event->code,
                 'uuid' => $trigger->id,
                 'name' => $trigger->name,
             ];
@@ -230,7 +231,7 @@ class ScenariosRepository extends Repository
                 'name' => $scenarioTrigger->name,
                 'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                 'event' => [
-                    'code' => $scenarioTrigger->event->code
+                    'code' => $scenarioTrigger->event_code
                 ],
                 'elements' => [],
             ];
