@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Repository;
 
+use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Nette\Caching\IStorage;
 use Nette\Database\Connection;
@@ -22,6 +23,8 @@ class ScenariosRepository extends Repository
 
     private $eventsRepository;
 
+    private $eventsStorage;
+
     private $triggersRepository;
 
     private $triggerElementsRepository;
@@ -33,6 +36,7 @@ class ScenariosRepository extends Repository
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
         EventsRepository $eventsRepository,
+        EventsStorage $eventsStorage,
         TriggersRepository $triggersRepository,
         TriggerElementsRepository $triggerElementsRepository
     ) {
@@ -42,6 +46,7 @@ class ScenariosRepository extends Repository
         $this->elementsRepository = $elementsRepository;
         $this->elementElementsRepository = $elementElementsRepository;
         $this->eventsRepository = $eventsRepository;
+        $this->eventsStorage = $eventsStorage;
         $this->triggersRepository = $triggersRepository;
         $this->triggerElementsRepository = $triggerElementsRepository;
     }
@@ -163,12 +168,11 @@ class ScenariosRepository extends Repository
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }
-
-            // TODO: add proper validation of event code after registration is implemented
-            if (!in_array($trigger->event->code, ['user_created', 'new_payment'])) {
+            if (!$this->eventsStorage->isEventPublic($trigger->event->code)) {
                 $this->connection->rollback();
-                throw new ScenarioInvalidDataException("Unknown event type [{$trigger->event->code}].");
+                throw new ScenarioInvalidDataException("Unknown event code [{$trigger->event->code}].");
             }
+
             $triggerData = [
                 'scenario_id' => $scenarioID,
                 'event_code' => $trigger->event->code,
