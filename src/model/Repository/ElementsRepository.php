@@ -12,7 +12,7 @@ class ElementsRepository extends Repository
     const ELEMENT_TYPE_SEGMENT = 'segment';
     const ELEMENT_TYPE_WAIT = 'wait';
 
-    public function removeAllByScenario(int $scenarioID)
+    public function removeAllByScenarioID(int $scenarioID)
     {
         foreach ($this->getTable()->where(['scenario_id' => $scenarioID])->fetchAll() as $element) {
             $this->delete($element);

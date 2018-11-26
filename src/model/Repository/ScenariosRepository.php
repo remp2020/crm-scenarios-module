@@ -80,8 +80,8 @@ class ScenariosRepository extends Repository
         $scenarioID = $scenario->id;
 
         // remove old values
-        $this->elementsRepository->removeAllByScenario($scenarioID);
         $this->triggersRepository->removeAllByScenarioID($scenarioID);
+        $this->elementsRepository->removeAllByScenarioID($scenarioID);
 
         // TODO: move whole block to elements repository
         // add elements of scenario
