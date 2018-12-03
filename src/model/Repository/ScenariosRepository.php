@@ -98,16 +98,15 @@ class ScenariosRepository extends Repository
                 case ElementsRepository::ELEMENT_TYPE_ACTION:
                     // TODO: check type of action?
                     $elementData['action_code'] = $element->action->email->code;
-                    $elementPairs[$element->id]['positive'] = $element->action->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->action->descendants;
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $elementData['segment_code'] = $element->segment->code;
-                    $elementPairs[$element->id]['positive'] = $element->segment->descendants_positive;
-                    $elementPairs[$element->id]['negative'] = $element->segment->descendants_negative;
+                    $elementPairs[$element->id]['descendants'] = $element->segment->descendants;
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     $elementData['wait_time'] = $element->wait->minutes;
-                    $elementPairs[$element->id]['positive'] = $element->wait->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->wait->descendants;
                     break;
                 default:
                     $this->connection->rollback();
@@ -119,44 +118,27 @@ class ScenariosRepository extends Repository
 
         // TODO: move whole block to elementElements repository
         // process elements' descendants
-        foreach ($elementPairs as $parentUUID => $descendants) {
+        foreach ($elementPairs as $parentUUID => $element) {
             $parent = $this->elementsRepository->findBy('uuid', $parentUUID);
             if (!$parent) {
                 $this->connection->rollback();
                 throw new \Exception("Unable to find element with uuid [{$parentUUID}]");
             }
 
-            if (!isset($descendants['positive'])) {
-                continue;
-            }
-            foreach ($descendants['positive'] as $descendantUUID) {
-                $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
+            foreach ($element['descendants'] as $descendantDef) {
+                $descendant = $this->elementsRepository->findBy('uuid', $descendantDef->uuid);
                 if (!$descendant) {
                     $this->connection->rollback();
-                    throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
+                    throw new \Exception("Unable to find element with uuid [{$descendant->uuid}]");
                 }
-                $elementElementsData = [
-                    'parent_element_id' => $parent->id,
-                    'child_element_id' => $descendant->id,
-                    'positive' => 1,
-                ];
-                $this->elementElementsRepository->insert($elementElementsData);
-            }
 
-            if (!isset($descendants['negative'])) {
-                continue;
-            }
-            foreach ($descendants['negative'] as $descendantUUID) {
-                $descendant = $this->elementsRepository->findBy('uuid', $descendantUUID);
-                if (!$descendant) {
-                    $this->connection->rollback();
-                    throw new \Exception("Unable to find element with uuid [{$descendantUUID}]");
-                }
                 $elementElementsData = [
                     'parent_element_id' => $parent->id,
                     'child_element_id' => $descendant->id,
-                    'positive' => 0,
                 ];
+                if (isset($descendantDef->segment)) {
+                    $elementElementsData['positive'] = $descendantDef->segment->direction === 'positive' ? true : false;
+                }
                 $this->elementElementsRepository->insert($elementElementsData);
             }
         }
@@ -269,27 +251,20 @@ class ScenariosRepository extends Repository
                         'email' => [
                             'code' => $scenarioElement->action_code,
                         ],
+                        'descendants' => $descendants,
                     ];
-                    $element[ElementsRepository::ELEMENT_TYPE_ACTION]['descendants'] = array_merge(
-                        array_keys($descendants['descendants_positive']),
-                        array_keys($descendants['descendants_negative'])
-                    );
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $element[ElementsRepository::ELEMENT_TYPE_SEGMENT] = [
                         'code' => $scenarioElement->segment_code,
+                        'descendants' => $descendants,
                     ];
-                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT]['descendants_positive'] = $descendants['descendants_positive'];
-                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT]['descendants_negative'] = $descendants['descendants_negative'];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     $element[ElementsRepository::ELEMENT_TYPE_WAIT] = [
                         'minutes' => $scenarioElement->wait_time,
+                        'descendants' => $descendants,
                     ];
-                    $element[ElementsRepository::ELEMENT_TYPE_WAIT]['descendants'] = array_merge(
-                        $descendants['descendants_positive'],
-                        $descendants['descendants_negative']
-                    );
                     break;
                 default:
                     throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - unknown element type [{$scenarioElement->type}].");
@@ -303,19 +278,20 @@ class ScenariosRepository extends Repository
 
     private function getElementDescendants(ActiveRow $element): array
     {
-        $descendantsPositive = [];
-        $descendantsNegative = [];
+        $descendants = [];
         foreach ($element->related('scenarios_element_elements.parent_element_id')->fetchAll() as $descendant) {
-            $uuid = $descendant->ref('scenarios_elements', 'child_element_id')->uuid;
-            if ($descendant->positive == 1 || $descendant->positive === true) {
-                $descendantsPositive[] = $uuid;
-            } else {
-                $descendantsNegative[] = $uuid;
+            $d = [
+                'uuid' => $descendant->ref('scenarios_elements', 'child_element_id')->uuid,
+            ];
+            switch ($element->type) {
+                case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+                    $d[ElementsRepository::ELEMENT_TYPE_SEGMENT] = [
+                        'direction' => ($descendant->positive == 1 || $descendant->positive === true) ? 'positive' : 'negative',
+                    ];
+                    break;
             }
+            $descendants[] = $d;
         }
-        return [
-            'descendants_positive' => $descendantsPositive,
-            'descendants_negative' => $descendantsNegative,
-        ];
+        return $descendants;
     }
 }
