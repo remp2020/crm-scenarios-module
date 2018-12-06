@@ -11,6 +11,8 @@ use Crm\ScenariosModule\Repository\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;
 use Nette\Http\Response;
+use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 use Tracy\Debugger;
 
 class ScenariosCreateApiHandler extends ApiHandler
@@ -47,16 +49,29 @@ class ScenariosCreateApiHandler extends ApiHandler
             return $response;
         }
 
-        // TODO: process application/json raw body properly
-        // TODO: throw error when content type is different?
-        if ($this->request->getHeader('Content-Type') === 'application/json') {
-            $body = json_decode($this->request->getRawBody());
-            $_POST['id'] = $body->id ?? null;
-            $_POST['name'] = $body->name ?? null;
-            $_POST['triggers'] = $body->triggers ?? null;
-            $_POST['elements'] = $body->elements ?? null;
-            $_POST['visual'] = $body->visual ?? null;
+        $contentType = $this->request->getHeader('Content-Type');
+
+        // check if Content Type header contains `application/json`
+        $contentTypes = explode(';', $contentType);
+        if (!in_array('application/json', array_map('trim', $contentTypes))) {
+            $response = new JsonResponse(['status' => 'error', 'message' => "Incorrect Content-Type [{$contentType}]. Expected 'application/json'."]);
+            $response->setHttpCode(Response::S400_BAD_REQUEST);
+            return $response;
         }
+
+        try {
+            $body = Json::decode($this->request->getRawBody());
+        } catch (JsonException $e) {
+            $response = new JsonResponse(['status' => 'error', 'message' => "Malformed JSON: " . $e->getMessage()]);
+            $response->setHttpCode(Response::S400_BAD_REQUEST);
+            return $response;
+        }
+
+        $_POST['id'] = $body->id ?? null;
+        $_POST['name'] = $body->name ?? null;
+        $_POST['triggers'] = $body->triggers ?? null;
+        $_POST['elements'] = $body->elements ?? null;
+        $_POST['visual'] = $body->visual ?? null;
 
         $paramsProcessor = new ParamsProcessor($this->params());
         $error = $paramsProcessor->isError();
