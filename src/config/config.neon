@@ -5,6 +5,7 @@ services:
 
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
+	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
 
 	- Crm\ScenariosModule\Repository\ElementsRepository
 	- Crm\ScenariosModule\Repository\ElementElementsRepository

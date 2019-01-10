@@ -18,4 +18,12 @@ class ElementsRepository extends Repository
             $this->delete($element);
         }
     }
+
+    public function findByScenarioIDAndElementUUID(int $scenarioID, string $elementUUID)
+    {
+        return $this->getTable()->where([
+            'scenario_id' => $scenarioID,
+            'uuid' => $elementUUID,
+        ])->fetch();
+    }
 }
