@@ -185,12 +185,18 @@ class ScenariosRepository extends Repository
         return $scenario;
     }
 
+    public function getActiveScenarios()
+    {
+        return $this->getTable()->where('active', true);
+    }
 
     /**
      * Load whole scenario with all triggers and elements.
      *
      * @param int $scenarioID
+     *
      * @return array|false if scenario was not found
+     * @throws \Nette\Utils\JsonException
      */
     public function getScenario(int $scenarioID)
     {
