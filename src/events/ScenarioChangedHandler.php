@@ -29,6 +29,5 @@ class ScenarioChangedHandler extends AbstractListener
         foreach ($triggers as $trigger) {
             dd($trigger);
         }
-
     }
 }
