@@ -16,3 +16,4 @@ services:
 	- Crm\ScenariosModule\Repository\ScenariosRepository
 	- Crm\ScenariosModule\Repository\TriggersRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
+	- Crm\ScenariosModule\Repository\ScenariosJobs
