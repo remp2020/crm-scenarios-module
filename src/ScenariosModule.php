@@ -5,11 +5,16 @@ namespace Crm\ScenariosModule;
 use Crm\ApiModule\Api\ApiRoutersContainerInterface;
 use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
+use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ScenariosModule\Commands\TestCommand;
 use Crm\ScenariosModule\Events\ScenarioChangedEvent;
 use Crm\ScenariosModule\Events\ScenarioChangedHandler;
+use Crm\ScenariosModule\Events\UserCreatedHandler;
+use Crm\UsersModule\Events\UserCreatedEvent;
 use League\Event\Emitter;
+use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule
 {
@@ -32,16 +37,16 @@ class ScenariosModule extends CrmModule
         ));
     }
 
-    //public function registerEvents(EventsStorage $eventsStorage)
-    //{
-    //    $eventsStorage->register('scenario_changed', Events\ScenarioChangedEvent::class);
-    //}
-
     public function registerEventHandlers(Emitter $emitter)
     {
         $emitter->addListener(
             ScenarioChangedEvent::class,
             $this->getInstance(ScenarioChangedHandler::class)
         );
+    }
+
+    public function registerHermesHandlers(Dispatcher $dispatcher)
+    {
+        $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
     }
 }

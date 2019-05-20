@@ -14,7 +14,7 @@ class ScenarioChangedEvent extends AbstractEvent
         $this->scenario = $scenario;
     }
 
-    public function getScenario()
+    public function getScenario(): ActiveRow
     {
         return $this->scenario;
     }
