@@ -7,13 +7,14 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
 
-	- Crm\ScenariosModule\Events\ScenarioChangedHandler
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 
+	- Crm\ScenariosModule\Engine\ScenarioStarter
+
+	- Crm\ScenariosModule\Repository\JobsRepository
 	- Crm\ScenariosModule\Repository\ElementsRepository
 	- Crm\ScenariosModule\Repository\ElementElementsRepository
 	- Crm\ScenariosModule\Repository\EventsRepository
 	- Crm\ScenariosModule\Repository\ScenariosRepository
 	- Crm\ScenariosModule\Repository\TriggersRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
-	- Crm\ScenariosModule\Repository\ScenariosJobs

@@ -64,6 +64,7 @@ class ScenariosRepository extends Repository
         $scenarioData['name'] = $data['name'];
         $scenarioData['visual'] = Json::encode($data['visual']);
         $scenarioData['modified_at'] = new DateTime();
+        $scenarioData['enabled'] = $data['enabled'] ?? false;
 
         // save or update scenario details
         if (isset($data['id'])) {
@@ -185,9 +186,9 @@ class ScenariosRepository extends Repository
         return $scenario;
     }
 
-    public function getActiveScenarios()
+    public function getEnabledScenarios()
     {
-        return $this->getTable()->where('active', true);
+        return $this->getTable()->where('enabled', true);
     }
 
     /**
