@@ -14,8 +14,7 @@ class ScenarioStarter
     public function __construct(
         JobsRepository $jobsRepository,
         ScenariosRepository $scenariosRepository
-    )
-    {
+    ) {
         $this->jobsRepository = $jobsRepository;
         $this->scenariosRepository = $scenariosRepository;
     }
