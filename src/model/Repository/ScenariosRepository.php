@@ -95,18 +95,26 @@ class ScenariosRepository extends Repository
                 'type' => $element->type,
             ];
 
+            $elementOptions = null;
+
             switch ($element->type) {
-                case ElementsRepository::ELEMENT_TYPE_ACTION:
-                    // TODO: check type of action?
-                    $elementData['action_code'] = $element->action->email->code;
-                    $elementPairs[$element->id]['descendants'] = $element->action->descendants;
+                case ElementsRepository::ELEMENT_TYPE_EMAIL:
+                    $elementOptions = [
+                        'code' => $element->email->code
+                    ];
+                    $elementPairs[$element->id]['descendants'] = $element->email->descendants;
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    $elementData['segment_code'] = $element->segment->code;
+                    $elementOptions = [
+                        'code' => $element->segment->code
+                    ];
                     $elementPairs[$element->id]['descendants'] = $element->segment->descendants;
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
-                    $elementData['wait_time'] = $element->wait->minutes;
+                    $elementOptions['minutes'] = $element->wait->minutes;
+                    $elementOptions = [
+                        'minutes' => $element->wait->minutes
+                    ];
                     $elementPairs[$element->id]['descendants'] = $element->wait->descendants;
                     break;
                 default:
@@ -114,6 +122,8 @@ class ScenariosRepository extends Repository
                     throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
             }
 
+
+            $elementData['options'] = Json::encode($elementOptions);
             $this->elementsRepository->insert($elementData);
         }
 
@@ -252,26 +262,33 @@ class ScenariosRepository extends Repository
             ];
 
             $descendants = $this->getElementDescendants($scenarioElement);
+            $options = Json::decode($scenarioElement->options);
 
             switch ($scenarioElement->type) {
-                case ElementsRepository::ELEMENT_TYPE_ACTION:
-                    $element[ElementsRepository::ELEMENT_TYPE_ACTION] = [
-                        'type' => 'email',
-                        'email' => [
-                            'code' => $scenarioElement->action_code,
-                        ],
+                case ElementsRepository::ELEMENT_TYPE_EMAIL:
+                    if (!isset($options->code)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'code' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'code' => $options->code,
                         'descendants' => $descendants,
                     ];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    $element[ElementsRepository::ELEMENT_TYPE_SEGMENT] = [
-                        'code' => $scenarioElement->segment_code,
+                    if (!isset($options->code)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'code' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'code' => $options->code,
                         'descendants' => $descendants,
                     ];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
-                    $element[ElementsRepository::ELEMENT_TYPE_WAIT] = [
-                        'minutes' => $scenarioElement->wait_time,
+                    if (!isset($options->minutes)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'minutes' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'minutes' => $options->minutes,
                         'descendants' => $descendants,
                     ];
                     break;
