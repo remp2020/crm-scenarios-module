@@ -9,7 +9,9 @@ services:
 
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 
-	- Crm\ScenariosModule\Engine\ScenarioStarter
+	- Crm\ScenariosModule\Engine\TriggersDispatcher
+	- Crm\ScenariosModule\Engine\Engine
+	- Crm\ScenariosModule\Engine\GraphConfiguration
 
 	- Crm\ScenariosModule\Repository\JobsRepository
 	- Crm\ScenariosModule\Repository\ElementsRepository

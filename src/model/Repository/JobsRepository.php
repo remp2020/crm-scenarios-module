@@ -7,12 +7,14 @@ use Nette\Caching\IStorage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\IRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
 class JobsRepository extends Repository
 {
     public const STATE_CREATED = 'created';
+    public const STATE_SCHEDULED = 'scheduled';
     public const STATE_STARTED = 'started';
     public const STATE_FINISHED = 'finished';
     public const STATE_FAILED = 'failed';
@@ -30,17 +32,32 @@ class JobsRepository extends Repository
         $this->connection = $connection;
     }
 
-    public function addTrigger(ActiveRow $trigger, $parameters)
+    public function addTrigger($triggerId, array $parameters)
     {
-        $id = $this->insert([
-            'scenario_id' => $trigger->scenario_id,
-            'trigger_id' => $trigger->id,
+        return $this->insert([
+            'trigger_id' => $triggerId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
         ]);
-        return $this->find($id);
+    }
+
+    public function addElement($elementId, array $parameters)
+    {
+        return $this->insert([
+            'element_id' => $elementId,
+            'parameters' => Json::encode($parameters),
+            'state' => self::STATE_CREATED,
+            'created_at' => new DateTime(),
+            'updated_at' => new DateTime(),
+        ]);
+    }
+
+    public function update(IRow &$row, $data)
+    {
+        $data['updated_at'] = new DateTime();
+        return parent::update($row, $data);
     }
 
     public function getUnprocessedJobs()

@@ -3,17 +3,18 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ScenariosModule\Engine\ScenarioStarter;
+use Crm\ScenariosModule\Engine\TriggersDispatcher;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
 class UserCreatedHandler implements HandlerInterface
 {
-    private $scenarioStarter;
+    private $triggersDispatcher;
 
-    public function __construct(ScenarioStarter $scenarioStarter)
+    public function __construct(TriggersDispatcher $triggersDispatcher)
     {
-        $this->scenarioStarter = $scenarioStarter;
+        $this->triggersDispatcher = $triggersDispatcher;
     }
 
     public function handle(MessageInterface $message): bool
@@ -23,7 +24,7 @@ class UserCreatedHandler implements HandlerInterface
             throw new \Exception('unable to handle event: user_id missing');
         }
 
-        $this->scenarioStarter->start('user_created', $payload['user_id']);
+        $this->triggersDispatcher->dispatch('user_created', $payload['user_id']);
         return true;
     }
 }
