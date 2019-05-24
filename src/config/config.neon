@@ -9,6 +9,8 @@ services:
 
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
+	- Crm\ScenariosModule\Events\FinishWaitEventHandler
+	- Crm\ScenariosModule\Events\SendEmailEventHandler
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 	- Crm\ScenariosModule\Engine\Engine

@@ -76,6 +76,14 @@ class Engine
         }
     }
 
+    private function processFailedJob(ActiveRow $job)
+    {
+        $this->log(LogLevel::WARNING, 'Failed job found', $this->jobLoggerContext($job));
+
+
+
+    }
+
     private function processFinishedJob(ActiveRow $job)
     {
         $this->log(LogLevel::INFO, 'Processing finished job', $this->jobLoggerContext($job));

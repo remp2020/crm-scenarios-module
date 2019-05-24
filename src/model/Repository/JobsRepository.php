@@ -92,4 +92,9 @@ class JobsRepository extends Repository
     {
         return $this->getTable()->where(['state' => self::STATE_FINISHED]);
     }
+
+    public function getFailedJobs()
+    {
+        return $this->getTable()->where(['state' => self::STATE_FAILED]);
+    }
 }
