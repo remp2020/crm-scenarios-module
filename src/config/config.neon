@@ -7,10 +7,10 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
 
-	- Crm\ScenariosModule\Events\UserCreatedHandler
-	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
+	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
+	- Crm\ScenariosModule\Events\UserCreatedHandler
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 	- Crm\ScenariosModule\Engine\Engine

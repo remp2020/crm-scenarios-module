@@ -8,7 +8,6 @@ use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Nette\Application\BadRequestException;
 use Nette\Http\Response;
 
 class ScenariosInfoApiHandler extends ApiHandler
