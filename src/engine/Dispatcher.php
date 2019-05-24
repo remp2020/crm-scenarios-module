@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Engine;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 
-class TriggersDispatcher
+class Dispatcher
 {
     private $jobsRepository;
 
