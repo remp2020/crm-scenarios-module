@@ -106,7 +106,7 @@ class Engine
                 }
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:{
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id), (int) $options['minutes']);
+                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id));
                     break;
                 }
                 case ElementsRepository::ELEMENT_TYPE_WAIT:{
