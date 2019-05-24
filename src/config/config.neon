@@ -8,6 +8,7 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
 
 	- Crm\ScenariosModule\Events\UserCreatedHandler
+	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
 
 	- Crm\ScenariosModule\Engine\TriggersDispatcher
 	- Crm\ScenariosModule\Engine\Engine
