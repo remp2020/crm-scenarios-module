@@ -76,16 +76,36 @@ class Engine
         }
     }
 
+    private function processFinishedJob(ActiveRow $job)
+    {
+        $this->log(LogLevel::INFO, 'Processing finished job', $this->jobLoggerContext($job));
+
+        try {
+            if ($job->trigger_id) {
+                $this->scheduleNextAfterTrigger($job);
+            } elseif ($job->element_id) {
+                $this->scheduleNextAfterElement($job);
+            } else {
+                $this->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
+            }
+        } catch (InvalidJobException $exception) {
+            $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
+        } finally {
+            $job->delete();
+        }
+    }
+
     private function processCreatedJob(ActiveRow $job)
     {
-        // Triggers can be directly executed
+        $this->log(LogLevel::INFO, 'Processing newly created job', $this->jobLoggerContext($job));
+
         if ($job->trigger_id) {
+            // Triggers can be directly finished
             $this->jobsRepository->update($job, [
                 'started_at' => new DateTime(),
                 'finished_at' => new DateTime(),
                 'state' => JobsRepository::STATE_FINISHED
             ]);
-            $this->scheduleNextAfterTrigger($job);
         } elseif ($job->element_id) {
             $this->processJobElement($job);
         } else {
@@ -132,14 +152,31 @@ class Engine
 
     private function scheduleNextAfterTrigger(ActiveRow $job)
     {
-        foreach ($this->graphConfiguration->triggerElements($job->trigger_id) as $elementId) {
+        foreach ($this->graphConfiguration->triggerDescendants($job->trigger_id) as $elementId) {
             $this->jobsRepository->addElement($elementId, Json::decode($job->parameters));
         }
     }
 
     private function scheduleNextAfterElement(ActiveRow $job)
     {
-        // TODO
+        $element = $this->elementsRepository->find($job->element_id);
+        if (!$element) {
+            throw new InvalidJobException("no element found with id {$job->element_id}");
+        }
+
+        $direction = GraphConfiguration::POSITIVE_PATH_DIRECTION;
+        if ($element->type === ElementsRepository::ELEMENT_TYPE_SEGMENT) {
+            $results = Json::decode($job->results);
+            if (!isset($results->in)) {
+                throw new InvalidJobException("job results do not contain required parameter 'in'");
+            }
+
+            $direction = ((bool) $results->in) ? GraphConfiguration::POSITIVE_PATH_DIRECTION : GraphConfiguration::NEGATIVE_PATH_DIRECTION;
+        }
+
+        foreach ($this->graphConfiguration->elementDescendants($job->element_id, $direction) as $elementId) {
+            $this->jobsRepository->addElement($elementId, Json::decode($job->parameters));
+        }
     }
 
     private function log($level, string $message, array $context = [])
@@ -175,10 +212,5 @@ class Engine
             'finished_at' => $job->finished_at,
             'updated_at' => $job->updated_at,
         ];
-    }
-
-    private function deleteFinishedJobs()
-    {
-        // TODO
     }
 }

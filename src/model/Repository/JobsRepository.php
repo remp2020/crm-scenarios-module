@@ -87,4 +87,9 @@ class JobsRepository extends Repository
     {
         return $this->getTable()->where(['state' => self::STATE_CREATED]);
     }
+
+    public function getFinishedJobs()
+    {
+        return $this->getTable()->where(['state' => self::STATE_FINISHED]);
+    }
 }

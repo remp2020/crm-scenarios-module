@@ -7,6 +7,9 @@ use Crm\ScenariosModule\Repository\TriggerElementsRepository;
 
 class GraphConfiguration
 {
+    public const POSITIVE_PATH_DIRECTION = 'positive';
+    public const NEGATIVE_PATH_DIRECTION = 'negative';
+
     private $lastLoadTime = null;
 
     private $elementElementsRepository;
@@ -34,20 +37,39 @@ class GraphConfiguration
 
     public function reload()
     {
+        $this->lastLoadTime = time();
+
         $this->triggerElements = [];
         $this->elementElements = [];
 
-        foreach ($this->triggerElementsRepository->getTable()->fetchAll() as $triggerElements) {
-            $triggerElements[$triggerElements->trigger_id] = $triggerElements->element_id;
+        foreach ($this->triggerElementsRepository->getTable()->fetchAll() as $te) {
+            $this->triggerElements[$te->trigger_id] = $te->element_id;
         }
 
-        $this->lastLoadTime = time();
+        foreach ($this->elementElementsRepository->getTable()->fetchAll() as $ee) {
+            if (!array_key_exists($ee->parent_element_id, $this->elementElements)) {
+                $this->elementElements[$ee->parent_element_id] = [
+                    self::POSITIVE_PATH_DIRECTION => [],
+                    self::NEGATIVE_PATH_DIRECTION => [],
+                ];
+            }
+            $direction = $ee->positive ? self::POSITIVE_PATH_DIRECTION : self::NEGATIVE_PATH_DIRECTION;
+            $this->elementElements[$ee->parent_element_id][$direction][] = $ee->child_element_id;
+        }
     }
 
-    public function triggerElements($triggerId): array
+    public function triggerDescendants($triggerId): array
     {
         if (array_key_exists($triggerId, $this->triggerElements)) {
-            return $triggerId->triggerElements[$triggerId];
+            return $this->triggerElements[$triggerId];
+        }
+        return [];
+    }
+
+    public function elementDescendants($elementId, string $direction = self::POSITIVE_PATH_DIRECTION): array
+    {
+        if (array_key_exists($elementId, $this->elementElements)) {
+            return $this->elementElements[$elementId][$direction];
         }
         return [];
     }
