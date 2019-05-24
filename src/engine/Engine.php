@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Engine;
 
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
+use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Exception;
@@ -50,7 +51,7 @@ class Engine
     {
         try {
             while (true) {
-                // TODO reload configuration
+                $this->graphConfiguration->reloadIfOutdated();
 
                 foreach ($this->jobsRepository->getUnprocessedJobs()->fetchAll() as $job) {
                     $this->processCreatedJob($job);
@@ -101,7 +102,8 @@ class Engine
         try {
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:{
-
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
                     break;
                 }
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:{

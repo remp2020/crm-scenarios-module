@@ -63,15 +63,23 @@ class JobsRepository extends Repository
     public function startJob(IRow &$row)
     {
         $this->update($row, [
-            'state' => JobsRepository::STATE_STARTED,
+            'state' => self::STATE_STARTED,
             'started_at' => new DateTime(),
+        ]);
+    }
+
+    public function finishJob(IRow &$row)
+    {
+        $this->update($row, [
+            'state' => self::STATE_FINISHED,
+            'finished_at' => new DateTime(),
         ]);
     }
 
     public function scheduleJob(IRow &$row)
     {
         $this->update($row, [
-            'state' => JobsRepository::STATE_SCHEDULED,
+            'state' => self::STATE_SCHEDULED,
         ]);
     }
 
