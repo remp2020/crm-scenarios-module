@@ -37,6 +37,10 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $this->jobError($job, "missing 'user_id' in parameters");
             return true;
         }
+        if (!isset($parameters->password)) {
+            $this->jobError($job, "missing 'password' in parameters");
+            return true;
+        }
 
         $user = $this->usersRepository->find($parameters->user_id);
         if (!$user) {
@@ -60,14 +64,14 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
         $templateCode = $options->code;
 
-        // TODO: we need to perform an action depending for specific email types (e.g. password reset)
-        $emailParams = [];
-
+        // TODO decide whether we want to always send password in template params
         $this->mailer->send(
             $user->email,
             $templateCode,
-            $emailParams, // TODO
-            $emailPayload // TODO
+            [
+                'email' => $user->email,
+                'password' => $parameters->password, // TODO decrypt password here
+            ]
         );
 
         $this->jobsRepository->finishJob($job);

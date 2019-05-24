@@ -19,14 +19,12 @@ class Dispatcher
         $this->scenariosRepository = $scenariosRepository;
     }
 
-    public function dispatch(string $triggerCode, $userId)
+    public function dispatch(string $triggerCode, array $userId, array $params = [])
     {
         foreach ($this->scenariosRepository->getEnabledScenarios() as $scenario) {
             foreach ($scenario->related('scenarios_triggers')->fetchAll() as $scenarioTrigger) {
                 if ($scenarioTrigger->event_code === $triggerCode) {
-                    $this->jobsRepository->addTrigger($scenarioTrigger->id, [
-                        'user_id' => $userId
-                    ]);
+                    $this->jobsRepository->addTrigger($scenarioTrigger->id, array_merge(['user_id' => $userId], $params));
                 }
             }
         }

@@ -21,8 +21,13 @@ class UserCreatedHandler implements HandlerInterface
         if (!isset($payload['user_id'])) {
             throw new \Exception('unable to handle event: user_id missing');
         }
+        if (!isset($payload['password'])) {
+            throw new \Exception('unable to handle event: password missing');
+        }
 
-        $this->dispatcher->dispatch('user_created', $payload['user_id']);
+        $this->dispatcher->dispatch('user_created', $payload['user_id'], [
+            'password' => $payload['password']
+        ]);
         return true;
     }
 }

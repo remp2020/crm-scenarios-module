@@ -97,7 +97,7 @@ class Engine
     private function processJobElement(ActiveRow $job)
     {
         $element = $this->elementsRepository->find($job->element_id);
-        $options = Json::decode($element->options);
+        $options = Json::decode($element->options, Json::FORCE_ARRAY);
 
         try {
             switch ($element->type) {
@@ -151,12 +151,25 @@ class Engine
 
     private function jobLoggerContext(ActiveRow $job): array
     {
+        $params = Json::decode($job->parameters, Json::FORCE_ARRAY);
+        $redactedParams = [];
+        // Do not log passwords in cleartext
+        if ($params) {
+            foreach ($params as $name => $value) {
+                if ($name == 'pass' || $name == 'password') {
+                    $redactedParams[$name] = 'REDACTED';
+                } else {
+                    $redactedParams[$name] = $value;
+                }
+            }
+        }
+
         return [
             'scenario_id' => $job->scenario_id,
             'trigger_id' => $job->trigger_id,
             'element_id' => $job->element_id,
             'state' => $job->state,
-            'parameters' => $job->parameters,
+            'parameters' => Json::encode($redactedParams),
             'result' => $job->result,
             'started_at' => $job->started_at,
             'finished_at' => $job->finished_at,
