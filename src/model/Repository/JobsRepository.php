@@ -60,6 +60,21 @@ class JobsRepository extends Repository
         return parent::update($row, $data);
     }
 
+    public function startJob(IRow &$row)
+    {
+        $this->update($row, [
+            'state' => JobsRepository::STATE_STARTED,
+            'started_at' => new DateTime(),
+        ]);
+    }
+
+    public function scheduleJob(IRow &$row)
+    {
+        $this->update($row, [
+            'state' => JobsRepository::STATE_SCHEDULED,
+        ]);
+    }
+
     public function getUnprocessedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_CREATED]);

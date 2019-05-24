@@ -32,6 +32,11 @@ abstract class ScenariosJobsHandler implements HandlerInterface
         return $job;
     }
 
+    protected function getJobParameters(ActiveRow $job)
+    {
+        return Json::decode($job->parameters);
+    }
+
     protected function jobError(ActiveRow $job, string $message)
     {
         $this->jobsRepository->update($job, [

@@ -20,8 +20,7 @@ class GraphConfiguration
     public function __construct(
         ElementElementsRepository $elementElementsRepository,
         TriggerElementsRepository $triggerElementsRepository
-    )
-    {
+    ) {
         $this->elementElementsRepository = $elementElementsRepository;
         $this->triggerElementsRepository = $triggerElementsRepository;
     }

@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Engine;
 
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
+use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Exception;
@@ -36,8 +37,7 @@ class Engine
         GraphConfiguration $graphConfiguration,
         ElementsRepository $elementsRepository,
         LoggerInterface $logger = null
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->startTime = new DateTime();
         $this->jobsRepository = $jobsRepository;
@@ -85,7 +85,7 @@ class Engine
                 'state' => JobsRepository::STATE_FINISHED
             ]);
             $this->scheduleNextAfterTrigger($job);
-        } else if ($job->element_id) {
+        } elseif ($job->element_id) {
             $this->processJobElement($job);
         } else {
             $this->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
@@ -96,7 +96,7 @@ class Engine
     private function processJobElement(ActiveRow $job)
     {
         $element = $this->elementsRepository->find($job->element_id);
-        $options = Json::decode($element->options) ?? [];
+        $options = Json::decode($element->options);
 
         try {
             switch ($element->type) {
@@ -105,17 +105,16 @@ class Engine
                     break;
                 }
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:{
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id), (int) $options['minutes']);
                     break;
                 }
                 case ElementsRepository::ELEMENT_TYPE_WAIT:{
-                    if (!isset($options['minutes'])){
+                    if (!isset($options['minutes'])) {
                         throw new InvalidJobException("Associated job element has no 'minutes' option");
                     }
-                    $this->jobsRepository->update($job, [
-                        'state' => JobsRepository::STATE_STARTED,
-                        'started_at' => new DateTime(),
-                    ]);
-                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id), (int) $options['minutes']);
+                    $this->jobsRepository->startJob($job);
+                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']));
                     break;
                 }
                 default:{
