@@ -13,6 +13,7 @@ class ScenariosJobs extends AbstractMigration
             ->addColumn('state', 'string', ['null' => false])
             ->addColumn('parameters', 'json', ['null' => true])
             ->addColumn('result', 'json', ['null' => true])
+            ->addColumn('retry_count', 'integer', ['null' => false])
 
             ->addColumn('started_at', 'datetime', ['null' => true])
             ->addColumn('finished_at', 'datetime', ['null' => true])

@@ -18,6 +18,8 @@ use Tracy\Debugger;
 
 class Engine
 {
+    private const MAX_RETRY_COUNT = 3;
+
     private $sleepTime = 100;
 
     private $logger;
@@ -33,11 +35,11 @@ class Engine
     private $hermesEmitter;
 
     public function __construct(
+        LoggerInterface $logger,
         Emitter $hermesEmitter,
         JobsRepository $jobsRepository,
         GraphConfiguration $graphConfiguration,
-        ElementsRepository $elementsRepository,
-        LoggerInterface $logger = null
+        ElementsRepository $elementsRepository
     ) {
         $this->logger = $logger;
         $this->startTime = new DateTime();
@@ -78,7 +80,19 @@ class Engine
 
     private function processFailedJob(ActiveRow $job)
     {
-        $this->log(LogLevel::WARNING, 'Failed job found', $this->jobLoggerContext($job));
+        if ($job->retry_count >= self::MAX_RETRY_COUNT) {
+            $this->log(LogLevel::ERROR, "Failed job job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
+            $job->delete();
+        } else {
+            $this->log(LogLevel::WARNING, 'Failed job found, rescheduling', $this->jobLoggerContext($job));
+            $this->jobsRepository->update($job, [
+                'state' => JobsRepository::STATE_CREATED,
+                'started_at' => null,
+                'finished_at' => null,
+                'result' => null,
+                'retry_count' => $job->retry_count + 1,
+            ]);
+        }
     }
 
     private function processFinishedJob(ActiveRow $job)

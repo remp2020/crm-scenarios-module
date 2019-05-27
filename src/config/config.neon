@@ -3,6 +3,15 @@ services:
 		setup:
 			- addModule(Crm\ScenariosModule\ScenariosModule())
 
+	scenariosLogger:
+			class: Monolog\Logger('scenarios-logger')
+			setup:
+				- pushHandler(Monolog\Handler\StreamHandler("%appDir%/../log/scenarios.log"))
+				- pushHandler(Monolog\Handler\ErrorLogHandler())
+
+	scenariosEngine:
+			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
+
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
@@ -13,7 +22,6 @@ services:
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 
 	- Crm\ScenariosModule\Engine\Dispatcher
-	- Crm\ScenariosModule\Engine\Engine
 	- Crm\ScenariosModule\Engine\GraphConfiguration
 
 	- Crm\ScenariosModule\Repository\JobsRepository

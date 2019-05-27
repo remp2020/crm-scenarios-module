@@ -38,6 +38,7 @@ class JobsRepository extends Repository
             'trigger_id' => $triggerId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
+            'retry_count' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
         ]);
@@ -49,6 +50,7 @@ class JobsRepository extends Repository
             'element_id' => $elementId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
+            'retry_count' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
         ]);
