@@ -21,6 +21,8 @@ services:
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 
+	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
+
 	- Crm\ScenariosModule\Engine\Dispatcher
 	- Crm\ScenariosModule\Engine\GraphConfiguration
 

@@ -5,7 +5,9 @@ namespace Crm\ScenariosModule;
 use Crm\ApiModule\Api\ApiRoutersContainerInterface;
 use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
+use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
+use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Events\UserCreatedHandler;
 use Tomaj\Hermes\Dispatcher;
 
@@ -29,6 +31,12 @@ class ScenariosModule extends CrmModule
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
     }
+
+    public function registerCommands(CommandsContainerInterface $commandsContainer)
+    {
+        $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
+    }
+
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
     {

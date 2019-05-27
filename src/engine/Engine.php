@@ -51,6 +51,7 @@ class Engine
 
     public function run(bool $once = false)
     {
+        $this->log(LogLevel::INFO, 'Scenarios engine started');
         try {
             while (true) {
                 $this->graphConfiguration->reloadIfOutdated();
