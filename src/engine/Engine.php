@@ -225,6 +225,7 @@ class Engine
             'trigger_id' => $job->trigger_id,
             'element_id' => $job->element_id,
             'state' => $job->state,
+            'retry_count' => $job->retry_count,
             'parameters' => Json::encode($redactedParams),
             'result' => $job->result,
             'started_at' => $job->started_at,
