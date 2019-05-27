@@ -90,6 +90,16 @@ class JobsRepository extends Repository
         return $this->getTable()->where(['state' => self::STATE_CREATED]);
     }
 
+    public function getStartedJobs()
+    {
+        return $this->getTable()->where(['state' => self::STATE_STARTED]);
+    }
+
+    public function getScheduledJobs()
+    {
+        return $this->getTable()->where(['state' => self::STATE_SCHEDULED]);
+    }
+
     public function getFinishedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_FINISHED]);

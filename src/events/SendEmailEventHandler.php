@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\MailModule\Mailer\ApplicationMailer;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 
 class SendEmailEventHandler extends ScenariosJobsHandler

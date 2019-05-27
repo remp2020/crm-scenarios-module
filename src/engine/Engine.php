@@ -83,7 +83,7 @@ class Engine
     {
         if ($job->retry_count >= self::MAX_RETRY_COUNT) {
             $this->log(LogLevel::ERROR, "Failed job job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
-            $job->delete();
+            $this->jobsRepository->delete($job);
         } else {
             $this->log(LogLevel::WARNING, 'Failed job found, rescheduling', $this->jobLoggerContext($job));
             $this->jobsRepository->update($job, [
@@ -111,7 +111,7 @@ class Engine
         } catch (InvalidJobException $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
         } finally {
-            $job->delete();
+            $this->jobsRepository->delete($job);
         }
     }
 
@@ -130,7 +130,7 @@ class Engine
             $this->processJobElement($job);
         } else {
             $this->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
-            $job->delete();
+            $this->jobsRepository->delete($job);
         }
     }
 
@@ -166,14 +166,14 @@ class Engine
             }
         } catch (InvalidJobException $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
-            $job->delete();
+            $this->jobsRepository->delete($job);
         }
     }
 
     private function scheduleNextAfterTrigger(ActiveRow $job)
     {
         foreach ($this->graphConfiguration->triggerDescendants($job->trigger_id) as $elementId) {
-            $this->jobsRepository->addElement($elementId, Json::decode($job->parameters));
+            $this->jobsRepository->addElement($elementId, Json::decode($job->parameters, Json::FORCE_ARRAY));
         }
     }
 
@@ -195,7 +195,7 @@ class Engine
         }
 
         foreach ($this->graphConfiguration->elementDescendants($job->element_id, $direction) as $elementId) {
-            $this->jobsRepository->addElement($elementId, Json::decode($job->parameters));
+            $this->jobsRepository->addElement($elementId, Json::decode($job->parameters, Json::FORCE_ARRAY));
         }
     }
 
@@ -222,7 +222,6 @@ class Engine
         }
 
         return [
-            'scenario_id' => $job->scenario_id,
             'trigger_id' => $job->trigger_id,
             'element_id' => $job->element_id,
             'state' => $job->state,
