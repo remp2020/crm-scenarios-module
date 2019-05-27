@@ -19,7 +19,7 @@ class Dispatcher
         $this->scenariosRepository = $scenariosRepository;
     }
 
-    public function dispatch(string $triggerCode, array $userId, array $params = [])
+    public function dispatch(string $triggerCode, $userId, array $params = [])
     {
         foreach ($this->scenariosRepository->getEnabledScenarios() as $scenario) {
             foreach ($scenario->related('scenarios_triggers')->fetchAll() as $scenarioTrigger) {
