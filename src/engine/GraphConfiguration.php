@@ -43,7 +43,10 @@ class GraphConfiguration
         $this->elementElements = [];
 
         foreach ($this->triggerElementsRepository->getTable()->fetchAll() as $te) {
-            $this->triggerElements[$te->trigger_id] = $te->element_id;
+            if (!array_key_exists($te->trigger_id, $this->triggerElements)) {
+                $this->triggerElements[$te->trigger_id] = [];
+            }
+            $this->triggerElements[$te->trigger_id][] = $te->element_id;
         }
 
         foreach ($this->elementElementsRepository->getTable()->fetchAll() as $ee) {
