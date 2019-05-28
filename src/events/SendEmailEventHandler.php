@@ -65,13 +65,13 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
         $templateCode = $options->code;
 
-        // TODO decide whether we want to always send password in template params
+        // TODO decide whether we want to always send password to template params
         $this->mailer->send(
             $user->email,
             $templateCode,
             [
                 'email' => $user->email,
-                'password' => $parameters->password, // TODO decrypt password here
+                'password' => $parameters->password,
             ]
         );
 
