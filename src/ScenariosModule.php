@@ -8,9 +8,11 @@ use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
+use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
+use Crm\ScenariosModule\Events\TestUserHandler;
 use Crm\ScenariosModule\Events\UserCreatedHandler;
 use Tomaj\Hermes\Dispatcher;
 
@@ -38,12 +40,13 @@ class ScenariosModule extends CrmModule
     public function registerCommands(CommandsContainerInterface $commandsContainer)
     {
         $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(TestUserCommand::class));
     }
-
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
     {
         $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
+        $dispatcher->registerHandler(TestUserHandler::HERMES_MESSAGE_CODE, $this->getInstance(TestUserHandler::class));
 
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
         $dispatcher->registerHandler(FinishWaitEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(FinishWaitEventHandler::class));

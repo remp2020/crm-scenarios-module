@@ -20,8 +20,10 @@ services:
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\UserCreatedHandler
+	- Crm\ScenariosModule\Events\TestUserHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
+	- Crm\ScenariosModule\Commands\TestUserCommand
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 	- Crm\ScenariosModule\Engine\GraphConfiguration
