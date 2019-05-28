@@ -69,7 +69,11 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $password ? ['password' => $password] : []
         );
 
-        $this->mailer->send($user->email, $templateCode, $templateParams);
+        $result = $this->mailer->send($user->email, $templateCode, $templateParams);
+        if (!$result) {
+            $this->jobError($job, 'error while sending email');
+            return true;
+        }
 
         $this->jobsRepository->finishJob($job);
         return true;
