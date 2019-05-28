@@ -35,9 +35,6 @@ class FinishWaitEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($jobId, int $minutesDelay)
     {
         $executeAt = (float) (new DateTime("now + {$minutesDelay} minutes"))->getTimestamp();
-
-        return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $jobId
-        ], null, null, null, $executeAt);
+        return new HermesMessage(self::HERMES_MESSAGE_CODE, ['job_id' => $jobId], null, null, $executeAt);
     }
 }
