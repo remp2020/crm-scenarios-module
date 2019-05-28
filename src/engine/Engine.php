@@ -141,28 +141,24 @@ class Engine
 
         try {
             switch ($element->type) {
-                case ElementsRepository::ELEMENT_TYPE_EMAIL:{
+                case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
                     break;
-                }
-                case ElementsRepository::ELEMENT_TYPE_SEGMENT:{
+                case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id));
                     break;
-                }
-                case ElementsRepository::ELEMENT_TYPE_WAIT:{
+                case ElementsRepository::ELEMENT_TYPE_WAIT:
                     if (!isset($options['minutes'])) {
                         throw new InvalidJobException("Associated job element has no 'minutes' option");
                     }
                     $this->jobsRepository->startJob($job);
                     $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']));
                     break;
-                }
-                default:{
+                default:
                     throw new InvalidJobException('Associated job element has wrong type');
                     break;
-                }
             }
         } catch (InvalidJobException $exception) {
             $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
