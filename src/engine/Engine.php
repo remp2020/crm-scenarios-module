@@ -20,7 +20,7 @@ class Engine
 {
     public const MAX_RETRY_COUNT = 3;
 
-    private $sleepTime = 100;
+    private $sleepTime = 50;
 
     private $logger;
 
