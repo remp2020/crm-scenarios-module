@@ -41,7 +41,7 @@ abstract class ScenariosJobsHandler implements HandlerInterface
     {
         $this->jobsRepository->update($job, [
             'state' => JobsRepository::STATE_FAILED,
-            'results' => Json::encode([
+            'result' => Json::encode([
                 'error' => $message
             ])
         ]);

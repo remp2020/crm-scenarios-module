@@ -85,6 +85,11 @@ class JobsRepository extends Repository
         ]);
     }
 
+    public function getAllJobs()
+    {
+        return $this->getTable();
+    }
+
     public function getUnprocessedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_CREATED]);

@@ -18,7 +18,7 @@ use Tracy\Debugger;
 
 class Engine
 {
-    private const MAX_RETRY_COUNT = 3;
+    public const MAX_RETRY_COUNT = 3;
 
     private $sleepTime = 100;
 
