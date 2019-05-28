@@ -182,12 +182,12 @@ class Engine
 
         $direction = GraphConfiguration::POSITIVE_PATH_DIRECTION;
         if ($element->type === ElementsRepository::ELEMENT_TYPE_SEGMENT) {
-            $results = Json::decode($job->results);
-            if (!isset($results->in)) {
+            $result = Json::decode($job->result);
+            if (!isset($result->in)) {
                 throw new InvalidJobException("job results do not contain required parameter 'in'");
             }
 
-            $direction = ((bool) $results->in) ? GraphConfiguration::POSITIVE_PATH_DIRECTION : GraphConfiguration::NEGATIVE_PATH_DIRECTION;
+            $direction = ((bool) $result->in) ? GraphConfiguration::POSITIVE_PATH_DIRECTION : GraphConfiguration::NEGATIVE_PATH_DIRECTION;
         }
 
         foreach ($this->graphConfiguration->elementDescendants($job->element_id, $direction) as $elementId) {
