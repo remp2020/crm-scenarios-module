@@ -38,10 +38,6 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $this->jobError($job, "missing 'user_id' in parameters");
             return true;
         }
-        if (!isset($parameters->password)) {
-            $this->jobError($job, "missing 'password' in parameters");
-            return true;
-        }
 
         $user = $this->usersRepository->find($parameters->user_id);
         if (!$user) {
@@ -65,15 +61,15 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
         $templateCode = $options->code;
 
-        // TODO decide whether we want to always send password to template params
-        $this->mailer->send(
-            $user->email,
-            $templateCode,
-            [
-                'email' => $user->email,
-                'password' => $parameters->password,
-            ]
+        // TODO throw error for some email templates if password is missing (each template should specify required parameters?)
+        $password = $parameters->password ?? null;
+
+        $templateParams = array_merge(
+            ['email' => $user->email],
+            $password ? ['password' => $password] : []
         );
+
+        $this->mailer->send($user->email, $templateCode, $templateParams);
 
         $this->jobsRepository->finishJob($job);
         return true;
