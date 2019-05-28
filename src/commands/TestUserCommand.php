@@ -22,7 +22,7 @@ class TestUserCommand extends Command
     protected function configure()
     {
         $this->setName('scenarios:test_user')
-            ->setDescription("Fires 'test_user' event with user_id, starting all active scenarios having associated trigger")
+            ->setDescription("Fires 'test_user' scenario trigger with given user_id")
             ->addOption(
                 'user_id',
                 null,
