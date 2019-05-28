@@ -20,7 +20,7 @@ class Engine
 {
     public const MAX_RETRY_COUNT = 3;
 
-    private $sleepTime = 50;
+    private $sleepTime = 1000;
 
     private $logger;
 
@@ -72,7 +72,7 @@ class Engine
                     break;
                 }
 
-                sleep($this->sleepTime);
+                usleep($this->sleepTime);
             }
         } catch (Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
