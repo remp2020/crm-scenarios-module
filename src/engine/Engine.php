@@ -82,7 +82,7 @@ class Engine
     private function processFailedJob(ActiveRow $job)
     {
         if ($job->retry_count >= self::MAX_RETRY_COUNT) {
-            $this->log(LogLevel::ERROR, "Failed job job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
+            $this->log(LogLevel::ERROR, "Failed job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
             $this->jobsRepository->delete($job);
         } else {
             $this->log(LogLevel::WARNING, 'Failed job found, rescheduling', $this->jobLoggerContext($job));
