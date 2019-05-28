@@ -7,11 +7,13 @@ use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
+use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
+use Crm\ScenariosModule\Events\TestUserEvent;
 use Crm\ScenariosModule\Events\TestUserHandler;
 use Crm\ScenariosModule\Events\UserCreatedHandler;
 use Tomaj\Hermes\Dispatcher;
@@ -51,5 +53,10 @@ class ScenariosModule extends CrmModule
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
         $dispatcher->registerHandler(FinishWaitEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(FinishWaitEventHandler::class));
         $dispatcher->registerHandler(SegmentCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SegmentCheckEventHandler::class));
+    }
+
+    public function registerEvents(EventsStorage $eventsStorage)
+    {
+        $eventsStorage->register('test_user', TestUserEvent::class, true);
     }
 }
