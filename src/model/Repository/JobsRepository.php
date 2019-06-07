@@ -13,11 +13,11 @@ use Nette\Utils\Json;
 
 class JobsRepository extends Repository
 {
-    public const STATE_CREATED = 'created';
-    public const STATE_SCHEDULED = 'scheduled';
-    public const STATE_STARTED = 'started';
-    public const STATE_FINISHED = 'finished';
-    public const STATE_FAILED = 'failed';
+    const STATE_CREATED = 'created';
+    const STATE_SCHEDULED = 'scheduled';
+    const STATE_STARTED = 'started';
+    const STATE_FINISHED = 'finished';
+    const STATE_FAILED = 'failed';
 
     protected $tableName = 'scenarios_jobs';
 
