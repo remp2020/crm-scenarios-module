@@ -180,17 +180,19 @@ class Engine
             throw new InvalidJobException("no element found with id {$job->element_id}");
         }
 
-        $direction = GraphConfiguration::POSITIVE_PATH_DIRECTION;
-        if ($element->type === ElementsRepository::ELEMENT_TYPE_SEGMENT) {
-            $result = Json::decode($job->result);
-            if (!isset($result->in)) {
-                throw new InvalidJobException("job results do not contain required parameter 'in'");
-            }
-
-            $direction = ((bool) $result->in) ? GraphConfiguration::POSITIVE_PATH_DIRECTION : GraphConfiguration::NEGATIVE_PATH_DIRECTION;
+        switch ($element->type) {
+            case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+                $result = Json::decode($job->result);
+                if (!isset($result->in)) {
+                    throw new InvalidJobException("segment job results do not contain required parameter 'in'");
+                }
+                $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, (bool) $result->in);
+                break;
+            default:
+                $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id);
         }
 
-        foreach ($this->graphConfiguration->elementDescendants($job->element_id, $direction) as $elementId) {
+        foreach ($descendantIds as $elementId) {
             $this->jobsRepository->addElement($elementId, Json::decode($job->parameters, Json::FORCE_ARRAY));
         }
     }
