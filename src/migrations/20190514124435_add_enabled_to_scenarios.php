@@ -7,7 +7,7 @@ class AddEnabledToScenarios extends AbstractMigration
     public function change()
     {
         $this->table('scenarios')
-            ->addColumn('enabled', 'boolean', ['default' => false, 'null' => false])
+            ->addColumn('enabled', 'boolean', ['null' => false])
             ->save();
     }
 }
