@@ -51,7 +51,7 @@ class Engine
 
     public function run(bool $once = false)
     {
-        $this->log(LogLevel::INFO, 'Scenarios engine started');
+        $this->logger->log(LogLevel::INFO, 'Scenarios engine started');
         try {
             while (true) {
                 $this->graphConfiguration->reloadIfOutdated();
@@ -82,10 +82,10 @@ class Engine
     private function processFailedJob(ActiveRow $job)
     {
         if ($job->retry_count >= self::MAX_RETRY_COUNT) {
-            $this->log(LogLevel::ERROR, "Failed job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
+            $this->logger->log(LogLevel::ERROR, "Failed job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
             $this->jobsRepository->delete($job);
         } else {
-            $this->log(LogLevel::WARNING, 'Failed job found, rescheduling', $this->jobLoggerContext($job));
+            $this->logger->log(LogLevel::WARNING, 'Failed job found, rescheduling', $this->jobLoggerContext($job));
             $this->jobsRepository->update($job, [
                 'state' => JobsRepository::STATE_CREATED,
                 'started_at' => null,
@@ -98,7 +98,7 @@ class Engine
 
     private function processFinishedJob(ActiveRow $job)
     {
-        $this->log(LogLevel::INFO, 'Processing finished job', $this->jobLoggerContext($job));
+        $this->logger->log(LogLevel::INFO, 'Processing finished job', $this->jobLoggerContext($job));
 
         try {
             if ($job->trigger_id) {
@@ -106,10 +106,10 @@ class Engine
             } elseif ($job->element_id) {
                 $this->scheduleNextAfterElement($job);
             } else {
-                $this->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
+                $this->logger->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
             }
         } catch (InvalidJobException $exception) {
-            $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
+            $this->logger->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
         } finally {
             $this->jobsRepository->delete($job);
         }
@@ -117,7 +117,7 @@ class Engine
 
     private function processCreatedJob(ActiveRow $job)
     {
-        $this->log(LogLevel::INFO, 'Processing newly created job', $this->jobLoggerContext($job));
+        $this->logger->log(LogLevel::INFO, 'Processing newly created job', $this->jobLoggerContext($job));
 
         if ($job->trigger_id) {
             // Triggers can be directly finished
@@ -129,7 +129,7 @@ class Engine
         } elseif ($job->element_id) {
             $this->processJobElement($job);
         } else {
-            $this->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
+            $this->logger->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
             $this->jobsRepository->delete($job);
         }
     }
@@ -161,7 +161,7 @@ class Engine
                     break;
             }
         } catch (InvalidJobException $exception) {
-            $this->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
+            $this->logger->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
             $this->jobsRepository->delete($job);
         }
     }
@@ -192,13 +192,6 @@ class Engine
 
         foreach ($this->graphConfiguration->elementDescendants($job->element_id, $direction) as $elementId) {
             $this->jobsRepository->addElement($elementId, Json::decode($job->parameters, Json::FORCE_ARRAY));
-        }
-    }
-
-    private function log($level, string $message, array $context = [])
-    {
-        if ($this->logger) {
-            $this->logger->log($level, $message, $context);
         }
     }
 
