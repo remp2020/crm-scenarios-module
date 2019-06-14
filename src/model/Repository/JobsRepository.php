@@ -14,8 +14,8 @@ use Nette\Utils\Json;
 class JobsRepository extends Repository
 {
     const STATE_CREATED = 'created';
-    const STATE_SCHEDULED = 'scheduled';
-    const STATE_STARTED = 'started';
+    const STATE_SCHEDULED = 'scheduled'; // job is scheduled to run
+    const STATE_STARTED = 'started'; // job has already started and is running
     const STATE_FINISHED = 'finished';
     const STATE_FAILED = 'failed';
 
