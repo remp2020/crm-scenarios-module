@@ -56,7 +56,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->update($job, ['state' => JobsRepository::STATE_STARTED, 'started_at' => new DateTime()]);
+        $this->jobsRepository->startJob($job);
 
         try {
             $inSegment = $this->checkUserInSegment($parameters->user_id, $options->code);
