@@ -175,7 +175,6 @@ class ScenariosRepository extends Repository
             $newTrigger = $this->triggersRepository->insert($triggerData);
 
             // insert links from triggers
-            $triggerElementData = false;
             foreach ($trigger->elements as $triggerElementUUID) {
                 $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
                 if (!$triggerElement) {
@@ -186,8 +185,6 @@ class ScenariosRepository extends Repository
                     'trigger_id' => $newTrigger->id,
                     'element_id' => $triggerElement->id,
                 ];
-            }
-            if ($triggerElementData) {
                 $this->triggerElementsRepository->insert($triggerElementData);
             }
         }
