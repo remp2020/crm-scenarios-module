@@ -1,0 +1,22 @@
+{block #title}{_products.admin.products.edit.title}{/block}
+
+{block #content}
+
+<div class="row">
+  <div class="col-md-12">
+    <a n:href="Default"><i class="fa fa-angle-left"></i> {_products.admin.products.edit.back}</a>
+    <div class="page-header">
+      <h1>
+        {_products.admin.products.edit.title}
+        <small>[{$product->id}]</small>
+        {$product->name}
+      </h1>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    {control productsForm}
+  </div>
+</div>

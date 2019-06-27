@@ -1,0 +1,20 @@
+{block #title}{_products.admin.products.new.title}{/block}
+
+{block #content}
+
+<div class="row">
+  <div class="col-md-12">
+    <a n:href="Default"><i class="fa fa-angle-left"></i> {_products.admin.products.new.back}</a>
+    <div class="page-header">
+      <h1>
+        {_products.admin.products.new.title}
+      </h1>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    {control productsForm}
+  </div>
+</div>

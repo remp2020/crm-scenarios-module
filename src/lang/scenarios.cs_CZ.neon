@@ -1,0 +1,10 @@
+admin:
+	scenarios:
+		title: Scenáře
+		new: Nový scenář
+data:
+	fields:
+		name: Jméno
+		enabled: Povolen
+		created_at: Vytvořen
+		modified_at: Upraven

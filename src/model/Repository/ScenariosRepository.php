@@ -51,6 +51,11 @@ class ScenariosRepository extends Repository
         $this->triggerElementsRepository = $triggerElementsRepository;
     }
 
+    public function all()
+    {
+        return $this->getTable()->order('name ASC');
+    }
+
     /**
      * @param array $data
      * @return false|ActiveRow - Returns false when scenarioID provided for update is not found

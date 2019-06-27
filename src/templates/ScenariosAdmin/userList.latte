@@ -1,0 +1,78 @@
+{block #title}{$product->name} ({$fromLevel} < {$toLevel}){/block}
+
+{block #content}
+
+<div class="row">
+    <div class="col-md-12">
+        <a n:href="show $product->id"><i class="fa fa-angle-left"></i> {_sales_funnel.admin.sales_funnels.edit.back}</a>
+
+        <div class="page-header">
+            <h1>
+                {if $type === 'amountSpent'}
+                    {_products.admin.products.show.distribution.amountSpent}:
+                    {$fromLevel|price}{if $toLevel === null}+{else} < {$toLevel|price}{/if}
+                {/if}
+                {if $type === 'paymentCounts'}
+                    {_products.admin.products.show.distribution.paymentCounts}:
+                    {$fromLevel}{if $toLevel-1 > $fromLevel} - {$toLevel-1}{elseif $toLevel === null}+{/if}
+                {/if}
+                {if $type === 'shopCounts'}
+                    {_products.admin.products.show.distribution.shopCounts}:
+                    {$fromLevel}{if $toLevel-1 > $fromLevel} - {$toLevel-1}{elseif $toLevel === null}+{/if}
+                {/if}
+                {if $type === 'shopDays'}
+                    {_products.admin.products.show.distribution.shopDays}:
+                    {if intval($toLevel) === -1}{_products.admin.products.show.distribution.neverBoughtShop}
+                    {else}{$fromLevel} < {$toLevel}{/if}
+                {/if}
+                <small>
+                    <br/>({$product->name})
+                    / {_system.total} {count($users)}
+                </small>
+            </h1>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <table class="table table-striped table-hover table-bordered">
+      <thead>
+        <tr>
+            <th>#ID</th>
+            <th>Email</th>
+            <th>Zdroj</th>
+            <th>Stav</th>
+            <th>Vytvorený</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr n:foreach="$users as $user">
+            <td class="text-muted">{$user->id}</td>
+            <td>
+                <a n:href=":Users:UsersAdmin:show $user->id">
+            	  {$user->email}
+                </a>
+                <span n:if="$user->invoice" class="label label-info">Faktúra</span>
+                <span n:if="$user->is_institution" class="label label-danger">Inštitúcia</span>
+                <span n:if="$user->role === \Crm\UsersModule\Repository\UsersRepository::ROLE_ADMIN" class="label label-warning">admin</span>
+            </td>
+            <td class="text-muted">{$user->source}</td>
+            <td>
+                {$user->active|activelabel|noescape}
+            </td>
+            <td>
+              <span class="text-muted">
+                <small>
+                  <i n:if="$user->confirmed_at" class="text-success fa fa-check fa-fw"></i>
+                  <i n:if="!$user->confirmed_at" class="text-danger fa fa-times fa-fw"></i>
+                </small>
+                  {$user->created_at|userDate}
+                  <small n:if="$user->current_sign_in_ip">/ {$user->current_sign_in_ip}</small>
+              </span>
+            </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

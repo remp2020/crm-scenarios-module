@@ -1,0 +1,10 @@
+admin:
+	scenarios:
+		title: Scenarios
+		new: New scenario
+data:
+	fields:
+		name: Name
+		enabled: Enabled
+		created_at: Created at
+		modified_at: Modified at

@@ -1,0 +1,234 @@
+{block #title}{$product->name}{/block}
+
+{block #content}
+
+<div class="row">
+    <div class="col-md-12">
+        <a n:href="default"><i class="fa fa-angle-left"></i> {_products.admin.products.show.back}</a>
+
+        <div class="page-header">
+            <h1>
+                <small>[{$product->id}]</small>
+                {$product->name}
+                <a n:href="edit $product->id" class="btn btn-primary btn-lg pull-right"><i
+                            class="fa fa-edit"></i> {_products.admin.products.show.edit}</a>
+            </h1>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <ul class="list-group">
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.name}:</b> {$product->name}
+            </li>
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.code}:</b> <code>{$product->code}</code> <a href="{plink :Products:Shop:Show $product->id, $product->code}" class="btn btn-xs btn-default" target="_blank"><i class="fa fa-share"></i></a>
+            </li>
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.price}:</b> {$product->price|price}
+            </li>
+            <li class="list-group-item" n:ifset="$product->catalog_price">
+                <b>{_products.data.products.fields.catalog_price}:</b> {$product->catalog_price|price}
+            </li>
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.vat}:</b> {$product->vat}
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <ul class="list-group">
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.bundle}:</b> {$product->bundle|yesNo}
+            </li>
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.user_label}:</b> {nl2br($product->user_label)|noescape}
+            </li>
+            <li class="list-group-item">
+                <b>{_products.data.products.fields.created_at}:</b> {$product->created_at|userDate}
+            </li>
+        </ul>
+        <ul class="list-group">
+            <li class="list-group-item clearfix">
+                <b>{_products.admin.products.show.sold_count}:</b> {$soldCount}
+            </li>
+            <li class="list-group-item clearfix">
+                <b>{_products.data.products.fields.stock}:</b> {$product->stock}
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="row" n:if="$product->bundle">
+    <div class="col-md-12">
+        <h2 class="page-header">{_products.data.products.fields.bundle_items}</h2>
+        {var $pairs = $product->related('product_bundles', 'bundle_id')}
+        {if $pairs->count('*')}
+            <ul class="list-group">
+                <li n:foreach="$pairs as $pair" class="list-group-item">
+                    <a n:href="Show $pair->item_id">{$pair->item->name}</a>
+                    <code>{$pair->item->code}</code>
+                    <small class="text-muted">{$pair->item->price|price}</small>
+                </li>
+            </ul>
+        {else}
+            <p class="text-muted well text-center">{_products.admin.products.messages.no_bundle_items_message}</p>
+        {/if}
+    </div>
+</div>
+
+<div class="row" n:if="!$product->bundle">
+    <div class="col-md-12">
+        <h2 class="page-header">{_products.data.products.fields.bundles}</h2>
+        {var $pairs = $product->related('product_bundles', 'item_id')}
+        {if $pairs->count('*')}
+            <ul class="list-group">
+                <li n:foreach="$pairs as $pair" class="list-group-item">
+                    <a n:href="Show $pair->item_id">{$pair->item->name}</a>
+                    <code>{$pair->item->code}</code>
+                    <small class="text-muted">{$pair->item->price|price}</small>
+                </li>
+            </ul>
+        {else}
+            <p class="text-muted well text-center">{_products.admin.products.messages.no_bundles_message}</p>
+        {/if}
+    </div>
+</div>
+
+{if $product->shop}
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-header">{_products.menu.shop}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {control saleGraph}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.shop}:</b> {$product->shop|yesNo}
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.visible}:</b> {$product->visible|yesNo}
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.tags}:</b>
+                    <code n:foreach="$product->related('product_tags') as $pair">{$pair->tag->code}</code>
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.ean}:</b> {$product->ean}
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.image_url}:</b> <a href="{$product->image_url}">{$product->image_url}</a>
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.og_image_url}:</b> <a href="{$product->og_image_url}">{$product->og_image_url}</a>
+                </li>
+                <li class="list-group-item" n:if="!empty($product->images)">
+                    {var gallery = preg_split('/[\r\n\s]+/', $product->images, -1, PREG_SPLIT_NO_EMPTY)}
+                    <b>{_products.data.products.fields.images}:</b><br />
+                    <div n:foreach="$gallery as $image"><a href="{$image}">{$image}</a></div>
+                </li>
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.description}:</b> {$product->description|breaklines|noescape}
+                </li>
+            </ul>
+        </div>
+        <div n:if="$product->template_id" class="col-md-6">
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <b>{_products.data.products.fields.template_id}:</b> {$product->product_template->name}
+                </li>
+                <li n:foreach="$product->related('product_properties') as $property" class="list-group-item">
+                    <b>{$property->product_template_property->title}:</b> {$property->value}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-header">{_products.admin.products.show.distribution.label}</h2>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">{_products.admin.products.show.distribution.amountSpent}</div>
+                    <ul class="list-group">
+                        {var $lastKey = 0}
+                        <li n:foreach="$amountSpentDistribution as $key => $value" class="list-group-item">
+                            {var $nextLevel = isset($amountSpentDistributionLevels[$key+1]) ? $amountSpentDistributionLevels[$key+1] : null}
+                            <strong>
+                                {if $key === 0} {0|price}
+                                {elseif !isset($amountSpentDistributionLevels[$key+1])} +{$amountSpentDistributionLevels[$key]|price}
+                                {else} {$amountSpentDistributionLevels[$key]|price} < {$amountSpentDistributionLevels[$key+1]|price}
+                                {/if}
+                            </strong>
+                            <span class="pull-right"><a n:href="userList $product->id, 'amountSpent', $amountSpentDistributionLevels[$key], $nextLevel" target="_blank">{$value}</a></span>
+                            {var $lastKey = $key}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">{_products.admin.products.show.distribution.paymentCounts}</div>
+                    <ul class="list-group">
+                        {var $lastKey = 0}
+                        <li n:foreach="$paymentCountDistribution as $key => $value" class="list-group-item">
+                            {var $nextLevel = isset($paymentCountDistributionLevels[$key+1]) ? $paymentCountDistributionLevels[$key+1] : null}
+                            <strong>
+                                {if $key === 0} 0
+                                {elseif !isset($paymentCountDistributionLevels[$key+1])} {$paymentCountDistributionLevels[$key]}+
+                                {else} {$paymentCountDistributionLevels[$key]} - {$paymentCountDistributionLevels[$key+1]-1}
+                                {/if}
+                            </strong>
+                            <span class="pull-right"><a n:href="userList $product->id, 'paymentCounts', $paymentCountDistributionLevels[$key], $nextLevel" target="_blank">{$value}</a></span>
+                            {var $lastKey = $key}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">{_products.admin.products.show.distribution.shopCounts}</div>
+                    <ul class="list-group">
+                        {var $lastKey = 0}
+                        <li n:foreach="$shopCountsDistribution as $key => $value" class="list-group-item">
+                            {var $nextLevel = isset($shopCountsDistributionLevels[$key+1]) ? $shopCountsDistributionLevels[$key+1] : null}
+                            <strong>
+                                {if $key === 0} 0
+                                {elseif !isset($shopCountsDistributionLevels[$key+1])} {$shopCountsDistributionLevels[$key]}+
+                                {else} {$shopCountsDistributionLevels[$key]} - {$shopCountsDistributionLevels[$key+1]-1}
+                                {/if}
+                            </strong>
+                            <span class="pull-right"><a n:href="userList $product->id, 'shopCounts', $shopCountsDistributionLevels[$key], $nextLevel" target="_blank">{$value}</a></span>
+                            {var $lastKey = $key}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">{_products.admin.products.show.distribution.shopDays}</div>
+                    <ul class="list-group">
+                        {var $lastKey = reset($shopDaysDistribution)}
+                        <li n:foreach="$shopDaysDistribution as $key => $value" class="list-group-item" n:if="$key !== $lastKey">
+                            <b>{if $key === -1}{_products.admin.products.show.distribution.neverBoughtShop}{else}{$lastKey} < {$key}{/if}</b>
+                            <span class="pull-right"><a n:href="userList $product->id, 'shopDays', $lastKey, $key" target="_blank">{$value}</a></span>
+                            {var $lastKey = $key}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{/if}

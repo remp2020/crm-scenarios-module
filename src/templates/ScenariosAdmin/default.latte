@@ -1,0 +1,57 @@
+{block #title}{_products.admin.products.default.header}{/block}
+
+{block #content}
+
+<div class="row">
+
+  <div class="col-md-12">
+    <h1>
+      {_scenarios.admin.scenarios.title}
+      <small>
+        / {_system.total} {$filteredCount}
+      </small>
+      <a n:href="new" class="btn btn-success btn-lg pull-right"><i
+                class="fa fa-sliders-h"></i>
+        {_scenarios.admin.scenarios.new}
+      </a>
+    </h1>
+    <hr>
+  </div>
+
+  <div class="col-md-12">
+    <table class="table table-striped table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>{_scenarios.data.fields.name}</th>
+          <th>{_scenarios.data.fields.enabled}</th>
+          <th>{_scenarios.data.fields.created_at}</th>
+          <th>{_scenarios.data.fields.modified_at}</th>
+          <th>{_system.actions}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {foreach $scenarios as $scenario}
+          <tr>
+            <td>
+              <a n:href="Show $scenario->id">{$scenario->name}</a>
+            </td>
+            <td>{$scenario->enabled}</td>
+            <td>{$scenario->created_at|userDate}</td>
+            <td>{$scenario->modified_at|userDate}</td>
+            <td style="white-space: nowrap">
+              <p class="text-nowrap">
+                <a n:href="Show $scenario->id"
+                        class="btn btn-sm btn-info" title="{_system.show}"><i class="fa fa-eye"></i> </a>
+                <a n:href="Edit $scenario->id"
+                        class="btn btn-sm btn-primary" title="{_system.edit}"><i class="fa fa-edit"></i> </a>
+              </p>
+            </td>
+          </tr>
+        {/foreach}
+      </tbody>
+    </table>
+
+    {control scenarios_vp}
+  </div>
+
+</div>

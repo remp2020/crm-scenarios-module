@@ -8,6 +8,8 @@ use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ApplicationModule\Menu\MenuContainerInterface;
+use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
@@ -20,6 +22,18 @@ use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule
 {
+    public function registerAdminMenuItems(MenuContainerInterface $menuContainer)
+    {
+        $mainMenu = new MenuItem(
+            '',
+            ':Scenarios:ScenariosAdmin:default',
+            'fa fa-code-branch',
+            800
+        );
+
+        $menuContainer->attachMenuItem($mainMenu);
+    }
+
     public function registerApiCalls(ApiRoutersContainerInterface $apiRoutersContainer)
     {
         $apiRoutersContainer->attachRouter(new ApiRoute(
