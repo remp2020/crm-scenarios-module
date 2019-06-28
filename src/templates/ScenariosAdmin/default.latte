@@ -35,7 +35,13 @@
             <td>
               <a n:href="Show $scenario->id">{$scenario->name}</a>
             </td>
-            <td>{$scenario->enabled}</td>
+            <td>
+              {if $scenario->enabled}
+                {_system.yes}
+              {else}
+                {_system.no}
+              {/if}
+            </td>
             <td>{$scenario->created_at|userDate}</td>
             <td>{$scenario->modified_at|userDate}</td>
             <td style="white-space: nowrap">
