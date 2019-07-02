@@ -28,7 +28,7 @@ class ScenariosModule extends CrmModule
             '',
             ':Scenarios:ScenariosAdmin:default',
             'fa fa-code-branch',
-            800
+            780
         );
 
         $menuContainer->attachMenuItem($mainMenu);

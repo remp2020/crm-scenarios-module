@@ -1,20 +1,15 @@
-{block #title}{_products.admin.products.new.title}{/block}
+{block #title}{_scenarios.admin.scenarios.new.title}{/block}
 
 {block #content}
 
-<div class="row">
-  <div class="col-md-12">
-    <a n:href="Default"><i class="fa fa-angle-left"></i> {_products.admin.products.new.back}</a>
-    <div class="page-header">
-      <h1>
-        {_products.admin.products.new.title}
-      </h1>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-8">
-    {control productsForm}
-  </div>
+<div style="display: flex; width: 100%; height:100vh; flex-direction: column; overflow: hidden;">
+    <iframe
+            id="outside"
+            src="{link embed}"
+            frameborder="0"
+            marginwidth="0"
+            marginheight="0"
+            scrolling="no"
+            style="flex-grow: 1; border: none; margin: 0; padding: 0;">
+    </iframe>
 </div>

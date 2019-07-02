@@ -1,7 +1,16 @@
 admin:
 	scenarios:
-		title: Scenarios
-		new: New scenario
+		default:
+			title: Scenarios
+			new: New scenario
+		messages:
+			scenario_not_found: Selected scenario doesn't exist
+		edit:
+			title: Edit scenario
+			back: Back
+		new:
+			title: New scenario
+			back: Back
 data:
 	fields:
 		name: Name

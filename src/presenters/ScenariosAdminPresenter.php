@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Presenters;
 
+use Crm\ApiModule\Token\InternalToken;
 use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
@@ -13,13 +14,23 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     private $scenariosRepository;
 
+    private $accessToken;
+
+    /**
+     * @var InternalToken
+     */
+    private $internalToken;
+
+
     public function __construct(
         Request $request,
-        ScenariosRepository $scenariosRepository
+        ScenariosRepository $scenariosRepository,
+        InternalToken $internalToken
     ) {
         parent::__construct();
         $this->request = $request;
         $this->scenariosRepository = $scenariosRepository;
+        $this->internalToken = $internalToken;
     }
 
     public function renderDefault()
@@ -38,45 +49,24 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->scenarios = $products->limit($paginator->getLength(), $paginator->getOffset());
     }
 
-    public function renderShow($id)
-    {
-        // TODO
-
-        //$product = $this->productsRepository->find($id);
-        //if (!$product) {
-        //    $this->flashMessage($this->translator->translate('products.admin.products.messages.product_not_found'));
-        //    $this->redirect('default');
-        //}
-        //
-        //$levels = [0, 0.01, 3, 6, 10, 20, 50, 100, 200, 300];
-        //$this->template->amountSpentDistributionLevels = $levels;
-        //$this->template->amountSpentDistribution = $this->productsRepository->userAmountSpentDistribution($levels, $product->id);
-        //
-        //$levels = [0, 1, 3, 5, 8, 13, 21, 34];
-        //$this->template->paymentCountDistributionLevels = $levels;
-        //$this->template->paymentCountDistribution = $this->productsRepository->userPaymentCountsDistribution($levels, $product->id);
-        //
-        //$levels = [0, 1, 3, 5, 8, 13, 21, 34];
-        //$this->template->shopCountsDistributionLevels = $levels;
-        //$this->template->shopCountsDistribution = $this->productsRepository->productShopCountsDistribution($levels, $product->id);
-        //
-        //$levels = [0, 7, 14, 31, 93, 186, 365, 99999];
-        //$this->template->shopDaysDistribution = $this->productsRepository->productDaysFromLastOrderDistribution($levels, $product->id);
-        //
-        //$this->template->product = $product;
-        //
-        //$this->template->soldCount = $this->getProductSalesCount($product);
-    }
-
     public function renderEdit($id)
     {
-        // TODO
+        $scenario = $this->scenariosRepository->find($id);
+        if (!$scenario) {
+            $this->flashMessage($this->translator->translate('scenarios.admin.scenarios.messages.scenario_not_found'));
+            $this->redirect('default');
+        }
+        $this->template->scenario = $scenario;
+    }
 
-        //$product = $this->productsRepository->find($id);
-        //if (!$product) {
-        //    $this->flashMessage($this->translator->translate('products.admin.products.messages.product_not_found'));
-        //    $this->redirect('default');
-        //}
-        //$this->template->product = $product;
+    public function renderNew()
+    {
+    }
+
+    public function renderEmbed($id)
+    {
+        $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "/api/v1";
+        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
+        $this->template->scenario = $this->scenariosRepository->find($id);
     }
 }

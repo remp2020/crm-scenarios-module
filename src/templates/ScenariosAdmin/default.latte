@@ -1,4 +1,4 @@
-{block #title}{_products.admin.products.default.header}{/block}
+{block #title}{_scenarios.admin.scenarios.default.title}{/block}
 
 {block #content}
 
@@ -6,13 +6,13 @@
 
   <div class="col-md-12">
     <h1>
-      {_scenarios.admin.scenarios.title}
+      {_scenarios.admin.scenarios.default.title}
       <small>
         / {_system.total} {$filteredCount}
       </small>
       <a n:href="new" class="btn btn-success btn-lg pull-right"><i
                 class="fa fa-sliders-h"></i>
-        {_scenarios.admin.scenarios.new}
+        {_scenarios.admin.scenarios.default.new}
       </a>
     </h1>
     <hr>
@@ -33,7 +33,7 @@
         {foreach $scenarios as $scenario}
           <tr>
             <td>
-              <a n:href="Show $scenario->id">{$scenario->name}</a>
+              <a n:href="Edit $scenario->id">{$scenario->name}</a>
             </td>
             <td>
               {if $scenario->enabled}
@@ -46,8 +46,6 @@
             <td>{$scenario->modified_at|userDate}</td>
             <td style="white-space: nowrap">
               <p class="text-nowrap">
-                <a n:href="Show $scenario->id"
-                        class="btn btn-sm btn-info" title="{_system.show}"><i class="fa fa-eye"></i> </a>
                 <a n:href="Edit $scenario->id"
                         class="btn btn-sm btn-primary" title="{_system.edit}"><i class="fa fa-edit"></i> </a>
               </p>
