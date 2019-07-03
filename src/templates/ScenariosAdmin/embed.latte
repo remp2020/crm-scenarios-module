@@ -7,6 +7,8 @@
     <link href="/layouts/admin/scenariobuilder/css/main.3c700155.chunk.css" rel="stylesheet">
 </head>
 
+{var $cancelPath = '/segment/stored-segments/'}
+
 <body>
 <div id="root"></div>
 <script>
@@ -15,6 +17,15 @@
             AUTH_TOKEN: {$apiToken},
             API_HOST: {$apiHost},
             SCENARIO_ID: {if $scenario}{$scenario->id}{else}null{/if}
+        }
+    };
+    window.Segments = {
+        config: {
+            AUTH_TOKEN: {$segmentAuth},
+            API_HOST: {$crmHost},
+            CANCEL_PATH: {$cancelPath},
+            SEGMENT_ID: null,
+            TIME_ZONE: {date_default_timezone_get()}
         }
     };
 </script>

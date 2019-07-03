@@ -6,6 +6,7 @@ use Crm\ApiModule\Token\InternalToken;
 use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
+use Crm\UsersModule\Auth\Access\AccessToken;
 use Nette\Http\Request;
 
 class ScenariosAdminPresenter extends AdminPresenter
@@ -16,21 +17,19 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     private $accessToken;
 
-    /**
-     * @var InternalToken
-     */
     private $internalToken;
-
 
     public function __construct(
         Request $request,
         ScenariosRepository $scenariosRepository,
-        InternalToken $internalToken
+        InternalToken $internalToken,
+        AccessToken $accessToken
     ) {
         parent::__construct();
         $this->request = $request;
         $this->scenariosRepository = $scenariosRepository;
         $this->internalToken = $internalToken;
+        $this->accessToken = $accessToken;
     }
 
     public function renderDefault()
@@ -67,6 +66,10 @@ class ScenariosAdminPresenter extends AdminPresenter
     {
         $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "/api/v1";
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
+
+        $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
+        $this->template->segmentAuth = 'Bearer ' . $this->accessToken->getToken($this->getHttpRequest());
+
         $this->template->scenario = $this->scenariosRepository->find($id);
     }
 }
