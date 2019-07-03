@@ -6,11 +6,9 @@ admin:
 		messages:
 			scenario_not_found: Vybraný scenár neexistuje
 		edit:
-			title: Edit scenario
-			back: Back
+			title: Editácia scenára
 		new:
-			title: New scenario
-			back: Back
+			title: Nový scenár
 data:
 	fields:
 		name: Meno

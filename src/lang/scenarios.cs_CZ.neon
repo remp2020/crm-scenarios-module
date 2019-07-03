@@ -1,16 +1,14 @@
 admin:
 	scenarios:
 		default:
-			title: Scenáře
-			new: Nový scenář
+			title: Scénáře
+			new: Nový scénář
 		messages:
 			scenario_not_found: Vybraný scénář neexistuje
 		edit:
-			title: Edit scenario
-			back: Back
+			title: Editace scénáře
 		new:
-			title: New scenario
-			back: Back
+			title: Nový scénář
 data:
 	fields:
 		name: Jméno

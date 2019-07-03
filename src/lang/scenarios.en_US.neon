@@ -7,10 +7,8 @@ admin:
 			scenario_not_found: Selected scenario doesn't exist
 		edit:
 			title: Edit scenario
-			back: Back
 		new:
 			title: New scenario
-			back: Back
 data:
 	fields:
 		name: Name
