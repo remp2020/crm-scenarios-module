@@ -82,10 +82,11 @@ class ScenariosAdminPresenter extends AdminPresenter
         }
         $this->scenariosRepository->setEnabled($scenario);
         $this->flashMessage($this->translator->translate(
-            'scenarios.admin.scenarios.messages.scenario_enabled', [
+            'scenarios.admin.scenarios.messages.scenario_enabled',
+            [
                 '%name%' => $scenario->name,
-            ])
-        );
+            ]
+        ));
         $this->redirect('default');
     }
 
@@ -97,10 +98,11 @@ class ScenariosAdminPresenter extends AdminPresenter
         }
         $this->scenariosRepository->setEnabled($scenario, false);
         $this->flashMessage($this->translator->translate(
-            'scenarios.admin.scenarios.messages.scenario_disabled', [
+            'scenarios.admin.scenarios.messages.scenario_disabled',
+            [
                 '%name%' => $scenario->name,
-            ])
-        );
+            ]
+        ));
         $this->redirect('default');
     }
 }
