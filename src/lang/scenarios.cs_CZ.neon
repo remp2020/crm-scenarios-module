@@ -3,8 +3,14 @@ admin:
 		default:
 			title: Scénáře
 			new: Nový scénář
+			enabled: Zapnutý
+			disabled: Vypnutý
+			enable: Zapnout
+			disable: Vypnout
 		messages:
 			scenario_not_found: Vybraný scénář neexistuje
+			scenario_enabled: "Scénář <em>%name%</em> byl zapnutý"
+			scenario_disabled: "Scénář <em>%name%</em> byl vypnutý"
 		edit:
 			title: Editace scénáře
 		new:

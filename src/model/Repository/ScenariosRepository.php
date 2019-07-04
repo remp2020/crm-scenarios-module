@@ -322,4 +322,12 @@ class ScenariosRepository extends Repository
         }
         return $descendants;
     }
+
+    public function setEnabled($scenario, $value = true)
+    {
+        return $this->update($scenario, [
+            'enabled' => $value,
+            'modified_at' => new DateTime(),
+        ]);
+    }
 }

@@ -23,7 +23,6 @@
       <thead>
         <tr>
           <th>{_scenarios.data.fields.name}</th>
-          <th>{_scenarios.data.fields.enabled}</th>
           <th>{_scenarios.data.fields.created_at}</th>
           <th>{_scenarios.data.fields.modified_at}</th>
           <th>{_system.actions}</th>
@@ -34,20 +33,30 @@
           <tr>
             <td>
               <a n:href="Edit $scenario->id">{$scenario->name}</a>
-            </td>
-            <td>
+
               {if $scenario->enabled}
-                {_system.yes}
+                <label class="label label-success">{_scenarios.admin.scenarios.default.enabled}</label>
               {else}
-                {_system.no}
+                <label class="label label-default">{_scenarios.admin.scenarios.default.disabled}</label>
               {/if}
             </td>
             <td>{$scenario->created_at|userDate}</td>
             <td>{$scenario->modified_at|userDate}</td>
             <td style="white-space: nowrap">
               <p class="text-nowrap">
-                <a n:href="Edit $scenario->id"
-                        class="btn btn-sm btn-primary" title="{_system.edit}"><i class="fa fa-edit"></i> </a>
+                <a n:href="Edit $scenario->id" class="btn btn-sm btn-primary" title="{_system.edit}">
+                  <i class="fa fa-edit"></i>
+                </a>
+
+                {if $scenario->enabled}
+                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-success" title="{_scenarios.admin.scenarios.default.disable}">
+                    <i class="fa fa-stop"></i>
+                  </a>
+                {else}
+                  <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_scenarios.admin.scenarios.default.enable}">
+                    <i class="fa fa-play"></i>
+                  </a>
+                {/if}
               </p>
             </td>
           </tr>

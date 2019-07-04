@@ -3,8 +3,14 @@ admin:
 		default:
 			title: Scenáre
 			new: Nový scenár
+			enabled: Zapnutý
+			disabled: Vypnutý
+			enable: Zapnúť
+			disable: Vypnúť
 		messages:
 			scenario_not_found: Vybraný scenár neexistuje
+			scenario_enabled: "Scenár <em>%name%</em> bol zapnutý"
+			scenario_disabled: "Scenár <em>%name%</em> bol vypnutý"
 		edit:
 			title: Editácia scenára
 		new:
@@ -12,6 +18,5 @@ admin:
 data:
 	fields:
 		name: Meno
-		enabled: Povolený
 		created_at: Vytvorený
 		modified_at: Upravený

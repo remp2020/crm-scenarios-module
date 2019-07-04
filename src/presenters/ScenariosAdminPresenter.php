@@ -7,6 +7,7 @@ use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\UsersModule\Auth\Access\AccessToken;
+use Nette\Application\BadRequestException;
 use Nette\Http\Request;
 
 class ScenariosAdminPresenter extends AdminPresenter
@@ -71,5 +72,35 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->segmentAuth = 'Bearer ' . $this->accessToken->getToken($this->getHttpRequest());
 
         $this->template->scenario = $this->scenariosRepository->find($id);
+    }
+
+    public function handleEnable($id)
+    {
+        $scenario = $this->scenariosRepository->find($id);
+        if (!$scenario) {
+            throw new BadRequestException("unable to load scenario: " . $id);
+        }
+        $this->scenariosRepository->setEnabled($scenario);
+        $this->flashMessage($this->translator->translate(
+            'scenarios.admin.scenarios.messages.scenario_enabled', [
+                '%name%' => $scenario->name,
+            ])
+        );
+        $this->redirect('default');
+    }
+
+    public function handleDisable($id)
+    {
+        $scenario = $this->scenariosRepository->find($id);
+        if (!$scenario) {
+            throw new BadRequestException("unable to load scenario: " . $id);
+        }
+        $this->scenariosRepository->setEnabled($scenario, false);
+        $this->flashMessage($this->translator->translate(
+            'scenarios.admin.scenarios.messages.scenario_disabled', [
+                '%name%' => $scenario->name,
+            ])
+        );
+        $this->redirect('default');
     }
 }

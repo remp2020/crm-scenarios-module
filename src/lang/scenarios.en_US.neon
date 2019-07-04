@@ -3,8 +3,14 @@ admin:
 		default:
 			title: Scenarios
 			new: New scenario
+			enabled: Enabled
+			disabled: Disabled
+			enable: Enable
+			disable: Disable
 		messages:
 			scenario_not_found: Selected scenario doesn't exist
+			scenario_enabled: "Scenario <em>%name%</em> was enabled."
+			scenario_disabled: "Scenario <em>%name%</em> was disabled."
 		edit:
 			title: Edit scenario
 		new:
