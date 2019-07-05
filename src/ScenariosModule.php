@@ -13,6 +13,7 @@ use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
+use Crm\ScenariosModule\Events\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
@@ -62,6 +63,7 @@ class ScenariosModule extends CrmModule
     public function registerHermesHandlers(Dispatcher $dispatcher)
     {
         $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
+        $dispatcher->registerHandler('new-subscription', $this->getInstance(NewSubscriptionHandler::class));
         $dispatcher->registerHandler(TestUserHandler::HERMES_MESSAGE_CODE, $this->getInstance(TestUserHandler::class));
 
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
