@@ -16,6 +16,7 @@ use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
+use Crm\ScenariosModule\Events\SubscriptionEndsHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
 use Crm\ScenariosModule\Events\TestUserHandler;
 use Crm\ScenariosModule\Events\UserCreatedHandler;
@@ -64,6 +65,7 @@ class ScenariosModule extends CrmModule
     {
         $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
         $dispatcher->registerHandler('new-subscription', $this->getInstance(NewSubscriptionHandler::class));
+        $dispatcher->registerHandler('subscription-ends', $this->getInstance(SubscriptionEndsHandler::class));
         $dispatcher->registerHandler(TestUserHandler::HERMES_MESSAGE_CODE, $this->getInstance(TestUserHandler::class));
 
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));

@@ -22,6 +22,7 @@ services:
 	- Crm\ScenariosModule\Events\TestUserHandler
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 	- Crm\ScenariosModule\Events\NewSubscriptionHandler
+	- Crm\ScenariosModule\Events\SubscriptionEndsHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand
