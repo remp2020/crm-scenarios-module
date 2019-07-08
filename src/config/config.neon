@@ -23,6 +23,7 @@ services:
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 	- Crm\ScenariosModule\Events\NewSubscriptionHandler
 	- Crm\ScenariosModule\Events\SubscriptionEndsHandler
+	- Crm\ScenariosModule\Events\RecurrentPaymentRenewedHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand
