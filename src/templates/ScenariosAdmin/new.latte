@@ -10,6 +10,13 @@
             marginwidth="0"
             marginheight="0"
             scrolling="no"
-            style="flex-grow: 1; border: none; margin: 0; padding: 0;">
+            style="flex-grow: 1; border: none; margin: 0; padding: 0; max-height: 90%">
     </iframe>
 </div>
+
+<script type="text/javascript" src="/layouts/default/js/iframeResizer.min.js"></script>
+<script>
+    $(window).load(function() {
+        iFrameResize({ log: false }, '#outside');
+    });
+</script>
