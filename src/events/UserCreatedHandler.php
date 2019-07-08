@@ -8,8 +8,6 @@ use Tomaj\Hermes\MessageInterface;
 
 class UserCreatedHandler implements HandlerInterface
 {
-    public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
-
     private $dispatcher;
 
     public function __construct(Dispatcher $dispatcher)
