@@ -21,8 +21,6 @@ class ScenariosRepository extends Repository
 
     private $elementElementsRepository;
 
-    private $eventsRepository;
-
     private $eventsStorage;
 
     private $triggersRepository;
@@ -35,7 +33,6 @@ class ScenariosRepository extends Repository
         Connection $connection,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
-        EventsRepository $eventsRepository,
         EventsStorage $eventsStorage,
         TriggersRepository $triggersRepository,
         TriggerElementsRepository $triggerElementsRepository
@@ -45,7 +42,6 @@ class ScenariosRepository extends Repository
         $this->connection = $connection;
         $this->elementsRepository = $elementsRepository;
         $this->elementElementsRepository = $elementElementsRepository;
-        $this->eventsRepository = $eventsRepository;
         $this->eventsStorage = $eventsStorage;
         $this->triggersRepository = $triggersRepository;
         $this->triggerElementsRepository = $triggerElementsRepository;
