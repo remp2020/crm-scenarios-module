@@ -6,7 +6,6 @@ use Crm\ApplicationModule\Repository;
 use Nette\Caching\IStorage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
-use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\IRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
