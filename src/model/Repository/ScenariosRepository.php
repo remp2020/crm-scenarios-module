@@ -304,6 +304,7 @@ class ScenariosRepository extends Repository
                         throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'recheckPeriodMinutes' in options");
                     }
                     $element[$scenarioElement->type] = [
+                        'codes' => $options->codes,
                         'recheckPeriodMinutes' => $options->recheckPeriodMinutes,
                         'descendants' => $descendants,
                     ];
@@ -330,9 +331,8 @@ class ScenariosRepository extends Repository
             ];
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    $d[ElementsRepository::ELEMENT_TYPE_SEGMENT] = [
-                        'direction' => ($descendant->positive == 1 || $descendant->positive === true) ? 'positive' : 'negative',
-                    ];
+                case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    $d['direction'] = ($descendant->positive == 1 || $descendant->positive === true) ? 'positive' : 'negative';
                     break;
             }
             $descendants[] = $d;
