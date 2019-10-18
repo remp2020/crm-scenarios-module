@@ -9,6 +9,7 @@ class ElementsRepository extends Repository
     protected $tableName = 'scenarios_elements';
 
     const ELEMENT_TYPE_EMAIL = 'email';
+    const ELEMENT_TYPE_GOAL = 'goal';
     const ELEMENT_TYPE_SEGMENT = 'segment';
     const ELEMENT_TYPE_WAIT = 'wait';
 

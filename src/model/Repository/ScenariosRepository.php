@@ -112,11 +112,20 @@ class ScenariosRepository extends Repository
                     $elementPairs[$element->id]['descendants'] = $element->segment->descendants;
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
-                    $elementOptions['minutes'] = $element->wait->minutes;
                     $elementOptions = [
                         'minutes' => $element->wait->minutes
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->wait->descendants;
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    $elementOptions = [
+                        'codes' => $element->goal->codes,
+                        'recheckPeriodMinutes' => $element->goal->recheckPeriodMinutes,
+                    ];
+                    if (isset($element->goal->timeoutMinutes)) {
+                        $elementOptions['timeoutMinutes'] = $element->goal->timeoutMinutes;
+                    }
+                    $elementPairs[$element->id]['descendants'] = $element->goal->descendants;
                     break;
                 default:
                     $this->connection->rollback();
@@ -289,6 +298,18 @@ class ScenariosRepository extends Repository
                         'minutes' => $options->minutes,
                         'descendants' => $descendants,
                     ];
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    if (!isset($options->recheckPeriodMinutes)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'recheckPeriodMinutes' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'recheckPeriodMinutes' => $options->recheckPeriodMinutes,
+                        'descendants' => $descendants,
+                    ];
+                    if (isset($options->timeoutMinutes)) {
+                        $element[$scenarioElement->type]['timeoutMinutes'] = $options->timeoutMinutes;
+                    }
                     break;
                 default:
                     throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - unknown element type [{$scenarioElement->type}].");
