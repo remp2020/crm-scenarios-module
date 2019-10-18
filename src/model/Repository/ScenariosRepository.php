@@ -157,8 +157,8 @@ class ScenariosRepository extends Repository
                     'parent_element_id' => $parent->id,
                     'child_element_id' => $descendant->id,
                 ];
-                if (isset($descendantDef->segment)) {
-                    $elementElementsData['positive'] = $descendantDef->segment->direction === 'positive' ? true : false;
+                if (isset($descendantDef->direction)) {
+                    $elementElementsData['positive'] = $descendantDef->direction === 'positive' ? true : false;
                 }
                 $this->elementElementsRepository->insert($elementElementsData);
             }
