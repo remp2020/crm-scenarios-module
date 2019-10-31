@@ -300,6 +300,9 @@ class ScenariosRepository extends Repository
                     ];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    if (!isset($options->codes)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'codes' in options");
+                    }
                     if (!isset($options->recheckPeriodMinutes)) {
                         throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'recheckPeriodMinutes' in options");
                     }
