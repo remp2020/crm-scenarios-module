@@ -132,6 +132,7 @@ class ScenariosRepository extends Repository
                     throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
             }
 
+            $elementPairs[$element->id]['type'] = $element->type;
 
             $elementData['options'] = Json::encode($elementOptions);
             $this->elementsRepository->insert($elementData);
@@ -157,9 +158,14 @@ class ScenariosRepository extends Repository
                     'parent_element_id' => $parent->id,
                     'child_element_id' => $descendant->id,
                 ];
-                if (isset($descendantDef->direction)) {
-                    $elementElementsData['positive'] = $descendantDef->direction === 'positive' ? true : false;
+
+                switch ($element['type']) {
+                    case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+                    case ElementsRepository::ELEMENT_TYPE_GOAL:
+                        $elementElementsData['positive'] = $descendantDef->direction === 'positive' ? true : false;
+                        break;
                 }
+
                 $this->elementElementsRepository->insert($elementElementsData);
             }
         }
