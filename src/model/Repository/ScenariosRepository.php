@@ -63,7 +63,7 @@ class ScenariosRepository extends Repository
         $this->connection->beginTransaction();
 
         $scenarioData['name'] = $data['name'];
-        $scenarioData['visual'] = Json::encode($data['visual']);
+        $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
         $scenarioData['modified_at'] = new DateTime();
         $scenarioData['enabled'] = $data['enabled'] ?? false;
 
@@ -88,7 +88,7 @@ class ScenariosRepository extends Repository
         // TODO: move whole block to elements repository
         // add elements of scenario
         $elementPairs = [];
-        foreach ($data['elements'] as $element) {
+        foreach ($data['elements'] ?? [] as $element) {
             $elementData = [
                 'scenario_id' => $scenarioID,
                 'uuid' => $element->id,
@@ -103,19 +103,19 @@ class ScenariosRepository extends Repository
                     $elementOptions = [
                         'code' => $element->email->code
                     ];
-                    $elementPairs[$element->id]['descendants'] = $element->email->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $elementOptions = [
                         'code' => $element->segment->code
                     ];
-                    $elementPairs[$element->id]['descendants'] = $element->segment->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->segment->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     $elementOptions = [
                         'minutes' => $element->wait->minutes
                     ];
-                    $elementPairs[$element->id]['descendants'] = $element->wait->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->wait->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
                     $elementOptions = [
@@ -125,7 +125,7 @@ class ScenariosRepository extends Repository
                     if (isset($element->goal->timeoutMinutes)) {
                         $elementOptions['timeoutMinutes'] = $element->goal->timeoutMinutes;
                     }
-                    $elementPairs[$element->id]['descendants'] = $element->goal->descendants;
+                    $elementPairs[$element->id]['descendants'] = $element->goal->descendants ?? [];
                     break;
                 default:
                     $this->connection->rollback();
@@ -172,7 +172,7 @@ class ScenariosRepository extends Repository
 
         // TODO: move whole block to triggers repository
         // process triggers (root elements)
-        foreach ($data['triggers'] as $trigger) {
+        foreach ($data['triggers'] ?? [] as $trigger) {
             if ($trigger->type !== TriggersRepository::TRIGGER_TYPE_EVENT) {
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
@@ -191,7 +191,7 @@ class ScenariosRepository extends Repository
             $newTrigger = $this->triggersRepository->insert($triggerData);
 
             // insert links from triggers
-            foreach ($trigger->elements as $triggerElementUUID) {
+            foreach ($trigger->elements ?? [] as $triggerElementUUID) {
                 $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
                 if (!$triggerElement) {
                     $this->connection->rollback();

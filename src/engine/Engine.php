@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Engine;
 
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
+use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
@@ -141,6 +142,10 @@ class Engine
 
         try {
             switch ($element->type) {
+                case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id));
+                    break;
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
@@ -187,6 +192,19 @@ class Engine
                     throw new InvalidJobException("segment job results do not contain required parameter 'in'");
                 }
                 $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, (bool) $result->in);
+                break;
+            case ElementsRepository::ELEMENT_TYPE_GOAL:
+                $result = Json::decode($job->result, Json::FORCE_ARRAY);
+                $timeouted = $result[OnboardingGoalsCheckEventHandler::RESULT_PARAM_TIMEOUT] ?? false;
+                $completed = $result[OnboardingGoalsCheckEventHandler::RESULT_PARAM_GOALS_COMPLETED] ?? false;
+
+                if ($timeouted) {
+                    $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, false);
+                } elseif ($completed) {
+                    $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, true);
+                } else {
+                    throw new InvalidJobException('goal job is neither completed nor timed out: ');
+                }
                 break;
             default:
                 $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id);

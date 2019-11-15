@@ -14,6 +14,7 @@ use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\NewSubscriptionHandler;
+use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\RecurrentPaymentRenewedHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
@@ -73,6 +74,7 @@ class ScenariosModule extends CrmModule
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
         $dispatcher->registerHandler(FinishWaitEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(FinishWaitEventHandler::class));
         $dispatcher->registerHandler(SegmentCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SegmentCheckEventHandler::class));
+        $dispatcher->registerHandler(OnboardingGoalsCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(OnboardingGoalsCheckEventHandler::class));
     }
 
     public function registerEvents(EventsStorage $eventsStorage)
