@@ -4,24 +4,32 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\MailModule\Mailer\ApplicationMailer;
+use Crm\RempModule\Models\Campaign\Api;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 
-class SendEmailEventHandler extends ScenariosJobsHandler
+class ShowBannerEventHandler extends ScenariosJobsHandler
 {
-    public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
+    public const HERMES_MESSAGE_CODE = 'scenarios-show-banner';
 
     private $mailer;
 
     private $usersRepository;
 
-    public function __construct(JobsRepository $jobsRepository, ApplicationMailer $mailer, UsersRepository $usersRepository)
-    {
+    private $campaignApi;
+
+    public function __construct(
+        JobsRepository $jobsRepository,
+        ApplicationMailer $mailer,
+        UsersRepository $usersRepository,
+        Api $campaignApi
+    ) {
         parent::__construct($jobsRepository);
         $this->mailer = $mailer;
         $this->usersRepository = $usersRepository;
+        $this->campaignApi = $campaignApi;
     }
 
     public function handle(MessageInterface $message): bool
@@ -52,26 +60,24 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         }
 
         $options = Json::decode($element->options);
-        if (!isset($options->code)) {
-            $this->jobError($job, 'missing code option in associated element');
+        if (!isset($options->id)) {
+            $this->jobError($job, 'missing id option in associated element');
+            return true;
+        }
+        if (!isset($options->expiresInMinutes)) {
+            $this->jobError($job, 'missing expiresInMinutes option in associated element');
             return true;
         }
 
         $this->jobsRepository->startJob($job);
 
-        $templateCode = $options->code;
+        $bannerId = $options->id;
+        $expiresInMinutes = (int) $options->expiresInMinutes;
 
-        // TODO throw error for some email templates if password is missing (each template should specify required parameters?)
-        $password = $parameters->password ?? null;
+        $result = $this->campaignApi->showOneTimeBanner($user->id, $bannerId, $expiresInMinutes);
 
-        $templateParams = array_merge(
-            ['email' => $user->email],
-            $password ? ['password' => $password] : []
-        );
-
-        $result = $this->mailer->send($user->email, $templateCode, $templateParams);
         if (!$result) {
-            $this->jobError($job, 'error while sending email');
+            $this->jobError($job, 'error while setting up banner');
             return true;
         }
 

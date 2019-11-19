@@ -105,6 +105,13 @@ class ScenariosRepository extends Repository
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
                     break;
+                case ElementsRepository::ELEMENT_TYPE_BANNER:
+                    $elementOptions = [
+                        'id' => $element->banner->id,
+                        'expiresInMinutes' => $element->banner->expiresInMinutes,
+                    ];
+                    $elementPairs[$element->id]['descendants'] = $element->banner->descendants ?? [];
+                    break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $elementOptions = [
                         'code' => $element->segment->code
@@ -284,6 +291,19 @@ class ScenariosRepository extends Repository
                     }
                     $element[$scenarioElement->type] = [
                         'code' => $options->code,
+                        'descendants' => $descendants,
+                    ];
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_BANNER:
+                    if (!isset($options->id)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'id' in options");
+                    }
+                    if (!isset($options->expiresInMinutes)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'expiresInMinutes' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'id' => $options->id,
+                        'expiresInMinutes' => $options->expiresInMinutes,
                         'descendants' => $descendants,
                     ];
                     break;

@@ -6,6 +6,7 @@ use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
+use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Exception;
@@ -149,6 +150,10 @@ class Engine
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_BANNER:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id));
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $this->jobsRepository->scheduleJob($job);
