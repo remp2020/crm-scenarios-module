@@ -20,6 +20,7 @@ services:
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
 	- Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
+	- Crm\ScenariosModule\Events\ShowBannerEventHandler
 	- Crm\ScenariosModule\Events\TestUserHandler
 	- Crm\ScenariosModule\Events\UserCreatedHandler
 	- Crm\ScenariosModule\Events\NewSubscriptionHandler
@@ -39,4 +40,4 @@ services:
 	- Crm\ScenariosModule\Repository\TriggersRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
-	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
+	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter(%remp.campaign.host%)

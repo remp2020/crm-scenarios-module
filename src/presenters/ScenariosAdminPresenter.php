@@ -20,13 +20,18 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     private $internalToken;
 
+    private $campaignEnabled;
+
     public function __construct(
+        $campaignHost,
         Request $request,
         ScenariosRepository $scenariosRepository,
         InternalToken $internalToken,
         AccessToken $accessToken
     ) {
         parent::__construct();
+
+        $this->campaignEnabled = !empty($campaignHost);
         $this->request = $request;
         $this->scenariosRepository = $scenariosRepository;
         $this->internalToken = $internalToken;
@@ -65,6 +70,7 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     public function renderEmbed($id)
     {
+        $this->template->campaignEnabled = $this->campaignEnabled;
         $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "/api/v1";
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
 
