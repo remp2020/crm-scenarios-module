@@ -14,6 +14,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Nette\Utils\DateTime;
+use Nette\Utils\Json;
 
 class BannerScenariosTest extends BaseTestCase
 {
@@ -89,7 +90,7 @@ class BannerScenariosTest extends BaseTestCase
         $this->assertEquals($request->getUri()->getPath(), Api::showOneTimeBannerUriPath(self::BANNER_ID));
 
         // Check parameters
-        $jsonParams = json_decode($request->getBody()->getContents());
+        $jsonParams = Json::decode($request->getBody()->getContents());
         $this->assertEquals($user->id, $jsonParams->user_id);
 
         $expectedExpiresAt = $now->add(new \DateInterval("PT{$expiresInMinutes}M"));
