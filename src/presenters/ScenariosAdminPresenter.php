@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Presenters;
 use Crm\ApiModule\Token\InternalToken;
 use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
+use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\UsersModule\Auth\Access\AccessToken;
 use Nette\Application\BadRequestException;
@@ -20,10 +21,9 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     private $internalToken;
 
-    private $campaignEnabled;
+    private $bannerEnabled;
 
     public function __construct(
-        $campaignHost,
         Request $request,
         ScenariosRepository $scenariosRepository,
         InternalToken $internalToken,
@@ -31,7 +31,6 @@ class ScenariosAdminPresenter extends AdminPresenter
     ) {
         parent::__construct();
 
-        $this->campaignEnabled = !empty($campaignHost);
         $this->request = $request;
         $this->scenariosRepository = $scenariosRepository;
         $this->internalToken = $internalToken;
@@ -70,7 +69,10 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     public function renderEmbed($id)
     {
-        $this->template->campaignEnabled = $this->campaignEnabled;
+        // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
+        // DO NOT move this to constructor, listener might not have been added yet
+        $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
+
         $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "/api/v1";
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
 

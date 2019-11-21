@@ -3,7 +3,6 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\DummyDriver;
-use Crm\MailModule\Mailer\TestSender;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -12,23 +11,12 @@ use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\UsersModule\Auth\UserManager;
-use Nette\Mail\IMailer;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Tomaj\Hermes\Driver\DriverInterface;
 
 class ComplexGoalScenariosTest extends BaseTestCase
 {
-    /** @var TestSender */
-    private $testEmailSender;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->testEmailSender = $this->inject(IMailer::class);
-    }
-
     /**
      * Test scenario with TRIGGER -> GOAL -> MAIL (positive) flow
      */
@@ -36,7 +24,6 @@ class ComplexGoalScenariosTest extends BaseTestCase
     {
         $this->enableDummyDispatcherTimeCheck();
         $this->insertScenario(['basic_goal']);
-        $this->insertMailTemplates();
 
         $jr = $this->getRepository(JobsRepository::class);
         $user1 = $this->inject(UserManager::class)->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -68,9 +55,9 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
-        $mails = $this->testEmailSender->getMailsSentTo('test@email.com');
+        $mails = $this->mailsSentTo('test@email.com');
         $this->assertCount(1, $mails);
-        $this->assertEquals('SUBJECT_GOAL_OK', $mails[0]);
+        $this->assertEquals('empty_template_code_pos', $mails[0]);
 
         $this->engine->run(true); // job(email) deleted
         $this->assertCount(0, $jr->getAllJobs()->fetchAll());
@@ -83,7 +70,6 @@ class ComplexGoalScenariosTest extends BaseTestCase
     {
         $this->enableDummyDispatcherTimeCheck();
         $this->insertScenario(['basic_goal1', 'basic_goal2']);
-        $this->insertMailTemplates();
 
         /** @var JobsRepository $jr */
         $jr = $this->getRepository(JobsRepository::class);
@@ -127,9 +113,9 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
-        $mails = $this->testEmailSender->getMailsSentTo('test2@email.com');
+        $mails = $this->mailsSentTo('test2@email.com');
         $this->assertCount(1, $mails);
-        $this->assertEquals('SUBJECT_GOAL_OK', $mails[0]);
+        $this->assertEquals('empty_template_code_pos', $mails[0]);
 
         $this->engine->run(true); // job(email) deleted
         $this->assertCount(2, $jr->getAllJobs()->fetchAll()); // user1 and user3 goal job still waiting
@@ -153,7 +139,6 @@ class ComplexGoalScenariosTest extends BaseTestCase
     {
         $this->enableDummyDispatcherTimeCheck();
         $this->insertScenario(['basic_goal']);
-        $this->insertMailTemplates();
         $jr = $this->getRepository(JobsRepository::class);
 
         $this->inject(UserManager::class)->addNewUser('test2@email.com', false, 'unknown', null, false);
@@ -184,9 +169,9 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
-        $mails = $this->testEmailSender->getMailsSentTo('test2@email.com');
+        $mails = $this->mailsSentTo('test2@email.com');
         $this->assertCount(1, $mails);
-        $this->assertEquals('SUBJECT_GOAL_TIMEOUT', $mails[0]);
+        $this->assertEquals('empty_template_code_neg', $mails[0]);
         $this->engine->run(true); // job(email) deleted
         $this->assertCount(0, $jr->getAllJobs()->fetchAll());
     }
@@ -254,11 +239,5 @@ class ComplexGoalScenariosTest extends BaseTestCase
             'type' => OnboardingGoalsRepository::TYPE_SIMPLE,
         ]);
         return $goal;
-    }
-
-    private function insertMailTemplates()
-    {
-        $this->insertMailTemplate('empty_template_code_pos', 'SUBJECT_GOAL_OK');
-        $this->insertMailTemplate('empty_template_code_neg', 'SUBJECT_GOAL_TIMEOUT');
     }
 }

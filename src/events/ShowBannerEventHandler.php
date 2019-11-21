@@ -3,10 +3,9 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\MailModule\Mailer\ApplicationMailer;
-use Crm\RempModule\Models\Campaign\Api;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 
@@ -14,22 +13,18 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
 {
     public const HERMES_MESSAGE_CODE = 'scenarios-show-banner';
 
-    private $mailer;
-
     private $usersRepository;
 
-    private $campaignApi;
+    private $emitter;
 
     public function __construct(
         JobsRepository $jobsRepository,
-        ApplicationMailer $mailer,
         UsersRepository $usersRepository,
-        Api $campaignApi
+        Emitter $emitter
     ) {
         parent::__construct($jobsRepository);
-        $this->mailer = $mailer;
         $this->usersRepository = $usersRepository;
-        $this->campaignApi = $campaignApi;
+        $this->emitter = $emitter;
     }
 
     public function handle(MessageInterface $message): bool
@@ -74,12 +69,7 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
         $bannerId = $options->id;
         $expiresInMinutes = (int) $options->expiresInMinutes;
 
-        $result = $this->campaignApi->showOneTimeBanner($user->id, $bannerId, $expiresInMinutes);
-
-        if (!$result) {
-            $this->jobError($job, 'error while setting up banner');
-            return true;
-        }
+        $this->emitter->emit(new BannerEvent($user, $bannerId, $expiresInMinutes));
 
         $this->jobsRepository->finishJob($job);
         return true;

@@ -4,10 +4,6 @@ namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
-use Crm\MailModule\Mailer\Repository\MailLayoutsRepository;
-use Crm\MailModule\Mailer\Repository\MailTemplatesRepository;
-use Crm\MailModule\Mailer\Repository\MailTypeCategoriesRepository;
-use Crm\MailModule\Mailer\Repository\MailTypesRepository;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
@@ -33,10 +29,12 @@ use Crm\SubscriptionsModule\Repository\SubscriptionTypesRepository;
 use Crm\SubscriptionsModule\Seeders\SubscriptionExtensionMethodsSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionTypeNamesSeeder;
+use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Events\UserCreatedEvent;
 use Crm\UsersModule\Repository\LoginAttemptsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Kdyby\Translation\Translator;
+use League\Event\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
 abstract class BaseTestCase extends DatabaseTestCase
@@ -47,8 +45,14 @@ abstract class BaseTestCase extends DatabaseTestCase
     /** @var Dispatcher */
     protected $dispatcher;
 
+    /** @var Emitter */
+    protected $emitter;
+
     /** @var Engine */
     protected $engine;
+
+    /** @var TestNotificationHandler */
+    protected $testNotificationHandler;
 
     protected function requiredRepositories(): array
     {
@@ -60,11 +64,6 @@ abstract class BaseTestCase extends DatabaseTestCase
             SubscriptionTypesRepository::class,
             SubscriptionExtensionMethodsRepository::class,
             SubscriptionLengthMethodsRepository::class,
-            // Tables to send emails
-            MailLayoutsRepository::class,
-            MailTypeCategoriesRepository::class,
-            MailTypesRepository::class,
-            MailTemplatesRepository::class,
             // Segment tables
             SegmentGroupsRepository::class,
             SegmentsRepository::class,
@@ -104,6 +103,9 @@ abstract class BaseTestCase extends DatabaseTestCase
         $translator = $this->inject(Translator::class);
         $this->scenariosModule = new ScenariosModule($this->container, $translator);
         $this->dispatcher = $this->inject(Dispatcher::class);
+        $this->emitter = $this->inject(Emitter::class);
+
+        $this->testNotificationHandler = new TestNotificationHandler();
 
         // Events are not automatically registered, we need to register them manually for tests
         $eventsStorage = $this->inject(EventsStorage::class);
@@ -112,6 +114,10 @@ abstract class BaseTestCase extends DatabaseTestCase
         $eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
         $eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
+
+        // Email notification is going to be handled by test handler
+        $this->emitter->addListener(NotificationEvent::class, $this->testNotificationHandler);
+
         $this->engine = $this->inject(Engine::class);
     }
 
@@ -130,41 +136,14 @@ abstract class BaseTestCase extends DatabaseTestCase
         return json_decode(json_encode($array), false);
     }
 
-    public function insertMailTemplate(string $template_code, string $subject = '', string $from = 'from@example.com')
+    /**
+     * Returns list of email template codes sent to given $email
+     * @param $email
+     *
+     * @return array
+     */
+    public function mailsSentTo($email): array
     {
-        /** @var MailTypeCategoriesRepository $mailTypeCategoryRepository */
-        $mailTypeCategoryRepository = $this->getRepository(MailTypeCategoriesRepository::class);
-        $mailTypeCategory = $mailTypeCategoryRepository->findBy('title', 'mail_cat1');
-        if (!$mailTypeCategory) {
-            $mailTypeCategory = $mailTypeCategoryRepository->add('mail_cat1', 1);
-        }
-
-        /** @var MailTypesRepository $mailTypeRepository */
-        $mailTypeRepository = $this->getRepository(MailTypesRepository::class);
-        $mailType = $mailTypeRepository->findBy('code', 'mail_type1');
-        if (!$mailType) {
-            $mailType = $mailTypeRepository->add('mail_type1', '', '', $mailTypeCategory->id);
-        }
-
-        /** @var MailLayoutsRepository $mlr */
-        $mlr = $this->getRepository(MailLayoutsRepository::class);
-        $layout = $mlr->findByName('mail_layout');
-        if (!$layout) {
-            $layout = $mlr->add('mail_layout', '', '');
-        }
-
-        /** @var MailTemplatesRepository $mtr */
-        $mtr = $this->getRepository(MailTemplatesRepository::class);
-        $mtr->add(
-            $template_code,
-            'Empty template',
-            $layout->id,
-            '',
-            $from,
-            $subject,
-            '',
-            '',
-            $mailType->code
-        );
+        return $this->testNotificationHandler->getMailTemplateCodesSentTo($email);
     }
 }

@@ -3,9 +3,10 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\MailModule\Mailer\ApplicationMailer;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
+use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 
@@ -13,15 +14,15 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 {
     public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
 
-    private $mailer;
-
     private $usersRepository;
 
-    public function __construct(JobsRepository $jobsRepository, ApplicationMailer $mailer, UsersRepository $usersRepository)
+    private $emitter;
+
+    public function __construct(Emitter $emitter, JobsRepository $jobsRepository, UsersRepository $usersRepository)
     {
         parent::__construct($jobsRepository);
-        $this->mailer = $mailer;
         $this->usersRepository = $usersRepository;
+        $this->emitter = $emitter;
     }
 
     public function handle(MessageInterface $message): bool
@@ -69,11 +70,12 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $password ? ['password' => $password] : []
         );
 
-        $result = $this->mailer->send($user->email, $templateCode, $templateParams);
-        if (!$result) {
-            $this->jobError($job, 'error while sending email');
-            return true;
-        }
+        // Send email (via emitting NotificationEvent)
+        $this->emitter->emit(new NotificationEvent(
+            $user,
+            $templateCode,
+            $templateParams
+        ));
 
         $this->jobsRepository->finishJob($job);
         return true;

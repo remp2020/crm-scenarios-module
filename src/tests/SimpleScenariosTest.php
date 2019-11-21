@@ -2,7 +2,6 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\MailModule\Mailer\TestSender;
 use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
@@ -19,7 +18,6 @@ use Crm\SubscriptionsModule\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Auth\UserManager;
-use Nette\Mail\IMailer;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
@@ -27,9 +25,6 @@ class SimpleScenariosTest extends BaseTestCase
 {
     /** @var UserManager */
     private $userManager;
-
-    /** @var TestSender */
-    private $testEmailSender;
 
     /** @var SubscriptionTypeBuilder */
     private $subscriptionTypeBuilder;
@@ -45,7 +40,6 @@ class SimpleScenariosTest extends BaseTestCase
         parent::setUp();
 
         $this->userManager = $this->inject(UserManager::class);
-        $this->testEmailSender = $this->inject(IMailer::class);
         $this->subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
@@ -54,7 +48,6 @@ class SimpleScenariosTest extends BaseTestCase
     public function testUserCreatedEmailScenario()
     {
         $this->insertTriggerToEmailScenario('user_created', 'empty_template_code');
-        $this->insertMailTemplate('empty_template_code');
 
         $jr = $this->getRepository(JobsRepository::class);
 
@@ -251,7 +244,6 @@ class SimpleScenariosTest extends BaseTestCase
     public function testNewSubscriptionEmailScenario()
     {
         $this->insertTriggerToEmailScenario('new_subscription', 'empty_template_code');
-        $this->insertMailTemplate('empty_template_code');
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -281,13 +273,12 @@ class SimpleScenariosTest extends BaseTestCase
         $this->engine->run(true); // job should be deleted
 
         // Check email was sent
-        $this->assertCount(1, $this->testEmailSender->getMailsSentTo('test@email.com'));
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
     }
 
     public function testSubscriptionEndsEmailScenario()
     {
         $this->insertTriggerToEmailScenario('subscription_ends', 'empty_template_code');
-        $this->insertMailTemplate('empty_template_code');
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -321,13 +312,12 @@ class SimpleScenariosTest extends BaseTestCase
         $this->engine->run(true); // job should be deleted
 
         // Check email was sent
-        $this->assertCount(1, $this->testEmailSender->getMailsSentTo('test@email.com'));
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
     }
 
     public function testRecurrentPayentRenewedEmailScenario()
     {
         $this->insertTriggerToEmailScenario('recurrent_payment_renewed', 'empty_template_code');
-        $this->insertMailTemplate('empty_template_code');
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -363,7 +353,7 @@ class SimpleScenariosTest extends BaseTestCase
         $this->engine->run(true); // job should be deleted
 
         // Check email was sent
-        $this->assertCount(1, $this->testEmailSender->getMailsSentTo('test@email.com'));
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
     }
 
     private function insertTriggerToEmailScenario(string $trigger, string $emailCode)

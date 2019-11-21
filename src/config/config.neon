@@ -40,4 +40,4 @@ services:
 	- Crm\ScenariosModule\Repository\TriggersRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
-	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter(%remp.campaign.host%)
+	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter

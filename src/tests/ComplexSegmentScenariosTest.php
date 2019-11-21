@@ -2,7 +2,6 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\MailModule\Mailer\TestSender;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
@@ -10,21 +9,10 @@ use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\UsersModule\Auth\UserManager;
-use Nette\Mail\IMailer;
 use Nette\Utils\Json;
 
 class ComplexSegmentScenariosTest extends BaseTestCase
 {
-    /** @var TestSender */
-    private $testEmailSender;
-
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->testEmailSender = $this->inject(IMailer::class);
-    }
-
     /**
      * Test scenario with TRIGGER -> WAIT -> SEGMENT -> MAIL flow
      */
@@ -87,8 +75,6 @@ class ComplexSegmentScenariosTest extends BaseTestCase
             $segmentGroup
         );
 
-        $this->insertMailTemplate('empty_template_code');
-
         // Add user, which triggers scenario
         $this->inject(UserManager::class)->addNewUser('test@email.com', false, 'unknown', null, false);
 
@@ -114,7 +100,7 @@ class ComplexSegmentScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
-        $this->assertCount(1, $this->testEmailSender->getMailsSentTo('test@email.com'));
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
 
         $this->engine->run(true); // job(email) deleted
 
