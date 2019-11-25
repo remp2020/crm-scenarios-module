@@ -1,7 +1,6 @@
 {
   "name": "remp/crm-scenarios-module",
   "description": "CRM Scenarios Module",
-  "version": "0.0.1",
   "type": "library",
   "homepage": "https://remp2020.com",
   "license": "MIT",
