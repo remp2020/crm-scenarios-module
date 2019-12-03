@@ -152,10 +152,8 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
 
         $completedGoalsCount = $this->userOnboardingGoalsRepository->getTable()
-            ->where([
-                'done' => 1,
-                'user_id' => $userId
-            ])
+            ->where(['user_id' => $userId])
+            ->where('completed_at IS NOT NULL')
             ->where('onboarding_goal_id IN (?)', $onboardingGoalIds)
             ->count('*');
 

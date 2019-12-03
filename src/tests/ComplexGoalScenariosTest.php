@@ -233,11 +233,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
     private function insertGoal($code)
     {
         $onboardingGoalsRepo = $this->getRepository(OnboardingGoalsRepository::class);
-        $goal = $onboardingGoalsRepo->add([
-            'code' => $code,
-            'name' => '',
-            'type' => OnboardingGoalsRepository::TYPE_SIMPLE,
-        ]);
+        $goal = $onboardingGoalsRepo->add($code, '', OnboardingGoalsRepository::TYPE_SIMPLE);
         return $goal;
     }
 }

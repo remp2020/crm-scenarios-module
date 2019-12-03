@@ -8,6 +8,7 @@ use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repository\PaymentItemsRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Engine;
@@ -77,6 +78,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             // Payments + recurrent payments
             PaymentGatewaysRepository::class,
             PaymentsRepository::class,
+            PaymentItemsRepository::class,
             RecurrentPaymentsRepository::class,
             // User goals
             OnboardingGoalsRepository::class,
