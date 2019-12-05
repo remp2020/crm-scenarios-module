@@ -151,10 +151,8 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             throw new OnboardingGoalsCheckException('Missing onboarding goals:' . implode(',', array_keys($missingGoalCodes)));
         }
 
-        $completedGoalsCount = $this->userOnboardingGoalsRepository->getTable()
-            ->where(['user_id' => $userId])
-            ->where('completed_at IS NOT NULL')
-            ->where('onboarding_goal_id IN (?)', $onboardingGoalIds)
+        $completedGoalsCount = $this->userOnboardingGoalsRepository
+            ->userCompletedGoals($userId, $onboardingGoalIds)
             ->count('*');
 
         return $completedGoalsCount === count($onboardingGoalCodes);
