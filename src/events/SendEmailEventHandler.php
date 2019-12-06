@@ -3,7 +3,9 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
@@ -18,11 +20,22 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
     private $emitter;
 
-    public function __construct(Emitter $emitter, JobsRepository $jobsRepository, UsersRepository $usersRepository)
-    {
+    private $subscriptionsRepository;
+
+    private $paymentsRepository;
+
+    public function __construct(
+        Emitter $emitter,
+        JobsRepository $jobsRepository,
+        UsersRepository $usersRepository,
+        SubscriptionsRepository $subscriptionsRepository,
+        PaymentsRepository $paymentsRepository
+    ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
         $this->emitter = $emitter;
+        $this->subscriptionsRepository = $subscriptionsRepository;
+        $this->paymentsRepository = $paymentsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -62,15 +75,18 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
         $templateCode = $options->code;
 
-        // TODO throw error for some email templates if password is missing (each template should specify required parameters?)
+        // We automatically insert password/subscription/payment as email template parameters (if found)
         $password = $parameters->password ?? null;
+        $subscription = $parameters->subscription_id ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
+        $payment = $parameters->payment_id ? $this->paymentsRepository->find($parameters->payment_id) : null;
 
         $templateParams = array_merge(
             ['email' => $user->email],
-            $password ? ['password' => $password] : []
+            $password ? ['password' => $password] : [],
+            $subscription ? ['subscription' => $subscription->toArray()] : [],
+            $payment ? ['payment' => $payment->toArray()] : []
         );
 
-        // Send email (via emitting NotificationEvent)
         $this->emitter->emit(new NotificationEvent(
             $user,
             $templateCode,

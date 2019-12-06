@@ -32,8 +32,11 @@ class NewSubscriptionHandler implements HandlerInterface
             throw new \Exception("unable to handle event: subscription with ID=$subscriptionId does not exist");
         }
 
+        $payment = $subscription->related('payments')->limit(1)->fetch();
+
         $this->dispatcher->dispatch('new_subscription', $subscription->user_id, [
-            'subscription_id' => $payload['subscription_id']
+            'subscription_id' => $payload['subscription_id'],
+            'payment_id' => $payment ? $payment->id : null,
         ]);
         return true;
     }
