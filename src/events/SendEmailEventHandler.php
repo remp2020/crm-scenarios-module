@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
+use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Events\NotificationEvent;
@@ -24,11 +25,14 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
     private $paymentsRepository;
 
+    private $recurrentPaymentsRepository;
+
     public function __construct(
         Emitter $emitter,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
+        RecurrentPaymentsRepository $recurrentPaymentsRepository,
         PaymentsRepository $paymentsRepository
     ) {
         parent::__construct($jobsRepository);
@@ -36,6 +40,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $this->emitter = $emitter;
         $this->subscriptionsRepository = $subscriptionsRepository;
         $this->paymentsRepository = $paymentsRepository;
+        $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -79,13 +84,22 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $password = $parameters->password ?? null;
         $subscription = $parameters->subscription_id ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
         $payment = $parameters->payment_id ? $this->paymentsRepository->find($parameters->payment_id) : null;
+        $recurrentPayment = $parameters->recurrent_payment_id ?
+            $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id) : null;
 
-        $templateParams = array_merge(
-            ['email' => $user->email],
-            $password ? ['password' => $password] : [],
-            $subscription ? ['subscription' => $subscription->toArray()] : [],
-            $payment ? ['payment' => $payment->toArray()] : []
-        );
+        $templateParams = ['email' => $user->email];
+        if ($password) {
+            $templateParams['password'] = $password;
+        }
+        if ($subscription) {
+            $templateParams['subscription'] = $subscription->toArray();
+        }
+        if ($payment) {
+            $templateParams['payment'] = $payment->toArray();
+        }
+        if ($recurrentPayment) {
+            $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
+        }
 
         $this->emitter->emit(new NotificationEvent(
             $user,
