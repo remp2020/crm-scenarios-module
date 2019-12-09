@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Nette\Database\Table\Selection;
 
 class ElementsRepository extends Repository
 {
@@ -14,18 +15,35 @@ class ElementsRepository extends Repository
     const ELEMENT_TYPE_WAIT = 'wait';
     const ELEMENT_TYPE_BANNER = 'banner';
 
-    public function removeAllByScenarioID(int $scenarioID)
+    public function findByUuid($uuid)
     {
-        foreach ($this->getTable()->where(['scenario_id' => $scenarioID])->fetchAll() as $element) {
+        return $this->findBy('uuid', $uuid);
+    }
+
+    public function removeAllByScenarioID(int $scenarioId)
+    {
+        foreach ($this->getTable()->where(['scenario_id' => $scenarioId])->fetchAll() as $element) {
             $this->delete($element);
         }
     }
 
-    public function findByScenarioIDAndElementUUID(int $scenarioID, string $elementUUID)
+    public function allScenarioElements(int $scenarioId): Selection
     {
         return $this->getTable()->where([
-            'scenario_id' => $scenarioID,
-            'uuid' => $elementUUID,
+            'scenario_id' => $scenarioId
+        ]);
+    }
+
+    public function findByScenarioIDAndElementUUID(int $scenarioId, string $elementUuid)
+    {
+        return $this->getTable()->where([
+            'scenario_id' => $scenarioId,
+            'uuid' => $elementUuid,
         ])->fetch();
+    }
+
+    public function deleteByUuids(array $uuids)
+    {
+        $this->getTable()->where('uuid IN ?', $uuids)->delete();
     }
 }

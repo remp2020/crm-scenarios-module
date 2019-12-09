@@ -79,25 +79,24 @@ class ScenariosRepository extends Repository
             $scenarioData['created_at'] = $scenarioData['modified_at'];
             $scenario = $this->insert($scenarioData);
         }
-        $scenarioID = $scenario->id;
+        $scenarioId = $scenario->id;
 
-        // remove old values
-        $this->triggersRepository->removeAllByScenarioID($scenarioID);
-        $this->elementsRepository->removeAllByScenarioID($scenarioID);
+        $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'uuid');
+        $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'uuid');
 
         // TODO: move whole block to elements repository
         // add elements of scenario
         $elementPairs = [];
         foreach ($data['elements'] ?? [] as $element) {
             $elementData = [
-                'scenario_id' => $scenarioID,
+                'scenario_id' => $scenarioId,
                 'uuid' => $element->id,
                 'name' => $element->name,
                 'type' => $element->type,
             ];
+            unset($oldElements[$element->id]);
 
             $elementOptions = null;
-
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $elementOptions = [
@@ -140,10 +139,18 @@ class ScenariosRepository extends Repository
             }
 
             $elementPairs[$element->id]['type'] = $element->type;
-
             $elementData['options'] = Json::encode($elementOptions);
-            $this->elementsRepository->insert($elementData);
+
+            $element = $this->elementsRepository->findByUuid($elementData['uuid']);
+            if (!$element) {
+                $this->elementsRepository->insert($elementData);
+            } else {
+                $this->elementsRepository->update($element, $elementData);
+            }
         }
+
+        // Delete old elements
+        $this->elementsRepository->deleteByUuids(array_keys($oldElements));
 
         // TODO: move whole block to elementElements repository
         // process elements' descendants
@@ -173,7 +180,12 @@ class ScenariosRepository extends Repository
                         break;
                 }
 
-                $this->elementElementsRepository->insert($elementElementsData);
+                $link = $this->elementElementsRepository->getLink($parent->id, $descendant->id);
+                if (!$link) {
+                    $this->elementElementsRepository->insert($elementElementsData);
+                } else {
+                    $this->elementElementsRepository->update($link, $elementElementsData);
+                }
             }
         }
 
@@ -190,12 +202,20 @@ class ScenariosRepository extends Repository
             }
 
             $triggerData = [
-                'scenario_id' => $scenarioID,
+                'scenario_id' => $scenarioId,
                 'event_code' => $trigger->event->code,
                 'uuid' => $trigger->id,
                 'name' => $trigger->name,
             ];
-            $newTrigger = $this->triggersRepository->insert($triggerData);
+
+            unset($oldTriggers[$triggerData['uuid']]);
+
+            $triggerRow = $this->triggersRepository->findByUuid($triggerData['uuid']);
+            if (!$triggerRow) {
+                $triggerRow = $this->triggersRepository->insert($triggerData);
+            } else {
+                $this->triggersRepository->update($triggerRow, $triggerData);
+            }
 
             // insert links from triggers
             foreach ($trigger->elements ?? [] as $triggerElementUUID) {
@@ -204,13 +224,16 @@ class ScenariosRepository extends Repository
                     $this->connection->rollback();
                     throw new \Exception("Unable to find element with uuid [{$triggerElementUUID}]");
                 }
-                $triggerElementData = [
-                    'trigger_id' => $newTrigger->id,
-                    'element_id' => $triggerElement->id,
-                ];
-                $this->triggerElementsRepository->insert($triggerElementData);
+
+                $triggerElementLink = $this->triggerElementsRepository->getLink($triggerRow->id, $triggerElement->id);
+                if (!$triggerElementLink) {
+                    $this->triggerElementsRepository->addLink($triggerRow->id, $triggerElement->id);
+                }
             }
         }
+
+        // Delete old elements
+        $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
 
         $this->connection->commit();
         return $scenario;
