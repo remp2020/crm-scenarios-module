@@ -101,11 +101,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
         }
 
-        $this->emitter->emit(new NotificationEvent(
-            $user,
-            $templateCode,
-            $templateParams
-        ));
+        $this->emitter->emit(new NotificationEvent($user, $templateCode, $templateParams));
 
         $this->jobsRepository->finishJob($job);
         return true;
