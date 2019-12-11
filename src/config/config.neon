@@ -21,11 +21,12 @@ services:
 	- Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\ShowBannerEventHandler
-	- Crm\ScenariosModule\Events\TestUserHandler
-	- Crm\ScenariosModule\Events\UserCreatedHandler
-	- Crm\ScenariosModule\Events\NewSubscriptionHandler
-	- Crm\ScenariosModule\Events\SubscriptionEndsHandler
-	- Crm\ScenariosModule\Events\RecurrentPaymentRenewedHandler
+
+	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand

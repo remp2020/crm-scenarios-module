@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\ScenariosModule\Events;
+namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
@@ -32,12 +32,13 @@ class NewSubscriptionHandler implements HandlerInterface
             throw new \Exception("unable to handle event: subscription with ID=$subscriptionId does not exist");
         }
 
+        $params = ['subscription_id' => $payload['subscription_id']];
         $payment = $subscription->related('payments')->limit(1)->fetch();
+        if ($payment) {
+            $params['payment_id'] = $payment->id;
+        }
 
-        $this->dispatcher->dispatch('new_subscription', $subscription->user_id, [
-            'subscription_id' => $payload['subscription_id'],
-            'payment_id' => $payment ? $payment->id : null,
-        ]);
+        $this->dispatcher->dispatch('new_subscription', $subscription->user_id, $params);
         return true;
     }
 }

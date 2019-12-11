@@ -35,6 +35,9 @@ class SimpleScenariosTest extends BaseTestCase
     /** @var SubscriptionsRepository */
     private $subscriptionRepository;
 
+    /** @var JobsRepository */
+    private $jobsRepository;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -43,36 +46,35 @@ class SimpleScenariosTest extends BaseTestCase
         $this->subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
+        $this->jobsRepository = $this->getRepository(JobsRepository::class);
     }
 
     public function testUserCreatedEmailScenario()
     {
         $this->insertTriggerToEmailScenario('user_created', 'empty_template_code');
 
-        $jr = $this->getRepository(JobsRepository::class);
-
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // process trigger, finish its job and create email job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // email job should be scheduled
 
-        $this->assertCount(1, $jr->getScheduledJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getScheduledJobs()->fetchAll());
 
         $this->dispatcher->handle(); // run email job in Hermes
 
-        $this->assertCount(1, $jr->getFinishedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getFinishedJobs()->fetchAll());
 
         $this->engine->run(true); // job should be deleted
 
-        $this->assertCount(0, $jr->getFinishedJobs()->fetchAll());
+        $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
     }
 
     public function testUserCreatedWaitScenario()
@@ -98,31 +100,30 @@ class SimpleScenariosTest extends BaseTestCase
                 ])
             ]
         ]);
-        $jr = $this->getRepository(JobsRepository::class);
 
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // process trigger, finish its job and create wait job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // wait job should be directly started
 
-        $this->assertCount(1, $jr->getStartedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getStartedJobs()->fetchAll());
 
         // 'execute_at' parameter is only supported in Redis driver for Hermes, dummy driver executes job right away
         $this->dispatcher->handle();
 
-        $this->assertCount(1, $jr->getFinishedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getFinishedJobs()->fetchAll());
 
         $this->engine->run(true); // job should be deleted
 
-        $this->assertCount(0, $jr->getFinishedJobs()->fetchAll());
+        $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
     }
 
     public function testUserCreatedSegmentScenario()
@@ -148,8 +149,6 @@ class SimpleScenariosTest extends BaseTestCase
                 ])
             ]
         ]);
-        $jr = $this->getRepository(JobsRepository::class);
-
         // Insert empty segment
         $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('test_group');
         $this->getRepository(SegmentsRepository::class)->add(
@@ -167,19 +166,19 @@ class SimpleScenariosTest extends BaseTestCase
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // process trigger, finish its job and create segment job
 
-        $this->assertCount(1, $jr->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(true); // schedule segment job
 
-        $this->assertCount(1, $jr->getScheduledJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getScheduledJobs()->fetchAll());
 
         $this->dispatcher->handle();
 
-        $finishedJobs = $jr->getFinishedJobs()->fetchAll();
+        $finishedJobs = $this->jobsRepository->getFinishedJobs()->fetchAll();
         $this->assertCount(1, $finishedJobs);
         $job = reset($finishedJobs);
         $jobResult = Json::decode($job->result);
@@ -187,7 +186,7 @@ class SimpleScenariosTest extends BaseTestCase
 
         $this->engine->run(true); // all jobs should be deleted
 
-        $this->assertCount(0, $jr->getAllJobs()->fetchAll());
+        $this->assertCount(0, $this->jobsRepository->getAllJobs()->fetchAll());
     }
 
     public function testFailingSegmentScenario()
@@ -213,7 +212,6 @@ class SimpleScenariosTest extends BaseTestCase
                 ])
             ]
         ]);
-        $jr = $this->getRepository(JobsRepository::class);
 
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -223,11 +221,11 @@ class SimpleScenariosTest extends BaseTestCase
         $this->engine->run(true); // created -> scheduled
         $this->dispatcher->handle(); // scheduled -> started -> failed (job failed, reason: non-existing segment)
 
-        $this->assertCount(1, $jr->getFailedJobs()->fetchAll());
+        $this->assertCount(1, $this->jobsRepository->getFailedJobs()->fetchAll());
         $this->engine->run(true); // failed -> created
 
         // Check job was rescheduled and retry count was increased
-        $unprocessedJobs = $jr->getUnprocessedJobs()->fetchAll();
+        $unprocessedJobs = $this->jobsRepository->getUnprocessedJobs()->fetchAll();
         $this->assertCount(1, $unprocessedJobs);
         $job = reset($unprocessedJobs);
         $this->assertEquals(1, $job->retry_count);
@@ -238,7 +236,7 @@ class SimpleScenariosTest extends BaseTestCase
             $this->dispatcher->handle(); // run (should fail)
             $this->engine->run(true); // failed -> created
         }
-        $this->assertCount(0, $jr->getAllJobs()->fetchAll());
+        $this->assertCount(0, $this->jobsRepository->getAllJobs()->fetchAll());
     }
 
     public function testNewSubscriptionEmailScenario()
@@ -269,6 +267,12 @@ class SimpleScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(true); // process trigger, finish its job and create email job
         $this->engine->run(true); // email job should be scheduled
+
+        // check email job has 'subscription_id' parameter
+        $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
+        $emailJobParameters = Json::decode($emailJob->parameters);
+        $this->assertNotEmpty($emailJobParameters->subscription_id);
+
         $this->dispatcher->handle(); // run email job in Hermes
         $this->engine->run(true); // job should be deleted
 
@@ -308,6 +312,12 @@ class SimpleScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(true); // process trigger, finish its job and create email job
         $this->engine->run(true); // email job should be scheduled
+
+        // check email job has 'subscription_id' parameter
+        $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
+        $emailJobParameters = Json::decode($emailJob->parameters);
+        $this->assertNotEmpty($emailJobParameters->subscription_id);
+
         $this->dispatcher->handle(); // run email job in Hermes
         $this->engine->run(true); // job should be deleted
 
@@ -349,6 +359,13 @@ class SimpleScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(true); // process trigger, finish its job and create email job
         $this->engine->run(true); // email job should be scheduled
+
+        // check email job has 'subscription_id' parameter
+        $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
+        $emailJobParameters = Json::decode($emailJob->parameters);
+        $this->assertNotEmpty($emailJobParameters->payment_id);
+        $this->assertNotEmpty($emailJobParameters->recurrent_payment_id);
+
         $this->dispatcher->handle(); // run email job in Hermes
         $this->engine->run(true); // job should be deleted
 

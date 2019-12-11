@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\ScenariosModule\Events;
+namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;

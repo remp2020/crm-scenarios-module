@@ -1,16 +1,13 @@
 <?php
 
-namespace Crm\ScenariosModule\Events;
+namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
-use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
-class TestUserHandler implements HandlerInterface
+class UserCreatedHandler implements HandlerInterface
 {
-    const HERMES_MESSAGE_CODE = 'scenarios-test-user';
-
     private $dispatcher;
 
     public function __construct(Dispatcher $dispatcher)
@@ -24,15 +21,13 @@ class TestUserHandler implements HandlerInterface
         if (!isset($payload['user_id'])) {
             throw new \Exception('unable to handle event: user_id missing');
         }
+        if (!isset($payload['password'])) {
+            throw new \Exception('unable to handle event: password missing');
+        }
 
-        $this->dispatcher->dispatch('test_user', $payload['user_id']);
-        return true;
-    }
-
-    public static function createHermesMessage($userId)
-    {
-        return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'user_id' => $userId
+        $this->dispatcher->dispatch('user_created', $payload['user_id'], [
+            'password' => $payload['password']
         ]);
+        return true;
     }
 }

@@ -13,16 +13,16 @@ use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
-use Crm\ScenariosModule\Events\NewSubscriptionHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
-use Crm\ScenariosModule\Events\RecurrentPaymentRenewedHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
-use Crm\ScenariosModule\Events\SubscriptionEndsHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
-use Crm\ScenariosModule\Events\TestUserHandler;
-use Crm\ScenariosModule\Events\UserCreatedHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler;
 use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule

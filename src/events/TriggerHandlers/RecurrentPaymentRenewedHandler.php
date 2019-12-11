@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\ScenariosModule\Events;
+namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
