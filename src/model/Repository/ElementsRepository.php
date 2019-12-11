@@ -36,10 +36,9 @@ class ElementsRepository extends Repository
 
     public function findByScenarioIDAndElementUUID(int $scenarioId, string $elementUuid)
     {
-        return $this->getTable()->where([
-            'scenario_id' => $scenarioId,
-            'uuid' => $elementUuid,
-        ])->fetch();
+        return $this->allScenarioElements($scenarioId)
+            ->where(['uuid' => $elementUuid])
+            ->fetch();
     }
 
     public function deleteByUuids(array $uuids)
