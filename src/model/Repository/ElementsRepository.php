@@ -22,7 +22,7 @@ class ElementsRepository extends Repository
 
     public function removeAllByScenarioID(int $scenarioId)
     {
-        foreach ($this->getTable()->where(['scenario_id' => $scenarioId])->fetchAll() as $element) {
+        foreach ($this->allScenarioElements($scenarioId) as $element) {
             $this->delete($element);
         }
     }
@@ -47,7 +47,7 @@ class ElementsRepository extends Repository
         $elements = $this->getTable()->where('uuid IN (?)', $uuids)->fetchAll();
         foreach ($elements as $element) {
             // delete one by one to record changes in audit log
-            $element->delete();
+            $this->delete($element);
         }
     }
 }
