@@ -3,7 +3,6 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\MailModule\Mailer\ApplicationMailer;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
@@ -19,8 +18,6 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
     public const RESULT_PARAM_TIMEOUT = 'timeout';
     public const RESULT_PARAM_GOALS_COMPLETED = 'goals_completed';
 
-    private $mailer;
-
     private $usersRepository;
 
     private $hermesEmitter;
@@ -31,14 +28,12 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
 
     public function __construct(
         JobsRepository $jobsRepository,
-        ApplicationMailer $mailer,
         UsersRepository $usersRepository,
         OnboardingGoalsRepository $onboardingGoalsRepository,
         UserOnboardingGoalsRepository $userOnboardingGoalsRepository,
         Emitter $hermesEmitter
     ) {
         parent::__construct($jobsRepository);
-        $this->mailer = $mailer;
         $this->usersRepository = $usersRepository;
         $this->hermesEmitter = $hermesEmitter;
         $this->onboardingGoalsRepository = $onboardingGoalsRepository;
