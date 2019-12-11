@@ -44,6 +44,10 @@ class ElementsRepository extends Repository
 
     public function deleteByUuids(array $uuids)
     {
-        $this->getTable()->where('uuid IN ?', $uuids)->delete();
+        $elements = $this->getTable()->where('uuid IN (?)', $uuids)->fetchAll();
+        foreach ($elements as $element) {
+            // delete one by one to record changes in audit log
+            $element->delete();
+        }
     }
 }
