@@ -34,4 +34,12 @@ class TriggersRepository extends Repository
     {
         $this->getTable()->where('uuid IN ?', $uuids)->delete();
     }
+
+    public function findByScenarioIDAndTriggerUUID(int $scenarioID, string $triggerUUID)
+    {
+        return $this->getTable()->where([
+            'scenario_id' => $scenarioID,
+            'uuid' => $triggerUUID,
+        ])->fetch();
+    }
 }
