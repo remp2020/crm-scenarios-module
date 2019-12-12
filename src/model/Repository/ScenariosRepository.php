@@ -65,7 +65,9 @@ class ScenariosRepository extends Repository
         $scenarioData['name'] = $data['name'];
         $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
         $scenarioData['modified_at'] = new DateTime();
-        $scenarioData['enabled'] = $data['enabled'] ?? false;
+        if (isset($data['enabled'])) {
+            $scenarioData['enabled'] = $data['enabled'];
+        }
 
         // save or update scenario details
         if (isset($data['id'])) {
@@ -77,6 +79,8 @@ class ScenariosRepository extends Repository
             $this->update($scenario, $scenarioData);
         } else {
             $scenarioData['created_at'] = $scenarioData['modified_at'];
+            // If not specified, by default not enabled
+            $scenarioData['enabled'] = $scenarioData['enabled'] ?? false;
             $scenario = $this->insert($scenarioData);
         }
         $scenarioId = $scenario->id;

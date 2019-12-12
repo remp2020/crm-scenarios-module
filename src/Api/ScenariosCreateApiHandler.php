@@ -32,12 +32,12 @@ class ScenariosCreateApiHandler extends ApiHandler
     public function params()
     {
         return [
-            new InputParam(InputParam::TYPE_POST, 'id', InputParam::OPTIONAL),
             new InputParam(InputParam::TYPE_POST, 'name', InputParam::REQUIRED),
-            new InputParam(InputParam::TYPE_POST, 'enabled', InputParam::OPTIONAL),
             new InputParam(InputParam::TYPE_POST, 'triggers', InputParam::REQUIRED),
             new InputParam(InputParam::TYPE_POST, 'elements', InputParam::REQUIRED),
             new InputParam(InputParam::TYPE_POST, 'visual', InputParam::REQUIRED),
+            new InputParam(InputParam::TYPE_POST, 'id', InputParam::OPTIONAL),
+            new InputParam(InputParam::TYPE_POST, 'enabled', InputParam::OPTIONAL),
         ];
     }
 
@@ -73,7 +73,9 @@ class ScenariosCreateApiHandler extends ApiHandler
         $_POST['triggers'] = $body->triggers ?? null;
         $_POST['elements'] = $body->elements ?? null;
         $_POST['visual'] = $body->visual ?? null;
-        $_POST['enabled'] = $body->enabled ?? false;
+        if (isset($body->enabled)) {
+            $_POST['enabled'] = $body->enabled;
+        }
 
         $paramsProcessor = new ParamsProcessor($this->params());
         $error = $paramsProcessor->isError();
