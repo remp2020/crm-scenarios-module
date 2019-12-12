@@ -3,7 +3,9 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
+use Nette\Utils\DateTime;
 
 class ElementsRepository extends Repository
 {
@@ -15,9 +17,15 @@ class ElementsRepository extends Repository
     const ELEMENT_TYPE_WAIT = 'wait';
     const ELEMENT_TYPE_BANNER = 'banner';
 
+    public function all()
+    {
+        return $this->scopeNotDeleted();
+    }
+
     public function findByUuid($uuid)
     {
-        return $this->findBy('uuid', $uuid);
+
+        return $this->scopeNotDeleted()->where(['uuid' => $uuid])->fetch();
     }
 
     public function removeAllByScenarioID(int $scenarioId)
@@ -29,7 +37,7 @@ class ElementsRepository extends Repository
 
     public function allScenarioElements(int $scenarioId): Selection
     {
-        return $this->getTable()->where([
+        return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId
         ]);
     }
@@ -41,12 +49,22 @@ class ElementsRepository extends Repository
             ->fetch();
     }
 
+    public function delete(IRow &$row)
+    {
+        // Soft-delete
+        $this->update($row, ['deleted_at' => new DateTime()]);
+    }
+
     public function deleteByUuids(array $uuids)
     {
-        $elements = $this->getTable()->where('uuid IN (?)', $uuids)->fetchAll();
+        $elements = $this->scopeNotDeleted()->where('uuid IN (?)', $uuids)->fetchAll();
         foreach ($elements as $element) {
-            // delete one by one to record changes in audit log
             $this->delete($element);
         }
+    }
+
+    private function scopeNotDeleted()
+    {
+        return $this->getTable()->where('deleted_at IS NULL');
     }
 }

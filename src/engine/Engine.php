@@ -13,6 +13,7 @@ use Exception;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Emitter;
@@ -56,7 +57,7 @@ class Engine
         $this->logger->log(LogLevel::INFO, 'Scenarios engine started');
         try {
             while (true) {
-                $this->graphConfiguration->reloadIfOutdated();
+                $this->graphConfiguration->reload();
 
                 foreach ($this->jobsRepository->getUnprocessedJobs()->fetchAll() as $job) {
                     $this->processCreatedJob($job);
@@ -110,8 +111,11 @@ class Engine
             } else {
                 $this->logger->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
             }
-        } catch (InvalidJobException $exception) {
-            $this->logger->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
+        } catch (InvalidJobException | JsonException $e) {
+            $this->logger->log(LogLevel::ERROR, $e->getMessage(), $this->jobLoggerContext($job));
+        } catch (NodeDeletedException $e) {
+            // This can happen if user updates running scenario
+            $this->logger->log(LogLevel::WARNING, $e->getMessage(), $this->jobLoggerContext($job));
         } finally {
             $this->jobsRepository->delete($job);
         }
@@ -176,6 +180,12 @@ class Engine
         }
     }
 
+    /**
+     * @param ActiveRow $job
+     *
+     * @throws NodeDeletedException
+     * @throws \Nette\Utils\JsonException
+     */
     private function scheduleNextAfterTrigger(ActiveRow $job)
     {
         foreach ($this->graphConfiguration->triggerDescendants($job->trigger_id) as $elementId) {
@@ -183,6 +193,13 @@ class Engine
         }
     }
 
+    /**
+     * @param ActiveRow $job
+     *
+     * @throws InvalidJobException
+     * @throws NodeDeletedException
+     * @throws \Nette\Utils\JsonException
+     */
     private function scheduleNextAfterElement(ActiveRow $job)
     {
         $element = $this->elementsRepository->find($job->element_id);

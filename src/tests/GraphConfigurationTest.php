@@ -72,7 +72,7 @@ class GraphConfigurationTest extends BaseTestCase
             ]
         ]);
 
-        $this->graph->reloadIfOutdated();
+        $this->graph->reload();
 
         $this->assertEquals(
             [$this->elementId('element_wait')],

@@ -3,7 +3,9 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
+use Nette\Utils\DateTime;
 
 class TriggersRepository extends Repository
 {
@@ -11,35 +13,46 @@ class TriggersRepository extends Repository
 
     const TRIGGER_TYPE_EVENT = 'event';
 
+    public function all()
+    {
+        return $this->scopeNotDeleted();
+    }
+
     public function findByUuid($uuid)
     {
-        return $this->findBy('uuid', $uuid);
+        return $this->scopeNotDeleted()->where(['uuid' => $uuid])->fetch();
     }
 
     public function allScenarioTriggers(int $scenarioId): Selection
     {
-        return $this->getTable()->where([
+        return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId
         ]);
     }
 
-    public function removeAllByScenarioID(int $scenarioID)
+    public function deleteByUuids(array $uuids)
     {
-        foreach ($this->getTable()->where(['scenario_id' => $scenarioID])->fetchAll() as $trigger) {
+        foreach ($this->getTable()->where('uuid IN ?', $uuids) as $trigger) {
             $this->delete($trigger);
         }
     }
 
-    public function deleteByUuids(array $uuids)
+    public function delete(IRow &$row)
     {
-        $this->getTable()->where('uuid IN ?', $uuids)->delete();
+        // Soft-delete
+        $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
-    public function findByScenarioIDAndTriggerUUID(int $scenarioID, string $triggerUUID)
+    public function findByScenarioIdAndTriggerUuid(int $scenarioId, string $triggerUuid)
     {
-        return $this->getTable()->where([
-            'scenario_id' => $scenarioID,
-            'uuid' => $triggerUUID,
+        return $this->scopeNotDeleted()->where([
+            'scenario_id' => $scenarioId,
+            'uuid' => $triggerUuid,
         ])->fetch();
+    }
+
+    private function scopeNotDeleted()
+    {
+        return $this->getTable()->where('deleted_at IS NULL');
     }
 }

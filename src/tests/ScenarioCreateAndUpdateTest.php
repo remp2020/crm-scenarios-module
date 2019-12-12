@@ -50,7 +50,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         ]);
 
         $element = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
-        $trigger = $this->triggersRepository->findByScenarioIDAndTriggerUUID($scenario->id, 'trigger_user_created');
+        $trigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_created');
 
         $this->scenariosRepository->createOrUpdate([
             'id' => $scenario->id,
@@ -76,7 +76,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         ]);
 
         $updatedElement = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
-        $updatedTrigger = $this->triggersRepository->findByScenarioIDAndTriggerUUID($scenario->id, 'trigger_user_created');
+        $updatedTrigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_created');
         
         // Check that when element is updated and keeps the same UUID, actual database ID (primary key) doesn't change
         $this->assertEquals($element->id, $updatedElement->id);

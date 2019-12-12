@@ -125,12 +125,14 @@ abstract class BaseTestCase extends DatabaseTestCase
 
     protected function elementId($uuid)
     {
-        return $this->getRepository(ElementsRepository::class)->findBy('uuid', $uuid)->id;
+        /** @var ElementsRepository $er */
+        $er = $this->getRepository(ElementsRepository::class);
+        return $er->findByUuid($uuid)->id;
     }
 
     protected function triggerId($uuid)
     {
-        return $this->getRepository(TriggersRepository::class)->findBy('uuid', $uuid)->id;
+        return $this->getRepository(TriggersRepository::class)->findByUuid($uuid)->id;
     }
 
     public static function obj(array $array)
