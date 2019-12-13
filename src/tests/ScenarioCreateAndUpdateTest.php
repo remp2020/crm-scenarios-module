@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Tests;
 
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
+use Crm\ScenariosModule\Repository\TriggerElementsRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
 
 class ScenarioCreateAndUpdateTest extends BaseTestCase
@@ -17,12 +18,16 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
     /** @var ElementsRepository */
     private $elementsRepository;
 
+    /** @var TriggerElementsRepository */
+    private $triggerElementsRepository;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->scenariosRepository = $this->getRepository(ScenariosRepository::class);
         $this->triggersRepository = $this->getRepository(TriggersRepository::class);
         $this->elementsRepository = $this->getRepository(ElementsRepository::class);
+        $this->triggerElementsRepository = $this->getRepository(TriggerElementsRepository::class);
     }
 
     public function testTriggerUserCreatedScenario()
@@ -105,8 +110,11 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
             ]
         ]);
 
+        // Old element should be deleted + its link
         $this->assertEmpty($this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait'));
+        $this->assertEmpty($this->triggerElementsRepository->getLink($trigger->id, $element->id));
 
+        // New element should have different id (old one should be soft-deleted)
         $newElement = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait2');
         $this->assertNotEquals($newElement->id, $updatedElement->id);
     }

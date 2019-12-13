@@ -15,4 +15,12 @@ class ElementElementsRepository extends Repository
             'child_element_id' => $childElementId,
         ])->fetch();
     }
+
+    public function deleteLinksForElements(array $elementIds)
+    {
+        $q = $this->getTable()->where('parent_element_id IN (?) OR child_element_id IN (?)', $elementIds, $elementIds);
+        foreach ($q as $link){
+            $this->delete($link);
+        }
+    }
 }

@@ -85,8 +85,8 @@ class ScenariosRepository extends Repository
         }
         $scenarioId = $scenario->id;
 
-        $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'uuid');
-        $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'uuid');
+        $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'id');
+        $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'id');
 
         // TODO: move whole block to elements repository
         // add elements of scenario
@@ -155,6 +155,9 @@ class ScenariosRepository extends Repository
 
         // Delete old elements
         $this->elementsRepository->deleteByUuids(array_keys($oldElements));
+        // Delete links
+        $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
+        $this->elementElementsRepository->deleteLinksForElements(array_values($oldElements));
 
         // TODO: move whole block to elementElements repository
         // process elements' descendants
@@ -238,6 +241,7 @@ class ScenariosRepository extends Repository
 
         // Delete old elements
         $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
+        $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
 
         $this->connection->commit();
         return $scenario;
@@ -277,7 +281,8 @@ class ScenariosRepository extends Repository
     private function getTriggers(ActiveRow $scenario): array
     {
         $triggers = [];
-        foreach ($scenario->related('scenarios_triggers')->fetchAll() as $scenarioTrigger) {
+        $q = $scenario->related('scenarios_triggers')->where('deleted_at IS NULL');
+        foreach ($q->fetchAll() as $scenarioTrigger) {
             $trigger = [
                 'id' => $scenarioTrigger->uuid,
                 'name' => $scenarioTrigger->name,
@@ -301,7 +306,8 @@ class ScenariosRepository extends Repository
     private function getElements(ActiveRow $scenario): array
     {
         $elements = [];
-        foreach ($scenario->related('scenarios_elements')->fetchAll() as $scenarioElement) {
+        $q = $scenario->related('scenarios_elements')->where('deleted_at IS NULL');
+        foreach ($q->fetchAll() as $scenarioElement) {
             $element = [
                 'id' => $scenarioElement->uuid,
                 'name' => $scenarioElement->name,

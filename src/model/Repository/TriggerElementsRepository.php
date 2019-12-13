@@ -23,4 +23,18 @@ class TriggerElementsRepository extends Repository
             'element_id' => $elementId,
         ])->fetch();
     }
+
+    public function deleteLinksForTriggers(array $triggerIds)
+    {
+        foreach ($this->getTable()->where('trigger_id IN ?', $triggerIds) as $link){
+            $this->delete($link);
+        }
+    }
+
+    public function deleteLinksForElements(array $elementIds)
+    {
+        foreach ($this->getTable()->where('element_id IN ?', $elementIds) as $link){
+            $this->delete($link);
+        }
+    }
 }
