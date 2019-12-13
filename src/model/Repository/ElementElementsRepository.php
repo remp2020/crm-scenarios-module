@@ -19,7 +19,7 @@ class ElementElementsRepository extends Repository
     public function deleteLinksForElements(array $elementIds)
     {
         $q = $this->getTable()->where('parent_element_id IN (?) OR child_element_id IN (?)', $elementIds, $elementIds);
-        foreach ($q as $link){
+        foreach ($q as $link) {
             $this->delete($link);
         }
     }
