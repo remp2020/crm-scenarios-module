@@ -121,6 +121,12 @@ class ScenariosRepository extends Repository
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->segment->descendants ?? [];
                     break;
+                case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                    $elementOptions = [
+                        'conditions' => $element->condition->conditions
+                    ];
+                    $elementPairs[$element->id]['descendants'] = $element->condition->descendants ?? [];
+                    break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     $elementOptions = [
                         'minutes' => $element->wait->minutes
@@ -183,6 +189,7 @@ class ScenariosRepository extends Repository
                 switch ($element['type']) {
                     case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    case ElementsRepository::ELEMENT_TYPE_CONDITION:
                         $elementElementsData['positive'] = $descendantDef->direction === 'positive' ? true : false;
                         break;
                 }
@@ -349,6 +356,15 @@ class ScenariosRepository extends Repository
                         'descendants' => $descendants,
                     ];
                     break;
+                case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                    if (!isset($options->conditions)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'conditions' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'conditions' => $options->conditions,
+                        'descendants' => $descendants,
+                    ];
+                    break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     if (!isset($options->minutes)) {
                         throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'minutes' in options");
@@ -394,6 +410,7 @@ class ScenariosRepository extends Repository
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
+                case ElementsRepository::ELEMENT_TYPE_CONDITION:
                     $d['direction'] = ($descendant->positive == 1 || $descendant->positive === true) ? 'positive' : 'negative';
                     break;
             }

@@ -10,6 +10,7 @@ use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Menu\MenuContainerInterface;
 use Crm\ApplicationModule\Menu\MenuItem;
+use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
@@ -54,6 +55,12 @@ class ScenariosModule extends CrmModule
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'element'),
             \Crm\ScenariosModule\Api\ScenariosElementApiHandler::class,
+            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+        ));
+
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'criteria'),
+            ScenariosCriteriaHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
     }

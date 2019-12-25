@@ -27,8 +27,6 @@ class Engine
 
     private $logger;
 
-    private $startTime;
-
     private $jobsRepository;
 
     private $graphConfiguration;
@@ -45,7 +43,6 @@ class Engine
         ElementsRepository $elementsRepository
     ) {
         $this->logger = $logger;
-        $this->startTime = new DateTime();
         $this->jobsRepository = $jobsRepository;
         $this->graphConfiguration = $graphConfiguration;
         $this->elementsRepository = $elementsRepository;
