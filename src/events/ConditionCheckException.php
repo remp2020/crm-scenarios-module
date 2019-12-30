@@ -2,6 +2,6 @@
 
 namespace Crm\ScenariosModule\Events;
 
-class SegmentCheckException extends \Exception
+class ConditionCheckException extends \Exception
 {
 }

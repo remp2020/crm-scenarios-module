@@ -87,7 +87,7 @@ class ConditionElementTest extends BaseTestCase
                             ['uuid' => 'element_email_neg', 'direction' => 'negative']
                         ],
                         'conditions' => [
-                            'table' => 'subscriptions',
+                            'event' => 'subscription',
                             'version' => 1,
                             'nodes' => [
                                 [
@@ -126,6 +126,7 @@ class ConditionElementTest extends BaseTestCase
         $subscriptionType = $this->subscriptionTypeBuilder
             ->createNew()
             ->setName(self::SUBSCRIPTION_TYPE_STANDARD)
+            ->setCode(self::SUBSCRIPTION_TYPE_STANDARD)
             ->setUserLabel('')
             ->setActive(true)
             ->setPrice(1)

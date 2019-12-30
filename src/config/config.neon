@@ -19,6 +19,7 @@ services:
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
+	- Crm\ScenariosModule\Events\ConditionCheckEventHandler
 	- Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\ShowBannerEventHandler

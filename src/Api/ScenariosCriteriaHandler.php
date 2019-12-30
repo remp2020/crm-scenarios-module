@@ -27,7 +27,7 @@ class ScenariosCriteriaHandler extends ApiHandler
     {
         $criteriaArray = $this->criteriaStorage->getCriteria();
         $result = [];
-        foreach ($criteriaArray as $table => $tableCriteria) {
+        foreach ($criteriaArray as $event => $tableCriteria) {
             foreach ($tableCriteria as $key => $criteria) {
                 /** @var CriteriaParam[] $params */
                 $params = $criteria->params();
@@ -36,7 +36,7 @@ class ScenariosCriteriaHandler extends ApiHandler
                     $paramsArray[$param->key()] = $param->blueprint();
                 }
 
-                $result[$table][] = [
+                $result[$event][] = [
                     'key' => $key,
                     'label' => $criteria->label(),
                     'params' => $paramsArray,
@@ -45,9 +45,9 @@ class ScenariosCriteriaHandler extends ApiHandler
         }
 
         $resultData = [];
-        foreach ($result as $table => $criteria) {
+        foreach ($result as $event => $criteria) {
             $resultData[] = [
-                'table' => $table,
+                'event' => $event,
                 'criteria' => $criteria,
             ];
         }
