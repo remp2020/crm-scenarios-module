@@ -63,61 +63,7 @@ class ConditionElementTest extends BaseTestCase
      */
     public function testSubscriptionConditionPositiveFlow()
     {
-        // Insert
-        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
-            'name' => 'test1',
-            'enabled' => true,
-            'triggers' => [
-                self::obj([
-                    'name' => '',
-                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger1',
-                    'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
-            ],
-            'elements' => [
-                self::obj([
-                    'name' => '',
-                    'id' => 'element_condition',
-                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
-                    'condition' => [
-                        'descendants' => [
-                            ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
-                        ],
-                        'conditions' => [
-                            'event' => 'subscription',
-                            'version' => 1,
-                            'nodes' => [
-                                [
-                                    'id' => 1,
-                                    'key' => 'type',
-                                    'values' => ['free']
-                                ],
-                                [
-                                    'id' => 2,
-                                    'key' => 'subscription_type',
-                                    'values' => [self::SUBSCRIPTION_TYPE_STANDARD]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]),
-                self::obj([
-                    'name' => '',
-                    'id' => 'element_email_pos',
-                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
-                ]),
-                self::obj([
-                    'name' => '',
-                    'id' => 'element_email_neg',
-                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
-        ]);
+        $this->insertScenario(self::SUBSCRIPTION_TYPE_STANDARD);
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -155,5 +101,108 @@ class ConditionElementTest extends BaseTestCase
         $mails = $this->mailsSentTo('test@email.com');
         $this->assertCount(1, $mails);
         $this->assertEquals(self::EMAIL_TEMPLATE_SUCCESS, $mails[0]);
+    }
+
+    /**
+     * Test scenario with TRIGGER -> CONDITION -> MAIL (negative) flow
+     */
+    public function testSubscriptionConditionNegativeFlow()
+    {
+        $this->insertScenario(self::SUBSCRIPTION_TYPE_CLUB);
+
+        // Create user
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        // Add new subscription, which triggers scenario
+        $subscriptionType = $this->subscriptionTypeBuilder
+            ->createNew()
+            ->setName(self::SUBSCRIPTION_TYPE_STANDARD)
+            ->setCode(self::SUBSCRIPTION_TYPE_STANDARD)
+            ->setUserLabel('')
+            ->setActive(true)
+            ->setPrice(1)
+            ->setLength(10)
+            ->save();
+
+        $this->subscriptionGenerator->generate(new SubscriptionsParams(
+            $subscriptionType,
+            $user,
+            SubscriptionsRepository::TYPE_FREE,
+            new DateTime(),
+            new DateTime()
+        ), 1);
+
+        // SIMULATE RUN
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create condition job
+        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
+        $this->engine->run(true); // job(cond): deleted, job(email): created
+        $this->engine->run(true); // job(email): created -> scheduled
+        $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
+        $this->engine->run(true); // job(email): deleted
+
+        // Check email was sent
+        $mails = $this->mailsSentTo('test@email.com');
+        $this->assertCount(1, $mails);
+        $this->assertEquals(self::EMAIL_TEMPLATE_FAIL, $mails[0]);
+    }
+
+    private function insertScenario($checkForSubscriptionType)
+    {
+        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'new_subscription'],
+                    'elements' => ['element_condition']
+                ])
+            ],
+            'elements' => [
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_condition',
+                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
+                    'condition' => [
+                        'descendants' => [
+                            ['uuid' => 'element_email_pos', 'direction' => 'positive'],
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                        ],
+                        'conditions' => [
+                            'event' => 'subscription',
+                            'version' => 1,
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'key' => 'type',
+                                    'values' => ['free']
+                                ],
+                                [
+                                    'id' => 2,
+                                    'key' => 'subscription_type',
+                                    'values' => [$checkForSubscriptionType]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_pos',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_neg',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
+                ])
+            ]
+        ]);
     }
 }
