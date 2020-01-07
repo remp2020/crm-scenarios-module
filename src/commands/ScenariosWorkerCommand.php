@@ -26,5 +26,6 @@ class ScenariosWorkerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->engine->run();
+        return 0;
     }
 }
