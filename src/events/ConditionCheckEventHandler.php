@@ -121,6 +121,9 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
                 $itemQuery = $this->paymentsRepository->getTable()->where(['payments.id' => $jobParameters->payment_id]);
                 break;
             case 'subscription':
+                if (!isset($jobParameters->subscription_id)) {
+                    throw new ConditionCheckException("Job does not have 'subscription_id' parameter required by specified condition check");
+                }
                 $itemQuery = $this->subscriptionsRepository->getTable()->where(['subscriptions.id' => $jobParameters->subscription_id]);
                 break;
             default:
