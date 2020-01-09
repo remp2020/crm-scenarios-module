@@ -8,6 +8,7 @@ use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Events\NotificationEvent;
+use Crm\UsersModule\Events\PreNotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
 use Nette\Utils\Json;
@@ -101,7 +102,13 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
         }
 
-        $this->emitter->emit(new NotificationEvent($user, $templateCode, $templateParams));
+        // First, add ability to modify notification event before it's sent.
+        // This is useful is some cases e.g. another module wants to add template parameters to notification, modify context, etc.
+        /** @var PreNotificationEvent $preNotificationEvent */
+        $preNotificationEvent = $this->emitter->emit(new PreNotificationEvent(new NotificationEvent($user, $templateCode, $templateParams)));
+
+        // Next, emit the notification
+        $this->emitter->emit($preNotificationEvent->getNotificationEvent());
 
         $this->jobsRepository->finishJob($job);
         return true;

@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
+use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
@@ -13,10 +14,16 @@ class NewSubscriptionHandler implements HandlerInterface
 
     private $subscriptionsRepository;
 
-    public function __construct(Dispatcher $dispatcher, SubscriptionsRepository $subscriptionsRepository)
-    {
+    private $paymentsRepository;
+
+    public function __construct(
+        Dispatcher $dispatcher,
+        SubscriptionsRepository $subscriptionsRepository,
+        PaymentsRepository $paymentsRepository
+    ) {
         $this->dispatcher = $dispatcher;
         $this->subscriptionsRepository = $subscriptionsRepository;
+        $this->paymentsRepository = $paymentsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -33,7 +40,7 @@ class NewSubscriptionHandler implements HandlerInterface
         }
 
         $params = ['subscription_id' => $payload['subscription_id']];
-        $payment = $subscription->related('payments')->limit(1)->fetch();
+        $payment = $this->paymentsRepository->subscriptionPayment($subscription);
         if ($payment) {
             $params['payment_id'] = $payment->id;
         }
