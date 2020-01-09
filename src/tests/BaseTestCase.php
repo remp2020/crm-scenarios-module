@@ -14,10 +14,12 @@ use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Engine;
 use Crm\ScenariosModule\Repository\ElementElementsRepository;
 use Crm\ScenariosModule\Repository\ElementsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggerElementsRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Crm\ScenariosModule\ScenariosModule;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
@@ -75,6 +77,9 @@ abstract class BaseTestCase extends DatabaseTestCase
             TriggersRepository::class,
             ElementElementsRepository::class,
             ElementsRepository::class,
+            // Scenario stats
+            ElementStatsRepository::class,
+            TriggerStatsRepository::class,
             // Payments + recurrent payments
             PaymentGatewaysRepository::class,
             PaymentsRepository::class,

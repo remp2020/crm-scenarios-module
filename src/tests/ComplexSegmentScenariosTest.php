@@ -3,9 +3,11 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ScenariosModule\Repository\ElementsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\UsersModule\Auth\UserManager;
@@ -15,6 +17,7 @@ class ComplexSegmentScenariosTest extends BaseTestCase
 {
     /**
      * Test scenario with TRIGGER -> WAIT -> SEGMENT -> MAIL flow
+     * + Stats are checked
      */
     public function testWaitSegmentMailScenario()
     {
@@ -105,5 +108,49 @@ class ComplexSegmentScenariosTest extends BaseTestCase
         $this->engine->run(true); // job(email) deleted
 
         $this->assertCount(0, $jr->getAllJobs()->fetchAll());
+
+        // Check stats count
+
+        $tsr = $this->getRepository(TriggerStatsRepository::class);
+        $esr = $this->getRepository(ElementStatsRepository::class);
+
+        $triggerStats = $tsr->countsFor($this->triggerId('trigger1'));
+        // Triggers are only CREATED and then FINISHED
+        $this->assertEquals($triggerStats[JobsRepository::STATE_CREATED], 1);
+        $this->assertEquals($triggerStats[JobsRepository::STATE_FINISHED], 1);
+
+        $waitStats = $esr->countsFor($this->elementId('element_wait'));
+        foreach (JobsRepository::allStates() as $state) {
+            $count = $waitStats[$state] ?? 0;
+
+            // WAIT is a special element, it's directly STARTED from CREATED state (SCHEDULED is skipped)
+            if ($state === JobsRepository::STATE_SCHEDULED || $state === JobsRepository::STATE_FAILED) {
+                $this->assertEquals(0, $count);
+            } else {
+                $this->assertEquals(1, $count);
+            }
+        }
+
+        $segmentStats = $esr->countsFor($this->elementId('element_segment'));
+        foreach (JobsRepository::allStates() as $state) {
+            $count = $segmentStats[$state] ?? 0;
+
+            if ($state == JobsRepository::STATE_FAILED) {
+                $this->assertEquals(0, $count);
+            } else {
+                $this->assertEquals(1, $count);
+            }
+        }
+
+        $emailStats = $esr->countsFor($this->elementId('element_email'));
+        foreach (JobsRepository::allStates() as $state) {
+            $count = $emailStats[$state] ?? 0;
+
+            if ($state == JobsRepository::STATE_FAILED) {
+                $this->assertEquals(0, $count);
+            } else {
+                $this->assertEquals(1, $count);
+            }
+        }
     }
 }

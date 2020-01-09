@@ -38,9 +38,11 @@ services:
 
 	- Crm\ScenariosModule\Repository\JobsRepository
 	- Crm\ScenariosModule\Repository\ElementsRepository
+	- Crm\ScenariosModule\Repository\ElementStatsRepository
 	- Crm\ScenariosModule\Repository\ElementElementsRepository
 	- Crm\ScenariosModule\Repository\ScenariosRepository
 	- Crm\ScenariosModule\Repository\TriggersRepository
+	- Crm\ScenariosModule\Repository\TriggerStatsRepository
 	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
