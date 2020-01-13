@@ -13,7 +13,7 @@ class TriggerStatsRepository extends Repository
     {
         $now = new DateTime();
         $this->getDatabase()->query(
-            'INSERT INTO ' . $this->tableName . ' (`trigger_id`, `state`, `count`, `updated_at`) VALUES (?, ?, 1, ?) ON DUPLICATE KEY UPDATE `count`=VALUES(`count`) + 1, `updated_at` = ?',
+            'INSERT INTO ' . $this->tableName . ' (`trigger_id`, `state`, `count`, `updated_at`) VALUES (?, ?, 1, ?) ON DUPLICATE KEY UPDATE `count`=`count` + 1, `updated_at` = ?',
             $triggerId,
             $state,
             $now,
