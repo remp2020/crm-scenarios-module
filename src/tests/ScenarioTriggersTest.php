@@ -2,13 +2,11 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Crm\UsersModule\Auth\UserManager;
-use Tomaj\Hermes\Emitter;
 
 class ScenarioTriggersTest extends BaseTestCase
 {
