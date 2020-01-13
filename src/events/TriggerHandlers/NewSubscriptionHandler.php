@@ -40,7 +40,7 @@ class NewSubscriptionHandler implements HandlerInterface
         }
 
         $params = ['subscription_id' => $payload['subscription_id']];
-        $payment = $this->paymentsRepository->subscriptionPayment($subscription);
+        $payment = $subscription->related('payments')->limit(1)->fetch();
         if ($payment) {
             $params['payment_id'] = $payment->id;
         }
