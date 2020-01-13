@@ -46,6 +46,10 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->dispatcher->handle();
         $this->engine->run(true); // process trigger
 
+        $this->userManager->addNewUser('user3@email.com', false, 'unknown', null, false);
+        $this->dispatcher->handle();
+        $this->engine->run(true); // process trigger
+
         $jobsRepository = $this->getRepository(JobsRepository::class);
         $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
 
@@ -53,7 +57,7 @@ class ScenarioTriggersTest extends BaseTestCase
         // Triggers are only CREATED and then FINISHED
         $tsr = $this->getRepository(TriggerStatsRepository::class);
         $triggerStats = $tsr->countsFor($this->triggerId('trigger1'));
-        $this->assertEquals(2, $triggerStats[JobsRepository::STATE_CREATED]);
-        $this->assertEquals(2, $triggerStats[JobsRepository::STATE_FINISHED]);
+        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_CREATED]);
+        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_FINISHED]);
     }
 }
