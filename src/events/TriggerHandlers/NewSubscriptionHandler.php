@@ -2,7 +2,6 @@
 
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
-use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
