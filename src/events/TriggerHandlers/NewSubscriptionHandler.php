@@ -14,16 +14,12 @@ class NewSubscriptionHandler implements HandlerInterface
 
     private $subscriptionsRepository;
 
-    private $paymentsRepository;
-
     public function __construct(
         Dispatcher $dispatcher,
-        SubscriptionsRepository $subscriptionsRepository,
-        PaymentsRepository $paymentsRepository
+        SubscriptionsRepository $subscriptionsRepository
     ) {
         $this->dispatcher = $dispatcher;
         $this->subscriptionsRepository = $subscriptionsRepository;
-        $this->paymentsRepository = $paymentsRepository;
     }
 
     public function handle(MessageInterface $message): bool
