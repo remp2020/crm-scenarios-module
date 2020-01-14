@@ -25,9 +25,11 @@ use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SubscriptionsModule\Events\NewSubscriptionEvent;
 use Crm\SubscriptionsModule\Events\SubscriptionEndsEvent;
+use Crm\SubscriptionsModule\Repository\ContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionExtensionMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionLengthMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Repository\SubscriptionTypeContentAccess;
 use Crm\SubscriptionsModule\Repository\SubscriptionTypesRepository;
 use Crm\SubscriptionsModule\Seeders\SubscriptionExtensionMethodsSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
@@ -88,6 +90,9 @@ abstract class BaseTestCase extends DatabaseTestCase
             // User goals
             OnboardingGoalsRepository::class,
             UserOnboardingGoalsRepository::class,
+            // Content access
+            ContentAccessRepository::class,
+            SubscriptionTypeContentAccess::class
         ];
     }
 

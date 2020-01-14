@@ -132,7 +132,7 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
         foreach ($conditions->nodes as $node) {
             $criterion = $this->scenariosCriteriaStorage->getEventCriterion($conditions->event, $node->key);
-            $criterion->addCondition($itemQuery, $node->values);
+            $criterion->addCondition($itemQuery, $node->key, $node->values);
         }
 
         // If item passes all conditions (and therefore an item is fetched), conditions are met
