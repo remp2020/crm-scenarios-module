@@ -3,15 +3,27 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
+use Nette\Caching\IStorage;
+use Nette\Database\Context;
 
 class TriggersRepository extends Repository
 {
     protected $tableName = 'scenarios_triggers';
 
     const TRIGGER_TYPE_EVENT = 'event';
+
+    public function __construct(
+        AuditLogRepository $auditLogRepository,
+        Context $database,
+        IStorage $cacheStorage = null
+    ) {
+        parent::__construct($database, $cacheStorage);
+        $this->auditLogRepository = $auditLogRepository;
+    }
 
     public function all()
     {

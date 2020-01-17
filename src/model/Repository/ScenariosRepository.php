@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\IStorage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
@@ -29,6 +30,7 @@ class ScenariosRepository extends Repository
 
     public function __construct(
         Context $database,
+        AuditLogRepository $auditLogRepository,
         IStorage $cacheStorage = null,
         Connection $connection,
         ElementsRepository $elementsRepository,
@@ -45,6 +47,7 @@ class ScenariosRepository extends Repository
         $this->eventsStorage = $eventsStorage;
         $this->triggersRepository = $triggersRepository;
         $this->triggerElementsRepository = $triggerElementsRepository;
+        $this->auditLogRepository = $auditLogRepository;
     }
 
     public function all()

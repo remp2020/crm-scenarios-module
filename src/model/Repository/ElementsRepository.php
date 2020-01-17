@@ -3,9 +3,12 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
+use Nette\Caching\IStorage;
+use Nette\Database\Context;
 
 class ElementsRepository extends Repository
 {
@@ -16,6 +19,15 @@ class ElementsRepository extends Repository
     const ELEMENT_TYPE_SEGMENT = 'segment';
     const ELEMENT_TYPE_WAIT = 'wait';
     const ELEMENT_TYPE_BANNER = 'banner';
+
+    public function __construct(
+        AuditLogRepository $auditLogRepository,
+        Context $database,
+        IStorage $cacheStorage = null
+    ) {
+        parent::__construct($database, $cacheStorage);
+        $this->auditLogRepository = $auditLogRepository;
+    }
 
     public function all()
     {

@@ -3,10 +3,22 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Repository\AuditLogRepository;
+use Nette\Caching\IStorage;
+use Nette\Database\Context;
 
 class ElementElementsRepository extends Repository
 {
     protected $tableName = 'scenarios_element_elements';
+
+    public function __construct(
+        AuditLogRepository $auditLogRepository,
+        Context $database,
+        IStorage $cacheStorage = null
+    ) {
+        parent::__construct($database, $cacheStorage);
+        $this->auditLogRepository = $auditLogRepository;
+    }
 
     public function getLink($parentElementId, $childElementId)
     {
