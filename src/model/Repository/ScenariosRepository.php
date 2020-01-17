@@ -91,6 +91,11 @@ class ScenariosRepository extends Repository
         $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'id');
         $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'id');
 
+        // Delete all links
+        $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
+        $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
+        $this->elementElementsRepository->deleteLinksForElements(array_values($oldElements));
+
         // TODO: move whole block to elements repository
         // add elements of scenario
         $elementPairs = [];
@@ -164,9 +169,6 @@ class ScenariosRepository extends Repository
 
         // Delete old elements
         $this->elementsRepository->deleteByUuids(array_keys($oldElements));
-        // Delete links
-        $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
-        $this->elementElementsRepository->deleteLinksForElements(array_values($oldElements));
 
         // TODO: move whole block to elementElements repository
         // process elements' descendants
@@ -249,9 +251,8 @@ class ScenariosRepository extends Repository
             }
         }
 
-        // Delete old elements
+        // Delete old triggers
         $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
-        $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
 
         $this->connection->commit();
         return $scenario;
