@@ -2,21 +2,21 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
-use Tomaj\Hermes\Emitter;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
+use Crm\UsersModule\Auth\UserManager;
 
 class ScenarioTriggersTest extends BaseTestCase
 {
-    /** @var Emitter */
-    private $hermesEmitter;
+    /** @var UserManager */
+    private $userManager;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->hermesEmitter = $this->inject(Emitter::class);
+        $this->userManager = $this->inject(UserManager::class);
     }
 
     public function testTriggerUserCreatedScenario()
@@ -35,13 +35,27 @@ class ScenarioTriggersTest extends BaseTestCase
             ]
         ]);
 
-        $this->hermesEmitter->emit(new HermesMessage('user-created', [
-            'user_id' => 1,
-            'password' => 'SOMEPASS'
-        ]));
-
+        // Add user, which triggers scenario
+        $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
+        $this->engine->run(true); // process trigger
+
+        $this->userManager->addNewUser('user2@email.com', false, 'unknown', null, false);
+        $this->dispatcher->handle();
+        $this->engine->run(true); // process trigger
+
+        $this->userManager->addNewUser('user3@email.com', false, 'unknown', null, false);
+        $this->dispatcher->handle();
+        $this->engine->run(true); // process trigger
+
         $jobsRepository = $this->getRepository(JobsRepository::class);
-        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+        $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
+
+        // Check stats
+        // Triggers are only CREATED and then FINISHED
+        $tsr = $this->getRepository(TriggerStatsRepository::class);
+        $triggerStats = $tsr->countsFor($this->triggerId('trigger1'));
+        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_CREATED]);
+        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_FINISHED]);
     }
 }

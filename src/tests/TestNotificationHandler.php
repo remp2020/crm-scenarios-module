@@ -13,7 +13,7 @@ class TestNotificationHandler extends AbstractListener
     public function handle(EventInterface $event)
     {
         if (!($event instanceof NotificationEvent)) {
-            throw new \Exception("Unable to handle event, expected NotificationEvent");
+            throw new \Exception('Unable to handle event, expected NotificationEvent');
         }
 
         $email = $event->getUser()->email;

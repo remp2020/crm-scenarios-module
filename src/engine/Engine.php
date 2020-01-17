@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Engine;
 
+use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
@@ -27,8 +28,6 @@ class Engine
 
     private $logger;
 
-    private $startTime;
-
     private $jobsRepository;
 
     private $graphConfiguration;
@@ -45,7 +44,6 @@ class Engine
         ElementsRepository $elementsRepository
     ) {
         $this->logger = $logger;
-        $this->startTime = new DateTime();
         $this->jobsRepository = $jobsRepository;
         $this->graphConfiguration = $graphConfiguration;
         $this->elementsRepository = $elementsRepository;
@@ -159,6 +157,10 @@ class Engine
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id));
                     break;
+                case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id));
+                    break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id));
@@ -208,6 +210,14 @@ class Engine
         }
 
         switch ($element->type) {
+            case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                $result = Json::decode($job->result, Json::FORCE_ARRAY);
+                if (!array_key_exists(ConditionCheckEventHandler::RESULT_PARAM_CONDITION_MET, $result)) {
+                    throw new InvalidJobException("condition job results do not contain required parameter '". ConditionCheckEventHandler::RESULT_PARAM_CONDITION_MET ."'");
+                }
+                $conditionMet = (bool) $result[ConditionCheckEventHandler::RESULT_PARAM_CONDITION_MET];
+                $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, $conditionMet);
+                break;
             case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                 $result = Json::decode($job->result);
                 if (!isset($result->in)) {

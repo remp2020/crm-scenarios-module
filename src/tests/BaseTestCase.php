@@ -14,18 +14,22 @@ use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Engine;
 use Crm\ScenariosModule\Repository\ElementElementsRepository;
 use Crm\ScenariosModule\Repository\ElementsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggerElementsRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Crm\ScenariosModule\ScenariosModule;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SubscriptionsModule\Events\NewSubscriptionEvent;
 use Crm\SubscriptionsModule\Events\SubscriptionEndsEvent;
+use Crm\SubscriptionsModule\Repository\ContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionExtensionMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionLengthMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Repository\SubscriptionTypeContentAccess;
 use Crm\SubscriptionsModule\Repository\SubscriptionTypesRepository;
 use Crm\SubscriptionsModule\Seeders\SubscriptionExtensionMethodsSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
@@ -75,6 +79,9 @@ abstract class BaseTestCase extends DatabaseTestCase
             TriggersRepository::class,
             ElementElementsRepository::class,
             ElementsRepository::class,
+            // Scenario stats
+            ElementStatsRepository::class,
+            TriggerStatsRepository::class,
             // Payments + recurrent payments
             PaymentGatewaysRepository::class,
             PaymentsRepository::class,
@@ -83,6 +90,9 @@ abstract class BaseTestCase extends DatabaseTestCase
             // User goals
             OnboardingGoalsRepository::class,
             UserOnboardingGoalsRepository::class,
+            // Content access
+            ContentAccessRepository::class,
+            SubscriptionTypeContentAccess::class
         ];
     }
 
