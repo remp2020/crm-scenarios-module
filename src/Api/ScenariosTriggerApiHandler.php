@@ -7,30 +7,28 @@ use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Latte\Engine;
 use Nette\Http\Response;
 
-class ScenariosElementApiHandler extends ApiHandler
+class ScenariosTriggerApiHandler extends ApiHandler
 {
-    private $elementsRepository;
+    private $triggersRepository;
 
-    private $elementStatsRepository;
+    private $triggerStatsRepository;
 
-    public function __construct(
-        ElementsRepository $elementsRepository,
-        ElementStatsRepository $elementStatsRepository
-    ) {
-        $this->elementsRepository = $elementsRepository;
-        $this->elementStatsRepository = $elementStatsRepository;
+    public function __construct(TriggersRepository $triggersRepository, TriggerStatsRepository $triggerStatsRepository)
+    {
+        $this->triggersRepository = $triggersRepository;
+        $this->triggerStatsRepository = $triggerStatsRepository;
     }
 
     public function params()
     {
         return [
-            new InputParam(InputParam::TYPE_GET, 'element_uuid', InputParam::REQUIRED),
+            new InputParam(InputParam::TYPE_GET, 'trigger_uuid', InputParam::REQUIRED),
         ];
     }
 
@@ -53,33 +51,32 @@ class ScenariosElementApiHandler extends ApiHandler
 
         $params = $paramsProcessor->getValues();
 
-        $element = $this->elementsRepository->findByUuid($params['element_uuid']);
-        if (!$element) {
+        $trigger = $this->triggersRepository->findByUuid($params['trigger_uuid']);
+        if (!$trigger) {
             $response = new JsonResponse([
                 'status' => 'error',
-                'message' => "Element with UIID [{$params['element_uuid']}] not found."]);
+                'message' => "Trigger with UIID [{$params['trigger_uuid']}] not found."]);
             $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }
 
-        $response = new JsonResponse(['html' => $this->renderTooltip($element->id)]);
+        $response = new JsonResponse(['html' => $this->renderTooltip($trigger->id)]);
         $response->setHttpCode(Response::S200_OK);
         return $response;
     }
 
-    private function renderTooltip($elementId): string
+    private function renderTooltip($triggerId): string
     {
-        $stats = $this->elementStatsRepository->countsFor($elementId);
+        $stats = $this->triggerStatsRepository->countsFor($triggerId);
 
         $engine = new Engine();
-        $templateFile = __DIR__ . '/../templates/builder/elementTooltip.latte';
+        $templateFile = __DIR__ . '/../templates/builder/triggerTooltip.latte';
 
         $template = $engine->renderToString(
             $templateFile,
             [
                 'started' => $stats[JobsRepository::STATE_CREATED] ?? 0,
                 'finished' => $stats[JobsRepository::STATE_FINISHED] ?? 0,
-                'failed' => $stats[JobsRepository::STATE_FAILED] ?? 0,
             ]
         );
 

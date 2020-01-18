@@ -58,6 +58,11 @@ class ScenariosModule extends CrmModule
             \Crm\ScenariosModule\Api\ScenariosElementApiHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'trigger'),
+            \Crm\ScenariosModule\Api\ScenariosTriggerApiHandler::class,
+            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+        ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),

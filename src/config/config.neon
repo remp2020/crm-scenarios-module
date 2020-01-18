@@ -15,6 +15,7 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
+	- Crm\ScenariosModule\Api\ScenariosTriggerApiHandler
 	- Crm\ScenariosModule\Api\ScenariosCriteriaHandler
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
