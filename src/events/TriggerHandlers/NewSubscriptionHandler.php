@@ -27,6 +27,13 @@ class NewSubscriptionHandler implements HandlerInterface
         if (!isset($payload['subscription_id'])) {
             throw new \Exception('unable to handle event: subscription_id missing');
         }
+
+        $sendEmail = $payload['send_email'] ?? true;
+        if (!$sendEmail) {
+            // in such case, do not trigger any scenario
+            return true;
+        }
+
         $subscriptionId = $payload['subscription_id'];
         $subscription = $this->subscriptionsRepository->find($subscriptionId);
 
