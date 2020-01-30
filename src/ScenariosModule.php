@@ -32,7 +32,7 @@ class ScenariosModule extends CrmModule
     public function registerAdminMenuItems(MenuContainerInterface $menuContainer)
     {
         $mainMenu = new MenuItem(
-            '',
+            $this->translator->translate('scenarios.admin.menu.default'),
             ':Scenarios:ScenariosAdmin:default',
             'fa fa-code-branch',
             780

@@ -1,4 +1,6 @@
 admin:
+	menu:
+		default: Scenarios
 	scenarios:
 		default:
 			title: Scenarios
