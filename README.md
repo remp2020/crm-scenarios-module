@@ -98,12 +98,14 @@ php bin/command.php application:seed
 
 #### Engine
 
-Scenarios module requires Scenario engine worker to run separately in a background to process graph execution flows.
-To run script, execute: 
+Scenarios module requires Scenario engine worker to run separately in a background to process graph execution flows. 
+In addition, it also requires Hermes worker to process asynchronous tasks.
+Execute: 
 
 ```bash
+php bin/command.php application:hermes_worker
 php bin/command.php scenarios:worker
 ```
 
-Make sure worker is started again if killed, e.g. by running a service or a watchog.
+Make sure both workers are started again if killed, e.g. by running a service or a watchog.
 
