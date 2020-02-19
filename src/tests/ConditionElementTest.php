@@ -13,8 +13,12 @@ use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repository\ContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\SubscriptionsModule\SubscriptionsModule;
+use Crm\UsersModule\Auth\Permissions;
 use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\UsersModule;
 use Kdyby\Translation\Translator;
+use Nette\Security\User;
 use Nette\Utils\DateTime;
 
 class ConditionElementTest extends BaseTestCase
@@ -56,10 +60,20 @@ class ConditionElementTest extends BaseTestCase
         $this->jobsRepository = $this->getRepository(JobsRepository::class);
         $this->contentAccessRepository = $this->getRepository(ContentAccessRepository::class);
 
-        // Register module's scenarios criteria storage
+        // Register modules' scenarios criteria storage
         $this->scenariosCriteriaStorage = $this->inject(ScenariosCriteriaStorage::class);
-        $m = new SubscriptionsModule($this->container, $this->inject(Translator::class), $this->subscriptionRepository);
-        $m->registerScenariosCriteria($this->scenariosCriteriaStorage);
+
+        $subscriptionsModule = new SubscriptionsModule($this->container, $this->inject(Translator::class), $this->subscriptionRepository);
+        $subscriptionsModule->registerScenariosCriteria($this->scenariosCriteriaStorage);
+
+        $usersModule = new UsersModule(
+            $this->container,
+            $this->inject(Translator::class),
+            $this->createMock(User::class),
+            $this->createMock(Permissions::class),
+            $this->getRepository(UsersRepository::class)
+        );
+        $usersModule->registerScenariosCriteria($this->scenariosCriteriaStorage);
     }
 
     /**
@@ -394,6 +408,83 @@ class ConditionElementTest extends BaseTestCase
             new DateTime(),
             new DateTime()
         ), 1);
+
+        // SIMULATE RUN
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create condition job
+        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
+        $this->engine->run(true); // job(cond): deleted, job(email): created
+        $this->engine->run(true); // job(email): created -> scheduled
+        $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
+        $this->engine->run(true); // job(email): deleted
+
+        // Check email was sent
+        $mails = $this->mailsSentTo('test@email.com');
+        $this->assertCount(1, $mails);
+        $this->assertEquals(self::EMAIL_TEMPLATE_SUCCESS, $mails[0]);
+    }
+
+    /**
+     * Test scenario with TRIGGER -> CONDITION -> MAIL (positive) flow
+     */
+    public function testUserSourceConditionPositiveFlow()
+    {
+        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'user_created'],
+                    'elements' => ['element_condition']
+                ])
+            ],
+            'elements' => [
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_condition',
+                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
+                    'condition' => [
+                        'descendants' => [
+                            ['uuid' => 'element_email_pos', 'direction' => 'positive'],
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                        ],
+                        'conditions' => [
+                            'event' => 'user',
+                            'version' => 1,
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'key' => 'source',
+                                    'values' => [
+                                        'selection'=> ['mobile_app'],
+                                        'operator' => 'or'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_pos',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_neg',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
+                ])
+            ]
+        ]);
+
+        // Create user, trigger scenario
+        $this->userManager->addNewUser('test@email.com', false, 'mobile_app', null, false);
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job

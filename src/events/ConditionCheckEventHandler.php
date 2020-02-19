@@ -114,6 +114,10 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
         // Currently only given (trigger) event checks are supported
         switch ($conditions->event) {
+            case 'user':
+                // user_id is guaranteed to always be there
+                $itemQuery = $this->usersRepository->getTable()->where(['users.id' => $jobParameters->user_id]);
+                break;
             case 'payment':
                 if (!isset($jobParameters->payment_id)) {
                     throw new ConditionCheckException("Job does not have 'payment_id' parameter required by specified condition check");
