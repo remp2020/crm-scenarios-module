@@ -500,5 +500,22 @@ class ConditionElementTest extends BaseTestCase
         $mails = $this->mailsSentTo('test@email.com');
         $this->assertCount(1, $mails);
         $this->assertEquals(self::EMAIL_TEMPLATE_SUCCESS, $mails[0]);
+
+        // Create other user, trigger scenario
+        $this->userManager->addNewUser('test2@email.com', false, 'some_other_source', null, false);
+
+        // SIMULATE RUN
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create condition job
+        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
+        $this->engine->run(true); // job(cond): deleted, job(email): created
+        $this->engine->run(true); // job(email): created -> scheduled
+        $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
+        $this->engine->run(true); // job(email): deleted
+
+        $mails = $this->mailsSentTo('test2@email.com');
+        $this->assertCount(1, $mails);
+        $this->assertEquals(self::EMAIL_TEMPLATE_FAIL, $mails[0]);
     }
 }
