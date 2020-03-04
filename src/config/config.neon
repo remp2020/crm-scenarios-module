@@ -12,6 +12,15 @@ services:
 	scenariosEngine:
 			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
 
+	jobsRepository: Crm\ScenariosModule\Repository\JobsRepository
+	elementsRepository: Crm\ScenariosModule\Repository\ElementsRepository
+	elementStatsRepository: Crm\ScenariosModule\Repository\ElementStatsRepository
+	elementElementsRepository: Crm\ScenariosModule\Repository\ElementElementsRepository
+	scenariosRepository: Crm\ScenariosModule\Repository\ScenariosRepository
+	triggersRepository: Crm\ScenariosModule\Repository\TriggersRepository
+	triggerStatsRepository: Crm\ScenariosModule\Repository\TriggerStatsRepository
+	triggerElementsRepository: Crm\ScenariosModule\Repository\TriggerElementsRepository
+
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
@@ -36,14 +45,5 @@ services:
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 	- Crm\ScenariosModule\Engine\GraphConfiguration
-
-	- Crm\ScenariosModule\Repository\JobsRepository
-	- Crm\ScenariosModule\Repository\ElementsRepository
-	- Crm\ScenariosModule\Repository\ElementStatsRepository
-	- Crm\ScenariosModule\Repository\ElementElementsRepository
-	- Crm\ScenariosModule\Repository\ScenariosRepository
-	- Crm\ScenariosModule\Repository\TriggersRepository
-	- Crm\ScenariosModule\Repository\TriggerStatsRepository
-	- Crm\ScenariosModule\Repository\TriggerElementsRepository
 
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
