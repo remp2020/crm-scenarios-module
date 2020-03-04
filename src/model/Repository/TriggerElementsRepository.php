@@ -20,7 +20,7 @@ class TriggerElementsRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    public function addLink($triggerId, $elementId)
+    final public function addLink($triggerId, $elementId)
     {
         return $this->insert([
             'trigger_id' => $triggerId,
@@ -28,7 +28,7 @@ class TriggerElementsRepository extends Repository
         ]);
     }
 
-    public function getLink($triggerId, $elementId)
+    final public function getLink($triggerId, $elementId)
     {
         return $this->getTable()->where([
             'trigger_id' => $triggerId,
@@ -36,14 +36,14 @@ class TriggerElementsRepository extends Repository
         ])->fetch();
     }
 
-    public function deleteLinksForTriggers(array $triggerIds)
+    final public function deleteLinksForTriggers(array $triggerIds)
     {
         foreach ($this->getTable()->where('trigger_id IN ?', $triggerIds) as $link) {
             $this->delete($link);
         }
     }
 
-    public function deleteLinksForElements(array $elementIds)
+    final public function deleteLinksForElements(array $elementIds)
     {
         foreach ($this->getTable()->where('element_id IN ?', $elementIds) as $link) {
             $this->delete($link);

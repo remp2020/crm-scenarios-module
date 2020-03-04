@@ -9,7 +9,7 @@ class ElementStatsRepository extends Repository
 {
     protected $tableName = 'scenarios_element_stats';
 
-    public function increment($elementId, $state)
+    final public function increment($elementId, $state)
     {
         $now = new DateTime();
         $this->getDatabase()->query(
@@ -21,7 +21,7 @@ class ElementStatsRepository extends Repository
         );
     }
 
-    public function countsFor($elementId): array
+    final public function countsFor($elementId): array
     {
         $results = [];
         foreach ($this->getTable()->where(['element_id' => $elementId]) as $item) {

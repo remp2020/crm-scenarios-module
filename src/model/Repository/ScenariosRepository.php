@@ -50,7 +50,7 @@ class ScenariosRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    public function all()
+    final public function all()
     {
         return $this->getTable()->order('name ASC');
     }
@@ -61,7 +61,7 @@ class ScenariosRepository extends Repository
      * @throws ScenarioInvalidDataException - when unable to create / update scenario because of invalid data
      * @throws \Exception - when internal error occurs
      */
-    public function createOrUpdate(array $data)
+    final public function createOrUpdate(array $data)
     {
         $this->connection->beginTransaction();
 
@@ -258,7 +258,7 @@ class ScenariosRepository extends Repository
         return $scenario;
     }
 
-    public function getEnabledScenarios()
+    final public function getEnabledScenarios()
     {
         return $this->getTable()->where('enabled', true);
     }
@@ -271,7 +271,7 @@ class ScenariosRepository extends Repository
      * @return array|false if scenario was not found
      * @throws \Nette\Utils\JsonException
      */
-    public function getScenario(int $scenarioID)
+    final public function getScenario(int $scenarioID)
     {
         $scenario = $this->find($scenarioID);
         if (!$scenario) {
@@ -287,6 +287,14 @@ class ScenariosRepository extends Repository
         ];
 
         return $result;
+    }
+
+    final public function setEnabled($scenario, $value = true)
+    {
+        return $this->update($scenario, [
+            'enabled' => $value,
+            'modified_at' => new DateTime(),
+        ]);
     }
 
     private function getTriggers(ActiveRow $scenario): array
@@ -421,13 +429,5 @@ class ScenariosRepository extends Repository
             $descendants[] = $d;
         }
         return $descendants;
-    }
-
-    public function setEnabled($scenario, $value = true)
-    {
-        return $this->update($scenario, [
-            'enabled' => $value,
-            'modified_at' => new DateTime(),
-        ]);
     }
 }

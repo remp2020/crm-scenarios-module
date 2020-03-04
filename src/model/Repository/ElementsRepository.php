@@ -30,45 +30,45 @@ class ElementsRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    public function all()
+    final public function all()
     {
         return $this->scopeNotDeleted();
     }
 
-    public function findByUuid($uuid)
+    final public function findByUuid($uuid)
     {
 
         return $this->scopeNotDeleted()->where(['uuid' => $uuid])->fetch();
     }
 
-    public function removeAllByScenarioID(int $scenarioId)
+    final public function removeAllByScenarioID(int $scenarioId)
     {
         foreach ($this->allScenarioElements($scenarioId) as $element) {
             $this->delete($element);
         }
     }
 
-    public function allScenarioElements(int $scenarioId): Selection
+    final public function allScenarioElements(int $scenarioId): Selection
     {
         return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId
         ]);
     }
 
-    public function findByScenarioIDAndElementUUID(int $scenarioId, string $elementUuid)
+    final public function findByScenarioIDAndElementUUID(int $scenarioId, string $elementUuid)
     {
         return $this->allScenarioElements($scenarioId)
             ->where(['uuid' => $elementUuid])
             ->fetch();
     }
 
-    public function delete(IRow &$row)
+    final public function delete(IRow &$row)
     {
         // Soft-delete
         $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
-    public function deleteByUuids(array $uuids)
+    final public function deleteByUuids(array $uuids)
     {
         $elements = $this->scopeNotDeleted()->where('uuid IN (?)', $uuids)->fetchAll();
         foreach ($elements as $element) {

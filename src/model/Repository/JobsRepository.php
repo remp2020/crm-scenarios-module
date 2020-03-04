@@ -18,7 +18,7 @@ class JobsRepository extends Repository
     const STATE_FINISHED = 'finished';
     const STATE_FAILED = 'failed';
 
-    public static function allStates(): array
+    final public static function allStates(): array
     {
         return [
             self::STATE_CREATED,
@@ -50,7 +50,7 @@ class JobsRepository extends Repository
         $this->elementStatsRepository = $elementStatsRepository;
     }
 
-    public function addTrigger($triggerId, array $parameters)
+    final public function addTrigger($triggerId, array $parameters)
     {
         $trigger = $this->insert([
             'trigger_id' => $triggerId,
@@ -64,7 +64,7 @@ class JobsRepository extends Repository
         return $trigger;
     }
 
-    public function addElement($elementId, array $parameters)
+    final public function addElement($elementId, array $parameters)
     {
         $element = $this->insert([
             'element_id' => $elementId,
@@ -78,7 +78,7 @@ class JobsRepository extends Repository
         return $element;
     }
 
-    public function update(IRow &$row, $data)
+    final public function update(IRow &$row, $data)
     {
         // Update element/triggers stats if job state is changing
         if (array_key_exists('state', $data) && $row->state !== $data['state']) {
@@ -93,7 +93,7 @@ class JobsRepository extends Repository
         return parent::update($row, $data);
     }
 
-    public function startJob(IRow &$row)
+    final public function startJob(IRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_STARTED,
@@ -101,7 +101,7 @@ class JobsRepository extends Repository
         ]);
     }
 
-    public function finishJob(IRow &$row)
+    final public function finishJob(IRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_FINISHED,
@@ -109,39 +109,39 @@ class JobsRepository extends Repository
         ]);
     }
 
-    public function scheduleJob(IRow &$row)
+    final public function scheduleJob(IRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_SCHEDULED,
         ]);
     }
 
-    public function getAllJobs()
+    final public function getAllJobs()
     {
         return $this->getTable();
     }
 
-    public function getUnprocessedJobs()
+    final public function getUnprocessedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_CREATED]);
     }
 
-    public function getStartedJobs()
+    final public function getStartedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_STARTED]);
     }
 
-    public function getScheduledJobs()
+    final public function getScheduledJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_SCHEDULED]);
     }
 
-    public function getFinishedJobs()
+    final public function getFinishedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_FINISHED]);
     }
 
-    public function getFailedJobs()
+    final public function getFailedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_FAILED]);
     }

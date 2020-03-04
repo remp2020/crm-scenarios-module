@@ -9,7 +9,7 @@ class TriggerStatsRepository extends Repository
 {
     protected $tableName = 'scenarios_trigger_stats';
 
-    public function increment($triggerId, $state)
+    final public function increment($triggerId, $state)
     {
         $now = new DateTime();
         $this->getDatabase()->query(
@@ -21,7 +21,7 @@ class TriggerStatsRepository extends Repository
         );
     }
 
-    public function countsFor($triggerId): array
+    final public function countsFor($triggerId): array
     {
         $results = [];
         foreach ($this->getTable()->where(['trigger_id' => $triggerId]) as $item) {

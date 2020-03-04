@@ -20,7 +20,7 @@ class ElementElementsRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    public function getLink($parentElementId, $childElementId)
+    final public function getLink($parentElementId, $childElementId)
     {
         return $this->getTable()->where([
             'parent_element_id' => $parentElementId,
@@ -28,7 +28,7 @@ class ElementElementsRepository extends Repository
         ])->fetch();
     }
 
-    public function deleteLinksForElements(array $elementIds)
+    final public function deleteLinksForElements(array $elementIds)
     {
         $q = $this->getTable()->where('parent_element_id IN (?) OR child_element_id IN (?)', $elementIds, $elementIds);
         foreach ($q as $link) {

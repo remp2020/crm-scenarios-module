@@ -25,37 +25,37 @@ class TriggersRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    public function all()
+    final public function all()
     {
         return $this->scopeNotDeleted();
     }
 
-    public function findByUuid($uuid)
+    final public function findByUuid($uuid)
     {
         return $this->scopeNotDeleted()->where(['uuid' => $uuid])->fetch();
     }
 
-    public function allScenarioTriggers(int $scenarioId): Selection
+    final public function allScenarioTriggers(int $scenarioId): Selection
     {
         return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId
         ]);
     }
 
-    public function deleteByUuids(array $uuids)
+    final public function deleteByUuids(array $uuids)
     {
         foreach ($this->getTable()->where('uuid IN ?', $uuids) as $trigger) {
             $this->delete($trigger);
         }
     }
 
-    public function delete(IRow &$row)
+    final public function delete(IRow &$row)
     {
         // Soft-delete
         $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
-    public function findByScenarioIdAndTriggerUuid(int $scenarioId, string $triggerUuid)
+    final public function findByScenarioIdAndTriggerUuid(int $scenarioId, string $triggerUuid)
     {
         return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId,
