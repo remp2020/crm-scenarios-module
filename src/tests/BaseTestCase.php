@@ -38,6 +38,7 @@ use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Events\UserCreatedEvent;
 use Crm\UsersModule\Repository\LoginAttemptsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Tests\TestNotificationHandler;
 use Kdyby\Translation\Translator;
 use League\Event\Emitter;
 use Tomaj\Hermes\Dispatcher;
@@ -154,10 +155,13 @@ abstract class BaseTestCase extends DatabaseTestCase
      * Returns list of email template codes sent to given $email
      * @param $email
      *
-     * @return array
+     * @return string[]
      */
     public function mailsSentTo($email): array
     {
-        return $this->testNotificationHandler->getMailTemplateCodesSentTo($email);
+        $events = $this->testNotificationHandler->notificationsSentTo($email);
+        return array_map(function ($event) {
+            return $event->getTemplateCode();
+        }, $events);
     }
 }
