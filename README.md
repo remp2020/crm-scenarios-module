@@ -8,7 +8,7 @@ with conditions (e.g. user segment check) and actions (e.g. send email, show ban
 <details>
 <summary>Scenario example</summary>
 
-![Scenario goals overview](./src/docs/scenario_example.png)
+![Scenario goals overview](docs/scenario_example.png)
 
 </details>
 
@@ -58,7 +58,7 @@ positive (user in segment) or negative (user not in segment) path.
 <details>
 <summary>Segment node details</summary>
 
-![Scenario goals overview](./src/docs/segment_node_detail.png)
+![Scenario goals overview](docs/segment_node_detail.png)
 
 </details>
 
