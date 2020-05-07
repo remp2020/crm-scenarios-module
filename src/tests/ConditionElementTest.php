@@ -102,7 +102,8 @@ class ConditionElementTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
-            new DateTime()
+            new DateTime(),
+            false
         ), 1);
 
         // SIMULATE RUN
@@ -147,7 +148,8 @@ class ConditionElementTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
-            new DateTime()
+            new DateTime(),
+            false
         ), 1);
 
         // SIMULATE RUN
@@ -311,7 +313,8 @@ class ConditionElementTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
-            new DateTime()
+            new DateTime(),
+            false
         ), 1);
 
         // SIMULATE RUN
@@ -406,7 +409,8 @@ class ConditionElementTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
-            new DateTime()
+            new DateTime(),
+            false
         ), 1);
 
         // SIMULATE RUN

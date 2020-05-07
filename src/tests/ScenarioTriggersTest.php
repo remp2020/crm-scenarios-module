@@ -115,7 +115,8 @@ class ScenarioTriggersTest extends BaseTestCase
             $user1,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now - 1 month'),
-            new DateTime('now + 1 month')
+            new DateTime('now + 1 month'),
+            false
         ), 1);
 
         $subscription = $this->subscriptionRepository->actualUserSubscription($user1->id);

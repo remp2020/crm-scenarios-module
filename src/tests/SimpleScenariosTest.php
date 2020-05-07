@@ -261,7 +261,8 @@ class SimpleScenariosTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
-            new DateTime()
+            new DateTime(),
+            false
         ), 1);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
@@ -302,7 +303,8 @@ class SimpleScenariosTest extends BaseTestCase
             $user,
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now - 15 minutes'),
-            new DateTime('now + 5 minutes')
+            new DateTime('now + 5 minutes'),
+            false
         ), 1);
 
         // Expire subscription (this triggers scenario)
