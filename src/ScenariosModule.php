@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule;
 use Crm\ApiModule\Api\ApiRoutersContainerInterface;
 use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
+use Crm\ApplicationModule\AssetsManager;
 use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
@@ -96,5 +97,10 @@ class ScenariosModule extends CrmModule
     public function registerEvents(EventsStorage $eventsStorage)
     {
         $eventsStorage->register('test_user', TestUserEvent::class, true);
+    }
+
+    public function registerAssets(AssetsManager $assetsManager)
+    {
+        $assetsManager->copyAssets(__DIR__ . '/../assets/scenariobuilder', 'layouts/admin/scenariobuilder');
     }
 }
