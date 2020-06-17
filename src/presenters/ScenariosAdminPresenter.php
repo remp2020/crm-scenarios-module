@@ -73,7 +73,7 @@ class ScenariosAdminPresenter extends AdminPresenter
         // DO NOT move this to constructor, listener might not have been added yet
         $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
 
-        $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "/api/v1";
+        $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "api/v1";
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
 
         $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
