@@ -3,10 +3,13 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
+use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use Crm\SubscriptionsModule\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
@@ -41,12 +44,6 @@ class ConditionElementTest extends BaseTestCase
     /** @var SubscriptionsRepository */
     private $subscriptionRepository;
 
-    /** @var JobsRepository */
-    private $jobsRepository;
-
-    /** @var ScenariosCriteriaStorage */
-    private $scenariosCriteriaStorage;
-
     /** @var ContentAccessRepository */
     private $contentAccessRepository;
 
@@ -57,14 +54,13 @@ class ConditionElementTest extends BaseTestCase
         $this->subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
-        $this->jobsRepository = $this->getRepository(JobsRepository::class);
         $this->contentAccessRepository = $this->getRepository(ContentAccessRepository::class);
 
         // Register modules' scenarios criteria storage
-        $this->scenariosCriteriaStorage = $this->inject(ScenariosCriteriaStorage::class);
+        $scenariosCriteriaStorage = $this->inject(ScenariosCriteriaStorage::class);
 
         $subscriptionsModule = new SubscriptionsModule($this->container, $this->inject(Translator::class), $this->subscriptionRepository);
-        $subscriptionsModule->registerScenariosCriteria($this->scenariosCriteriaStorage);
+        $subscriptionsModule->registerScenariosCriteria($scenariosCriteriaStorage);
 
         $usersModule = new UsersModule(
             $this->container,
@@ -73,7 +69,9 @@ class ConditionElementTest extends BaseTestCase
             $this->createMock(Permissions::class),
             $this->getRepository(UsersRepository::class)
         );
-        $usersModule->registerScenariosCriteria($this->scenariosCriteriaStorage);
+        $usersModule->registerScenariosCriteria($scenariosCriteriaStorage);
+
+        $this->scenariosModule->registerScenariosCriteria($scenariosCriteriaStorage);
     }
 
     /**
@@ -519,6 +517,191 @@ class ConditionElementTest extends BaseTestCase
         $this->engine->run(true); // job(email): deleted
 
         $mails = $this->mailsSentTo('test2@email.com');
+        $this->assertCount(1, $mails);
+        $this->assertEquals(self::EMAIL_TEMPLATE_FAIL, $mails[0]);
+    }
+
+    /**
+     * Test scenario with TRIGGER -> CONDITION -> MAIL (positive) flow
+     */
+    public function testTriggerHasPaymentConditionPositiveFlow():void
+    {
+        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'new_subscription'],
+                    'elements' => ['element_condition']
+                ])
+            ],
+            'elements' => [
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_condition',
+                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
+                    'condition' => [
+                        'descendants' => [
+                            ['uuid' => 'element_email_pos', 'direction' => 'positive'],
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                        ],
+                        'conditions' => [
+                            'event' => 'trigger',
+                            'version' => 1,
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'key' => HasPaymentCriteria::KEY,
+                                    'values' => [
+                                        'selection'=> true,
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_pos',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_neg',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
+                ])
+            ]
+        ]);
+
+        $userRow = $this->userManager->addNewUser('test@email.com');
+
+        $subscriptionTypeRow = $this->subscriptionTypeBuilder->createNew()
+            ->setNameAndUserLabel('test')
+            ->setActive(1)
+            ->setPrice(1)
+            ->setLength(31)
+            ->save();
+
+        $subscriptionRow = $this->subscriptionRepository->add($subscriptionTypeRow, false, true, $userRow);
+
+        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
+        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', 'paypal');
+
+        /** @var PaymentsRepository $paymentsRepository */
+        $paymentsRepository = $this->getRepository(PaymentsRepository::class);
+        $paymentRow = $paymentsRepository->add(
+            $subscriptionTypeRow,
+            $paymentGatewayRow,
+            $userRow,
+            new PaymentItemContainer(),
+            null,
+            1
+        );
+
+        $paymentsRepository->addSubscriptionToPayment($subscriptionRow, $paymentRow);
+
+        // SIMULATE RUN
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create condition job
+        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
+        $this->engine->run(true); // job(cond): deleted, job(email): created
+        $this->engine->run(true); // job(email): created -> scheduled
+        $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
+        $this->engine->run(true); // job(email): deleted
+
+        // Check email was sent
+        $mails = $this->mailsSentTo('test@email.com');
+        $this->assertCount(1, $mails);
+        $this->assertEquals(self::EMAIL_TEMPLATE_SUCCESS, $mails[0]);
+    }
+
+    /**
+     * Test scenario with TRIGGER -> CONDITION -> MAIL (negative) flow
+     */
+    public function testTriggerHasPaymentConditionNegativeFlow():void
+    {
+        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'new_subscription'],
+                    'elements' => ['element_condition']
+                ])
+            ],
+            'elements' => [
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_condition',
+                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
+                    'condition' => [
+                        'descendants' => [
+                            ['uuid' => 'element_email_pos', 'direction' => 'positive'],
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                        ],
+                        'conditions' => [
+                            'event' => 'trigger',
+                            'version' => 1,
+                            'nodes' => [
+                                [
+                                    'id' => 1,
+                                    'key' => HasPaymentCriteria::KEY,
+                                    'values' => [
+                                        'selection'=> true,
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_pos',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email_neg',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
+                ])
+            ]
+        ]);
+
+        $userRow = $this->userManager->addNewUser('test@email.com');
+
+        $subscriptionTypeRow = $this->subscriptionTypeBuilder->createNew()
+            ->setNameAndUserLabel('test')
+            ->setActive(1)
+            ->setPrice(1)
+            ->setLength(31)
+            ->save();
+
+        $this->subscriptionRepository->add($subscriptionTypeRow, false, true, $userRow);
+
+        // SIMULATE RUN
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create condition job
+        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
+        $this->engine->run(true); // job(cond): deleted, job(email): created
+        $this->engine->run(true); // job(email): created -> scheduled
+        $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
+        $this->engine->run(true); // job(email): deleted
+
+        // Check email was sent
+        $mails = $this->mailsSentTo('test@email.com');
         $this->assertCount(1, $mails);
         $this->assertEquals(self::EMAIL_TEMPLATE_FAIL, $mails[0]);
     }

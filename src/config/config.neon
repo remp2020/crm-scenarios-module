@@ -47,3 +47,5 @@ services:
 	- Crm\ScenariosModule\Engine\GraphConfiguration
 
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
+
+	- Crm\ScenariosModule\Scenarios\HasPaymentCriteria

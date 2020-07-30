@@ -34,6 +34,15 @@ Event provides several hooks on changes related to user. Currently it supports e
 
 Every time user triggers specified event, all scenarios having this event will be executed, passing a user (triggering the scenario) down the graph.
 
+### Conditions
+
+The condition block allows to edit the flow of graph based on the result of specified criteria. One condition block is able to combine more criteria of a single type. All defined criteria are evaluated together and based on the result, graph flow follows either positive or negative direction. Currently supported criteria types:
+
+- **User** - User criteria are evaluated based on parameters of a user who triggered the scenario. Criteria class has to implement `ScenariosCriteriaInterface`.
+- **Payment** - Payments criteria are evaluated based on payment parameters of a scenario trigger. Such criteria can only be used in scenarios starting with triggers related to payments. Some triggers may or may not have payment parameters attached, e.g. 'New subscription' trigger. In such case, use 'Trigger' criteria (such as 'Has payment') check first to make sure payment parameters are present before using payments criteria. Criteria class has to implement `ScenariosCriteriaInterface`.
+- **Subscription** - Subscription criteria are evaluated based on subscription parameters of a scenario trigger. Such criteria can only be used in scenarios starting with triggers related to subscriptions. Criteria class has to implement `ScenariosCriteriaInterface`.
+- **Trigger** - Trigger criteria are evaluated based on parameters provided during the event triggering. Criteria class has to implement both interfaces `ScenariosTriggerCriteriaInterface` and `ScenariosCriteriaInterface`.
+
 ### Actions
 
 #### Send email

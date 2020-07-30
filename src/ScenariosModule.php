@@ -7,6 +7,7 @@ use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\AssetsManager;
 use Crm\ApplicationModule\Commands\CommandsContainerInterface;
+use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Menu\MenuContainerInterface;
@@ -26,6 +27,7 @@ use Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
 use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler;
+use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule
@@ -102,5 +104,10 @@ class ScenariosModule extends CrmModule
     public function registerAssets(AssetsManager $assetsManager)
     {
         $assetsManager->copyAssets(__DIR__ . '/../assets/scenariobuilder', 'layouts/admin/scenariobuilder');
+    }
+
+    public function registerScenariosCriteria(ScenariosCriteriaStorage $scenariosCriteriaStorage)
+    {
+        $scenariosCriteriaStorage->register('trigger', HasPaymentCriteria::KEY, $this->getInstance(HasPaymentCriteria::class));
     }
 }

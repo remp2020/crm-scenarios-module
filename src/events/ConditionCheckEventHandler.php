@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Scenarios\ScenariosTriggerCriteriaInterface;
 use Crm\SegmentModule\SegmentFactory;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
@@ -130,6 +131,19 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
                 }
                 $itemQuery = $this->subscriptionsRepository->getTable()->where(['subscriptions.id' => $jobParameters->subscription_id]);
                 break;
+            case 'trigger':
+                foreach ($conditions->nodes as $node) {
+                    $criterion = $this->scenariosCriteriaStorage->getEventCriterion($conditions->event, $node->key);
+                    if (!$criterion instanceof ScenariosTriggerCriteriaInterface) {
+                        throw new ConditionCheckException('Scenario is not evaluable');
+                    }
+
+                    if (!$criterion->evaluate($jobParameters, $node->values)) {
+                        return false;
+                    }
+                }
+
+                return true;
             default:
                 throw new ConditionCheckException("Not supported condition event {$conditions->event}");
         }
