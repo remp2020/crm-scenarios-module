@@ -112,24 +112,28 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
         }
 
         $itemQuery = null;
+        $itemRow = null;
 
         // Currently only given (trigger) event checks are supported
         switch ($conditions->event) {
             case 'user':
                 // user_id is guaranteed to always be there
                 $itemQuery = $this->usersRepository->getTable()->where(['users.id' => $jobParameters->user_id]);
+                $itemRow = $this->usersRepository->find($jobParameters->user_id);
                 break;
             case 'payment':
                 if (!isset($jobParameters->payment_id)) {
                     throw new ConditionCheckException("Job does not have 'payment_id' parameter required by specified condition check");
                 }
                 $itemQuery = $this->paymentsRepository->getTable()->where(['payments.id' => $jobParameters->payment_id]);
+                $itemRow = $this->paymentsRepository->find($jobParameters->payment_id);
                 break;
             case 'subscription':
                 if (!isset($jobParameters->subscription_id)) {
                     throw new ConditionCheckException("Job does not have 'subscription_id' parameter required by specified condition check");
                 }
                 $itemQuery = $this->subscriptionsRepository->getTable()->where(['subscriptions.id' => $jobParameters->subscription_id]);
+                $itemRow = $this->subscriptionsRepository->find($jobParameters->subscription_id);
                 break;
             case 'trigger':
                 foreach ($conditions->nodes as $node) {
@@ -150,7 +154,9 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
         foreach ($conditions->nodes as $node) {
             $criterion = $this->scenariosCriteriaStorage->getEventCriterion($conditions->event, $node->key);
-            $criterion->addCondition($itemQuery, $node->key, $node->values);
+            if (!$criterion->addCondition($itemQuery, $node->values, $itemRow)) {
+                return false;
+            }
         }
 
         // If item passes all conditions (and therefore an item is fetched), conditions are met

@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Scenarios;
 
 use Crm\ApplicationModule\Criteria\Params\BooleanParam;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaInterface;
+use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 
 class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTriggerCriteriaInterface
@@ -17,8 +18,9 @@ class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTrigger
         ];
     }
 
-    public function addCondition(Selection $selection, $key, $values)
+    public function addCondition(Selection $selection, $values, IRow $criterionItemRow): bool
     {
+        return true;
     }
 
     public function evaluate($parameters, $values): bool
