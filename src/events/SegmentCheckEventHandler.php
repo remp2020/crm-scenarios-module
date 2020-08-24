@@ -3,8 +3,12 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ApplicationModule\Repository;
+use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SegmentModule\SegmentFactory;
+use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Utils\DateTime;
 use Nette\UnexpectedValueException;
@@ -19,14 +23,26 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
 
     private $segmentFactory;
 
+    private $segmentsRepository;
+
+    private $subscriptionsRepository;
+
+    private $paymentsRepository;
+
     public function __construct(
         SegmentFactory $segmentFactory,
         JobsRepository $jobsRepository,
-        UsersRepository $usersRepository
+        UsersRepository $usersRepository,
+        SubscriptionsRepository $subscriptionsRepository,
+        PaymentsRepository $paymentsRepository,
+        SegmentsRepository $segmentsRepository
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
+        $this->subscriptionsRepository = $subscriptionsRepository;
+        $this->paymentsRepository = $paymentsRepository;
         $this->segmentFactory = $segmentFactory;
+        $this->segmentsRepository = $segmentsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -56,10 +72,33 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
+        $segmentRow = $this->segmentsRepository->findByCode($options->code);
+        if (!$segmentRow) {
+            $this->jobError($job, 'missing segment for code: ' . $options->code);
+            return true;
+        }
+
         $this->jobsRepository->startJob($job);
 
         try {
-            $inSegment = $this->checkUserInSegment($parameters->user_id, $options->code);
+            switch ($segmentRow->table_name) {
+                case 'users':
+                    $repository = $this->usersRepository;
+                    $id = $parameters->user_id;
+                    break;
+                case 'subscriptions':
+                    $repository = $this->subscriptionsRepository;
+                    $id = $parameters->subscription_id;
+                    break;
+                case 'payments':
+                    $repository = $this->paymentsRepository;
+                    $id = $parameters->payment_id;
+                    break;
+                default:
+                    throw new SegmentCheckException("Unsupported segment source table: {$segmentRow->table_name}");
+            }
+
+            $inSegment = $this->checkInSegment($repository, $id, $options->code);
         } catch (SegmentCheckException $e) {
             $this->jobError($job, $e->getMessage());
             return true;
@@ -80,18 +119,19 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
         ]);
     }
 
-    private function checkUserInSegment($userId, $segmentCode)
+    private function checkInSegment(Repository $repository, int $id, string $segmentCode): bool
     {
-        $user = $this->usersRepository->find($userId);
-        if (!$user) {
-            throw new SegmentCheckException("User with given ID doesn't exist");
+        $row = $repository->find($id);
+        if (!$row) {
+            throw new SegmentCheckException("Row with given ID doesn't exist");
         }
+
         try {
             $segment = $this->segmentFactory->buildSegment($segmentCode);
         } catch (UnexpectedValueException $e) {
             throw new SegmentCheckException('Segment does not exist');
         }
 
-        return $segment->isIn('id', $userId);
+        return $segment->isIn('id', $id);
     }
 }
