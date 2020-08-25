@@ -11,15 +11,18 @@ services:
 
 	scenariosEngine:
 			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
+			setup:
+				- setRestartInterface(@hermesRestart)
 
-	jobsRepository: Crm\ScenariosModule\Repository\JobsRepository
 	elementsRepository: Crm\ScenariosModule\Repository\ElementsRepository
+	jobsRepository: Crm\ScenariosModule\Repository\JobsRepository
 	elementStatsRepository: Crm\ScenariosModule\Repository\ElementStatsRepository
 	elementElementsRepository: Crm\ScenariosModule\Repository\ElementElementsRepository
 	scenariosRepository: Crm\ScenariosModule\Repository\ScenariosRepository
 	triggersRepository: Crm\ScenariosModule\Repository\TriggersRepository
 	triggerStatsRepository: Crm\ScenariosModule\Repository\TriggerStatsRepository
 	triggerElementsRepository: Crm\ScenariosModule\Repository\TriggerElementsRepository
+	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
 
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
@@ -44,7 +47,6 @@ services:
 	- Crm\ScenariosModule\Commands\TestUserCommand
 
 	- Crm\ScenariosModule\Engine\Dispatcher
-	- Crm\ScenariosModule\Engine\GraphConfiguration
 
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
 

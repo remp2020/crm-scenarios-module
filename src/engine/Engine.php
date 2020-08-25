@@ -18,6 +18,8 @@ use Nette\Utils\JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Emitter;
+use Tomaj\Hermes\Restart\RestartException;
+use Tomaj\Hermes\Restart\RestartInterface;
 use Tracy\Debugger;
 
 class Engine
@@ -36,6 +38,10 @@ class Engine
 
     private $hermesEmitter;
 
+    private $restart;
+
+    private $startTime;
+
     public function __construct(
         LoggerInterface $logger,
         Emitter $hermesEmitter,
@@ -48,6 +54,12 @@ class Engine
         $this->graphConfiguration = $graphConfiguration;
         $this->elementsRepository = $elementsRepository;
         $this->hermesEmitter = $hermesEmitter;
+        $this->startTime = new DateTime();
+    }
+
+    public function setRestartInterface(RestartInterface $restart): void
+    {
+        $this->restart = $restart;
     }
 
     public function run(bool $once = false)
@@ -73,8 +85,14 @@ class Engine
                     break;
                 }
 
+                if ($this->restart && $this->restart->shouldRestart($this->startTime)) {
+                    throw new RestartException('Restart');
+                }
+
                 sleep($this->sleepTime);
             }
+        } catch (RestartException $exception) {
+            $this->logger->notice('Exiting scenarios engine - restart');
         } catch (Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
         }
