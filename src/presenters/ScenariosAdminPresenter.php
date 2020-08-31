@@ -7,34 +7,29 @@ use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Crm\UsersModule\Auth\Access\AccessToken;
 use Nette\Application\BadRequestException;
-use Nette\Http\Request;
+use Nette\Application\LinkGenerator;
 
 class ScenariosAdminPresenter extends AdminPresenter
 {
-    private $request;
-
     private $scenariosRepository;
-
-    private $accessToken;
 
     private $internalToken;
 
     private $bannerEnabled;
 
+    private $linkGenerator;
+
     public function __construct(
-        Request $request,
         ScenariosRepository $scenariosRepository,
         InternalToken $internalToken,
-        AccessToken $accessToken
+        LinkGenerator $linkGenerator
     ) {
         parent::__construct();
 
-        $this->request = $request;
         $this->scenariosRepository = $scenariosRepository;
         $this->internalToken = $internalToken;
-        $this->accessToken = $accessToken;
+        $this->linkGenerator = $linkGenerator;
     }
 
     public function renderDefault()
@@ -73,11 +68,8 @@ class ScenariosAdminPresenter extends AdminPresenter
         // DO NOT move this to constructor, listener might not have been added yet
         $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
 
-        $this->template->apiHost = $this->getHttpRequest()->getUrl()->getBaseUrl() . "api/v1";
-        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
-
         $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
-        $this->template->segmentAuth = 'Bearer ' . $this->accessToken->getToken($this->getHttpRequest());
+        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
 
         $this->template->scenario = $this->scenariosRepository->find($id);
     }

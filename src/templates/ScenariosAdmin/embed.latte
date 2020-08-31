@@ -4,10 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"/>
     <title>Scenario Builder</title>
-    <link href="/layouts/admin/scenariobuilder/css/main.ddc6f168.chunk.css" rel="stylesheet">
+    <link href="/layouts/admin/scenariobuilder/css/main.bfa757aa.chunk.css" rel="stylesheet">
 </head>
-
-{var $cancelPath = '/segment/stored-segments/'}
 
 <body>
 <div id="root" style="max-height: 80%"></div>
@@ -18,35 +16,14 @@
     window.Scenario = {
         config: {
             AUTH_TOKEN: {$apiToken},
-            API_HOST: {$apiHost},
+            CRM_HOST: {$crmHost},
             SCENARIO_ID: {if $scenario}{$scenario->id}{else}null{/if},
             BANNER_ENABLED: {$bannerEnabled}
         }
     };
-    window.Segments = {
-        config: {
-            AUTH_TOKEN: {$segmentAuth},
-            API_HOST: {$crmHost},
-            CANCEL_PATH: {$cancelPath},
-            SEGMENT_ID: null,
-            TIME_ZONE: {date_default_timezone_get()}
-        }
-    };
 </script>
 <script src="/layouts/admin/scenariobuilder/js/runtime~main.229c360f.js"></script>
-<script src="/layouts/admin/scenariobuilder/js/1.2e05ed44.chunk.js"></script>
-<script src="/layouts/admin/scenariobuilder/js/main.b0ed2396.chunk.js"></script>
+<script src="/layouts/admin/scenariobuilder/js/1.f42defd1.chunk.js"></script>
+<script src="/layouts/admin/scenariobuilder/js/main.7c82ddde.chunk.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
