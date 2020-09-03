@@ -241,15 +241,18 @@ class SimpleScenariosTest extends BaseTestCase
 
     public function testNewSubscriptionEmailScenario()
     {
-        $this->insertTriggerToEmailScenario('new_subscription', 'empty_template_code');
+        $emailCode = 'empty_template_code';
+        $this->insertTriggerToEmailScenario('new_subscription', $emailCode);
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
         // Add new subscription, which triggers scenario
+        $subscriptionTypeCode = 'test_subscription';
         $subscriptionType = $this->subscriptionTypeBuilder
             ->createNew()
-            ->setName('test_subscription')
+            ->setName('Test subscription')
+            ->setCode($subscriptionTypeCode)
             ->setUserLabel('')
             ->setActive(true)
             ->setPrice(1)
@@ -279,6 +282,11 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Check email was sent
         $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+
+        // Check email's access to parameters
+        $emailParams = $this->notificationEmailParams('test@email.com', $emailCode);
+        $this->assertEquals($user->email, $emailParams['email']);
+        $this->assertEquals($subscriptionTypeCode, $emailParams['subscription_type']['code']);
     }
 
     public function testSubscriptionEndsEmailScenario()

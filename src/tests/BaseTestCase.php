@@ -166,4 +166,24 @@ abstract class BaseTestCase extends DatabaseTestCase
             return $event->getTemplateCode();
         }, $events);
     }
+
+    /**
+     * Returns list of parameters attached to NotificationEvent
+     *
+     * @param string $email - Email address of recipient.
+     * @param string $templateCode - Email's template_code which should be used
+     *                               by Mailer.
+     * @return array|null - Returns null if combination of email & template_code
+     *                      are not found within handled notifications.
+     */
+    public function notificationEmailParams(string $email, string $templateCode): ?array
+    {
+        $events = $this->testNotificationHandler->notificationsSentTo($email);
+        foreach ($events as $event) {
+            if ($event->getTemplateCode() === $templateCode) {
+                return $event->getParams();
+            }
+        }
+        return null;
+    }
 }

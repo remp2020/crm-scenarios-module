@@ -83,6 +83,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         // We automatically insert password/subscription/payment as email template parameters (if found)
         $password = $parameters->password ?? null;
         $subscription = isset($parameters->subscription_id) ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
+        $subscriptionType = ($subscription !== null) ? $subscription->subscription_type : null;
         $payment = isset($parameters->payment_id) ? $this->paymentsRepository->find($parameters->payment_id) : null;
         $recurrentPayment = isset($parameters->recurrent_payment_id) ?
             $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id) : null;
@@ -93,6 +94,9 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         }
         if ($subscription) {
             $templateParams['subscription'] = $subscription->toArray();
+        }
+        if ($subscriptionType) {
+            $templateParams['subscription_type'] = $subscriptionType->toArray();
         }
         if ($payment) {
             $templateParams['payment'] = $payment->toArray();
