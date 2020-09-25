@@ -211,7 +211,7 @@ class ScenariosRepository extends Repository
         // TODO: move whole block to triggers repository
         // process triggers (root elements)
         foreach ($data['triggers'] ?? [] as $trigger) {
-            if ($trigger->type !== TriggersRepository::TRIGGER_TYPE_EVENT) {
+            if (!in_array($trigger->type, [TriggersRepository::TRIGGER_TYPE_EVENT, TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT], true)) {
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
             }

@@ -23,6 +23,10 @@ services:
 	triggerStatsRepository: Crm\ScenariosModule\Repository\TriggerStatsRepository
 	triggerElementsRepository: Crm\ScenariosModule\Repository\TriggerElementsRepository
 	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
+	beforeEventGenerator: Crm\ScenariosModule\Events\BeforeEventGenerator
+	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
+	generatedEventsRepository: Crm\ScenariosModule\Repository\GeneratedEventsRepository
+	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator
 
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler

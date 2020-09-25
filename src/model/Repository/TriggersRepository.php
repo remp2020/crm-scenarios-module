@@ -14,7 +14,8 @@ class TriggersRepository extends Repository
 {
     protected $tableName = 'scenarios_triggers';
 
-    const TRIGGER_TYPE_EVENT = 'event';
+    public const TRIGGER_TYPE_EVENT = 'event';
+    public const TRIGGER_TYPE_BEFORE_EVENT = 'before_event';
 
     public function __construct(
         AuditLogRepository $auditLogRepository,
@@ -39,6 +40,13 @@ class TriggersRepository extends Repository
     {
         return $this->scopeNotDeleted()->where([
             'scenario_id' => $scenarioId
+        ]);
+    }
+
+    final public function findByType(string $type): Selection
+    {
+        return $this->scopeNotDeleted()->where([
+            'type' => $type,
         ]);
     }
 
