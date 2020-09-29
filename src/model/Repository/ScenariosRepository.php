@@ -220,11 +220,18 @@ class ScenariosRepository extends Repository
                 throw new ScenarioInvalidDataException("Unknown event code [{$trigger->event->code}].");
             }
 
+            $options = [];
+            if (isset($trigger->options->minutes)) {
+                $options['minutes'] = $trigger->options->minutes;
+            }
+
             $triggerData = [
                 'scenario_id' => $scenarioId,
                 'event_code' => $trigger->event->code,
                 'uuid' => $trigger->id,
                 'name' => $trigger->name,
+                'type' => $trigger->type,
+                'options' => empty($options) ? null : Json::encode($options)
             ];
 
             unset($oldTriggers[$triggerData['uuid']]);
@@ -305,12 +312,17 @@ class ScenariosRepository extends Repository
             $trigger = [
                 'id' => $scenarioTrigger->uuid,
                 'name' => $scenarioTrigger->name,
-                'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                'type' => $scenarioTrigger->type,
                 'event' => [
                     'code' => $scenarioTrigger->event_code
                 ],
                 'elements' => [],
             ];
+
+            $options = empty($scenarioTrigger->options) ? [] : Json::decode($scenarioTrigger->options, Json::FORCE_ARRAY);
+            if (isset($options['minutes'])) {
+                $trigger['options']['minutes'] = $options['minutes'];
+            }
 
             foreach ($scenarioTrigger->related('scenarios_trigger_elements') as $triggerElement) {
                 $trigger['elements'][] = $triggerElement->element->uuid;
