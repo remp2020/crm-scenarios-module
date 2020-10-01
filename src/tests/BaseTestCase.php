@@ -61,6 +61,9 @@ abstract class BaseTestCase extends DatabaseTestCase
     /** @var TestNotificationHandler */
     protected $testNotificationHandler;
 
+    /** @var EventsStorage */
+    protected $eventsStorage;
+
     protected function requiredRepositories(): array
     {
         return [
@@ -123,11 +126,11 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->testNotificationHandler = new TestNotificationHandler();
 
         // Events are not automatically registered, we need to register them manually for tests
-        $eventsStorage = $this->inject(EventsStorage::class);
-        $eventsStorage->register('user_created', UserCreatedEvent::class, true);
-        $eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);
-        $eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
-        $eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
+        $this->eventsStorage = $this->inject(EventsStorage::class);
+        $this->eventsStorage->register('user_created', UserCreatedEvent::class, true);
+        $this->eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);
+        $this->eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
+        $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
 
         // Email notification is going to be handled by test handler

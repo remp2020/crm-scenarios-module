@@ -20,7 +20,7 @@ After saving (and enabling) the scenario, it will be executed every time the sce
 
 ### Triggers
 
-Each scenario has to start with a trigger node. Currently, there is only one trigger type - "Event" node.
+Each scenario has to start with a trigger node. Currently, there is two trigger types - "Event" node and "Before Event".
 
 #### Event
 
@@ -33,6 +33,13 @@ Event provides several hooks on changes related to user. Currently it supports e
 - Test event (triggered by console command `scenarios:test_user`)
 
 Every time user triggers specified event, all scenarios having this event will be executed, passing a user (triggering the scenario) down the graph.
+
+#### Before Event
+
+Before Event requires two parameters - an event and a time interval. Time interval specifies how long before the actual event the trigger fires, starting the scenario.
+Currently it supports event types:
+
+- Subscription ends
 
 ### Conditions
 
@@ -117,4 +124,10 @@ php bin/command.php scenarios:worker
 ```
 
 Make sure both workers are started again if killed, e.g. by running a service or a watchog.
+
+For generating "Before Event" triggers, add the following command to your crontab. Optionally set it up to run every 10 minutes.
+
+```bash
+php bin/command.php scenarios:event_generator
+```
 

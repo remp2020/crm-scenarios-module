@@ -13,10 +13,12 @@ use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Menu\MenuContainerInterface;
 use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
+use Crm\ScenariosModule\Commands\EventGeneratorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
+use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler;
@@ -78,6 +80,7 @@ class ScenariosModule extends CrmModule
     {
         $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
         $commandsContainer->registerCommand($this->getInstance(TestUserCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(EventGeneratorCommand::class));
     }
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
@@ -99,6 +102,8 @@ class ScenariosModule extends CrmModule
     public function registerEvents(EventsStorage $eventsStorage)
     {
         $eventsStorage->register('test_user', TestUserEvent::class, true);
+
+        $eventsStorage->registerEventGenerator('subscription_ends', $this->getInstance(SubscriptionEndsEventGenerator::class));
     }
 
     public function registerAssets(AssetsManager $assetsManager)
