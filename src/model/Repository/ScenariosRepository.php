@@ -111,12 +111,21 @@ class ScenariosRepository extends Repository
             $elementOptions = null;
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
+                    if (!isset($element->email->code)) {
+                        throw new ScenarioInvalidDataException("Missing 'code' parameter for the Email node.");
+                    }
                     $elementOptions = [
                         'code' => $element->email->code
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_BANNER:
+                    if (!isset($element->banner->id)) {
+                        throw new ScenarioInvalidDataException("Missing 'id' parameter for the Banner node.");
+                    }
+                    if (!isset($element->banner->expiresInMinutes)) {
+                        throw new ScenarioInvalidDataException("Missing 'expiresInMinutes' parameter for the Banner node.");
+                    }
                     $elementOptions = [
                         'id' => $element->banner->id,
                         'expiresInMinutes' => $element->banner->expiresInMinutes,
@@ -124,24 +133,39 @@ class ScenariosRepository extends Repository
                     $elementPairs[$element->id]['descendants'] = $element->banner->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+                    if (!isset($element->segment->code)) {
+                        throw new ScenarioInvalidDataException("Missing 'code' parameter for the Segment node.");
+                    }
                     $elementOptions = [
                         'code' => $element->segment->code
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->segment->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                    if (!isset($element->condition->conditions)) {
+                        throw new ScenarioInvalidDataException("Missing 'conditions' parameter for the Condition node.");
+                    }
                     $elementOptions = [
                         'conditions' => $element->condition->conditions
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->condition->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
+                    if (!isset($element->wait->minutes)) {
+                        throw new ScenarioInvalidDataException("Missing 'minutes' parameter for the Wait node.");
+                    }
                     $elementOptions = [
                         'minutes' => $element->wait->minutes
                     ];
                     $elementPairs[$element->id]['descendants'] = $element->wait->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
+                    if (!isset($element->goal->codes)) {
+                        throw new ScenarioInvalidDataException("Missing 'codes' parameter for the Goal node.");
+                    }
+                    if (!isset($element->goal->recheckPeriodMinutes)) {
+                        throw new ScenarioInvalidDataException("Missing 'recheckPeriodMinutes' parameter for the Goal node.");
+                    }
                     $elementOptions = [
                         'codes' => $element->goal->codes,
                         'recheckPeriodMinutes' => $element->goal->recheckPeriodMinutes,
@@ -214,6 +238,9 @@ class ScenariosRepository extends Repository
             if (!in_array($trigger->type, [TriggersRepository::TRIGGER_TYPE_EVENT, TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT], true)) {
                 $this->connection->rollback();
                 throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
+            }
+            if (!isset($trigger->event->code)) {
+                throw new ScenarioInvalidDataException("Missing 'code' parameter for the Trigger node.");
             }
             if (!$this->eventsStorage->isEventPublic($trigger->event->code)) {
                 $this->connection->rollback();
