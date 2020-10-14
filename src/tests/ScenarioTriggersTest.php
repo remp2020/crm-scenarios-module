@@ -3,6 +3,9 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
@@ -32,6 +35,9 @@ class ScenarioTriggersTest extends BaseTestCase
     /** @var SubscriptionsRepository */
     private $subscriptionRepository;
 
+    /** @var PaymentsRepository */
+    private $paymentsRepository;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -40,23 +46,12 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
+        $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
     }
 
     public function testTriggerUserCreatedScenario()
     {
-        $scenarioRepository = $this->getRepository(ScenariosRepository::class);
-        $scenarioRepository->createOrUpdate([
-            'name' => 'test1',
-            'enabled' => true,
-            'triggers' => [
-                self::obj([
-                    'name' => '',
-                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
-                ])
-            ]
-        ]);
+        $this->addTestScenario('user_created');
 
         // Add user, which triggers scenario
         $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
@@ -84,19 +79,7 @@ class ScenarioTriggersTest extends BaseTestCase
 
     public function testTriggerNewSubscription()
     {
-        $this->getRepository(ScenariosRepository::class)->createOrUpdate([
-            'name' => 'test1',
-            'enabled' => true,
-            'triggers' => [
-                self::obj([
-                    'name' => '',
-                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger1',
-                    'event' => ['code' => 'new_subscription'],
-                    'elements' => []
-                ])
-            ],
-        ]);
+        $this->addTestScenario('new_subscription');
 
         $user1 = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
@@ -147,5 +130,78 @@ class ScenarioTriggersTest extends BaseTestCase
 
         // There should be 2 triggers now
         $this->assertEquals(2, count($jobsRepository->getUnprocessedJobs()));
+    }
+
+    public function testTriggerNewPayment()
+    {
+        $this->addTestScenario('new_payment');
+
+        $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
+
+        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
+        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', 'bank_transfer');
+
+        $jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
+
+        // Trigger the scenario
+        $this->paymentsRepository->add(
+            null,
+            $paymentGatewayRow,
+            $user1,
+            new PaymentItemContainer(),
+            null,
+            1
+        );
+
+        $this->dispatcher->handle();
+        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+    }
+
+    public function testTriggerPaymentChangeStatus()
+    {
+        $this->addTestScenario('payment_change_status');
+
+        $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
+
+        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
+        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', 'bank_transfer');
+
+        $paymentRow = $this->paymentsRepository->add(
+            null,
+            $paymentGatewayRow,
+            $user1,
+            new PaymentItemContainer(),
+            null,
+            1
+        );
+        $this->dispatcher->handle();
+
+        $jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
+
+        // Trigger the scenario
+        $this->paymentsRepository->updateStatus($paymentRow, PaymentsRepository::STATUS_PAID, true);
+        $this->dispatcher->handle();
+        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+    }
+
+    private function addTestScenario($triggerCode)
+    {
+        $scenarioRepository = $this->getRepository(ScenariosRepository::class);
+        $scenarioRepository->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => $triggerCode],
+                ])
+            ]
+        ]);
     }
 }

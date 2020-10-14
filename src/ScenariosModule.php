@@ -19,8 +19,10 @@ use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
+use Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
@@ -88,6 +90,8 @@ class ScenariosModule extends CrmModule
         $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
         $dispatcher->registerHandler('new-subscription', $this->getInstance(NewSubscriptionHandler::class));
         $dispatcher->registerHandler('subscription-ends', $this->getInstance(SubscriptionEndsHandler::class));
+        $dispatcher->registerHandler('new-payment', $this->getInstance(NewPaymentHandler::class));
+        $dispatcher->registerHandler('payment-status-change', $this->getInstance(PaymentStatusChangeHandler::class));
         $dispatcher->registerHandler('recurrent-payment-renewed', $this->getInstance(RecurrentPaymentRenewedHandler::class));
         $dispatcher->registerHandler(TestUserHandler::HERMES_MESSAGE_CODE, $this->getInstance(TestUserHandler::class));
 

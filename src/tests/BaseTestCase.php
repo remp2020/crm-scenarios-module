@@ -6,6 +6,8 @@ use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
+use Crm\PaymentsModule\Events\NewPaymentEvent;
+use Crm\PaymentsModule\Events\PaymentChangeStatusEvent;
 use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repository\PaymentItemsRepository;
@@ -128,6 +130,8 @@ abstract class BaseTestCase extends DatabaseTestCase
         // Events are not automatically registered, we need to register them manually for tests
         $this->eventsStorage = $this->inject(EventsStorage::class);
         $this->eventsStorage->register('user_created', UserCreatedEvent::class, true);
+        $this->eventsStorage->register('new_payment', NewPaymentEvent::class, true);
+        $this->eventsStorage->register('payment_change_status', PaymentChangeStatusEvent::class, true);
         $this->eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);
         $this->eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
