@@ -131,3 +131,12 @@ For generating "Before Event" triggers, add the following command to your cronta
 php bin/command.php scenarios:event_generator
 ```
 
+#### Graceful shutdown of workers
+
+To gracefully shutdown both workers (`application:hermes_worker` and `scenarios:worker`) use command from [ApplicationModule](https://github.com/remp2020/crm-application-module):
+
+```shell
+php bin/command.php application:hermes_shutdown
+```
+
+Use this to in case CRM modules were updated and you need to reload workers. More details in README of [ApplicationModule](https://github.com/remp2020/crm-application-module).
