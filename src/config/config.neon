@@ -48,6 +48,7 @@ services:
 	- Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand

@@ -5,9 +5,9 @@ namespace Crm\ScenariosModule\Events;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
+use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Scenarios\ScenariosTriggerCriteriaInterface;
-use Crm\SegmentModule\SegmentFactory;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Utils\DateTime;
@@ -22,27 +22,27 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
     private $usersRepository;
 
-    private $segmentFactory;
-
     private $subscriptionsRepository;
 
     private $paymentsRepository;
 
+    private $recurrentPaymentsRepository;
+
     private $scenariosCriteriaStorage;
 
     public function __construct(
-        SegmentFactory $segmentFactory,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
         PaymentsRepository $paymentsRepository,
+        RecurrentPaymentsRepository $recurrentPaymentsRepository,
         ScenariosCriteriaStorage $scenariosCriteriaStorage
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
-        $this->segmentFactory = $segmentFactory;
         $this->subscriptionsRepository = $subscriptionsRepository;
         $this->paymentsRepository = $paymentsRepository;
+        $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
         $this->scenariosCriteriaStorage = $scenariosCriteriaStorage;
     }
 
@@ -134,6 +134,13 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
                 }
                 $itemQuery = $this->subscriptionsRepository->getTable()->where(['subscriptions.id' => $jobParameters->subscription_id]);
                 $itemRow = $this->subscriptionsRepository->find($jobParameters->subscription_id);
+                break;
+            case 'recurrent_payment':
+                if (!isset($jobParameters->recurrent_payment_id)) {
+                    throw new ConditionCheckException("Job does not have 'recurrent_payment_id' parameter required by specified condition check");
+                }
+                $itemQuery = $this->recurrentPaymentsRepository->getTable()->where(['recurrent_payments.id' => $jobParameters->recurrent_payment_id]);
+                $itemRow = $this->recurrentPaymentsRepository->find($jobParameters->recurrent_payment_id);
                 break;
             case 'trigger':
                 foreach ($conditions->nodes as $node) {
