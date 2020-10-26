@@ -32,10 +32,13 @@ class RecurrentPaymentRenewedHandler implements HandlerInterface
             throw new \Exception("unable to handle event: recurrent payment with ID=$recurrentPaymentId does not exist");
         }
 
-        $this->dispatcher->dispatch('recurrent_payment_renewed', $recurrentPayment->user_id, [
+        $params = array_filter([
             'recurrent_payment_id' => $recurrentPaymentId,
-            'payment_id' => $recurrentPayment->payment_id
+            'payment_id' => $recurrentPayment->payment_id,
+            'subscription_id' => $recurrentPayment->payment->subscription_id ?? null,
         ]);
+
+        $this->dispatcher->dispatch('recurrent_payment_renewed', $recurrentPayment->user_id, $params);
         return true;
     }
 }
