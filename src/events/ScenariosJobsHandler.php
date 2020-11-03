@@ -37,12 +37,13 @@ abstract class ScenariosJobsHandler implements HandlerInterface
         return Json::decode($job->parameters);
     }
 
-    protected function jobError(ActiveRow $job, string $message)
+    protected function jobError(ActiveRow $job, string $message, bool $retry = false)
     {
         $this->jobsRepository->update($job, [
             'state' => JobsRepository::STATE_FAILED,
             'result' => Json::encode([
-                'error' => $message
+                'error' => $message,
+                'retry' => $retry
             ])
         ]);
     }

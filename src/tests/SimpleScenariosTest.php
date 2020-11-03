@@ -222,21 +222,11 @@ class SimpleScenariosTest extends BaseTestCase
         $this->dispatcher->handle(); // scheduled -> started -> failed (job failed, reason: non-existing segment)
 
         $this->assertCount(1, $this->jobsRepository->getFailedJobs()->fetchAll());
-        $this->engine->run(true); // failed -> created
+        $this->engine->run(true); // failed job is deleted (since missing-segment-error is not a job that can succeed later)
 
-        // Check job was rescheduled and retry count was increased
-        $unprocessedJobs = $this->jobsRepository->getUnprocessedJobs()->fetchAll();
-        $this->assertCount(1, $unprocessedJobs);
-        $job = reset($unprocessedJobs);
-        $this->assertEquals(1, $job->retry_count);
-
-        // Check after given number of retries, job is removed
-        for ($i = 0; $i < Engine::MAX_RETRY_COUNT; $i++) {
-            $this->engine->run(true); // created -> scheduled
-            $this->dispatcher->handle(); // run (should fail)
-            $this->engine->run(true); // failed -> created
-        }
-        $this->assertCount(0, $this->jobsRepository->getAllJobs()->fetchAll());
+        // Check job was deleted
+        $allJobs = $this->jobsRepository->getAllJobs()->fetchAll();
+        $this->assertCount(0, $allJobs);
     }
 
     public function testNewSubscriptionEmailScenario()
