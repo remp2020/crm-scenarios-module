@@ -6,7 +6,6 @@ use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
-use Crm\ScenariosModule\Engine\Engine;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
