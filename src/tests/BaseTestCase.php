@@ -9,6 +9,7 @@ use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\PaymentsModule\Events\NewPaymentEvent;
 use Crm\PaymentsModule\Events\PaymentChangeStatusEvent;
 use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
+use Crm\PaymentsModule\Events\RecurrentPaymentStateChangedEvent;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repository\PaymentItemsRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
@@ -135,6 +136,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);
         $this->eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
+        $this->eventsStorage->register('recurrent_payment_state_changed', RecurrentPaymentStateChangedEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
 
         // Email notification is going to be handled by test handler

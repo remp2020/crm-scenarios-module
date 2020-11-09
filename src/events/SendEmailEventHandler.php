@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\PaymentsModule\RecurrentPaymentsResolver;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
@@ -27,13 +28,16 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
     private $recurrentPaymentsRepository;
 
+    private $recurrentPaymentsResolver;
+
     public function __construct(
         Emitter $emitter,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
         RecurrentPaymentsRepository $recurrentPaymentsRepository,
-        PaymentsRepository $paymentsRepository
+        PaymentsRepository $paymentsRepository,
+        RecurrentPaymentsResolver $recurrentPaymentsResolver
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -41,6 +45,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $this->subscriptionsRepository = $subscriptionsRepository;
         $this->paymentsRepository = $paymentsRepository;
         $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
+        $this->recurrentPaymentsResolver = $recurrentPaymentsResolver;
     }
 
     public function handle(MessageInterface $message): bool
@@ -83,10 +88,18 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         // We automatically insert password/subscription/payment as email template parameters (if found)
         $password = $parameters->password ?? null;
         $subscription = isset($parameters->subscription_id) ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
-        $subscriptionType = ($subscription !== null) ? $subscription->subscription_type : null;
         $payment = isset($parameters->payment_id) ? $this->paymentsRepository->find($parameters->payment_id) : null;
         $recurrentPayment = isset($parameters->recurrent_payment_id) ?
             $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id) : null;
+
+        $subscriptionType = null;
+        if ($subscription !== null) {
+            $subscriptionType = $subscription->subscription_type;
+        } elseif ($payment !== null) {
+            $subscriptionType = $payment->subscription_type;
+        } elseif ($recurrentPayment !== null) {
+            $subscriptionType = $this->recurrentPaymentsResolver->resolveSubscriptionType($recurrentPayment);
+        }
 
         $templateParams = ['email' => $user->email];
         if ($password) {

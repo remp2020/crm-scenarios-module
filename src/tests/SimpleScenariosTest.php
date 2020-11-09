@@ -34,6 +34,12 @@ class SimpleScenariosTest extends BaseTestCase
     /** @var SubscriptionsRepository */
     private $subscriptionRepository;
 
+    /** @var PaymentsRepository */
+    private $paymentsRepository;
+
+    /** @var RecurrentPaymentsRepository */
+    private $recurrentPaymentsRepository;
+
     /** @var JobsRepository */
     private $jobsRepository;
 
@@ -45,6 +51,8 @@ class SimpleScenariosTest extends BaseTestCase
         $this->subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
+        $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
+        $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $this->jobsRepository = $this->getRepository(JobsRepository::class);
     }
 
@@ -238,15 +246,7 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Add new subscription, which triggers scenario
         $subscriptionTypeCode = 'test_subscription';
-        $subscriptionType = $this->subscriptionTypeBuilder
-            ->createNew()
-            ->setName('Test subscription')
-            ->setCode($subscriptionTypeCode)
-            ->setUserLabel('')
-            ->setActive(true)
-            ->setPrice(1)
-            ->setLength(10)
-            ->save();
+        $subscriptionType = $this->createSubscriptionType($subscriptionTypeCode);
 
         $this->subscriptionGenerator->generate(new SubscriptionsParams(
             $subscriptionType,
@@ -286,14 +286,7 @@ class SimpleScenariosTest extends BaseTestCase
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
         // Create actual subscription
-        $subscriptionType = $this->subscriptionTypeBuilder
-            ->createNew()
-            ->setName('test_subscription')
-            ->setUserLabel('')
-            ->setActive(true)
-            ->setPrice(1)
-            ->setLength(10)
-            ->save();
+        $subscriptionType = $this->createSubscriptionType();
 
         $this->subscriptionGenerator->generate(new SubscriptionsParams(
             $subscriptionType,
@@ -330,30 +323,16 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Create user
         $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
-
-        // Create actual subscription
-        $subscriptionType = $this->subscriptionTypeBuilder
-            ->createNew()
-            ->setName('test_subscription')
-            ->setUserLabel('')
-            ->setActive(true)
-            ->setPrice(1)
-            ->setLength(10)
-            ->save();
+        $subscriptionType = $this->createSubscriptionType();
 
         // Create payment
-        $pgr = $this->getRepository(PaymentGatewaysRepository::class);
-        $paymentGateway = $pgr->add('test', 'test', 10, true, true);
-
-        $pr = $this->inject(PaymentsRepository::class);
-        $payment = $pr->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
-        $payment2 = $pr->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
-
-        $rpp = $this->inject(RecurrentPaymentsRepository::class);
-        $recurrentPayment = $rpp->add('XXX', $payment, new DateTime('now + 5 minutes'), 1, 1);
+        $paymentGateway = $this->createTestPaymentGateway();
+        $payment = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
+        $payment2 = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
+        $recurrentPayment = $this->recurrentPaymentsRepository->add('XXX', $payment, new DateTime('now + 5 minutes'), 1, 1);
 
         // Recharge recurrent - this should trigger scenario
-        $rpp->setCharged($recurrentPayment, $payment2, 'OK', 'OK');
+        $this->recurrentPaymentsRepository->setCharged($recurrentPayment, $payment2, 'OK', 'OK');
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(true); // process trigger, finish its job and create email job
@@ -370,6 +349,86 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Check email was sent
         $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+    }
+
+    public function testNewPaymentEmailScenario()
+    {
+        $emailCode = 'empty_template_code';
+        $this->insertTriggerToEmailScenario('new_payment', $emailCode);
+
+        // Create user
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        // Create payment
+        $subscriptionType = $this->createSubscriptionType();
+        $this->paymentsRepository->add($subscriptionType, $this->createTestPaymentGateway(), $user, new PaymentItemContainer(), null, 1);
+
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create email job
+        $this->engine->run(true); // email job should be scheduled
+        $this->dispatcher->handle(); // run email job in Hermes
+        $this->engine->run(true); // job should be deleted
+
+        // Check email was sent
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+
+        // Check email's access to parameters
+        $emailParams = $this->notificationEmailParams('test@email.com', $emailCode);
+        $this->assertEquals($user->email, $emailParams['email']);
+        $this->assertEquals($subscriptionType->code, $emailParams['subscription_type']['code']);
+    }
+
+    public function testRecurrentPaymentStateChangeEmailScenario()
+    {
+        $emailCode = 'empty_template_code';
+        $this->insertTriggerToEmailScenario('recurrent_payment_state_changed', $emailCode);
+
+        // Create user
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        // Create payment
+        $subscriptionType = $this->createSubscriptionType();
+        $paymentGateway = $this->createTestPaymentGateway();
+
+        $payment = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
+        $recurrentPayment = $this->recurrentPaymentsRepository->add('XXX', $payment, new DateTime('now + 5 minutes'), 1, 1);
+
+        // Change status of recurrent payment - this should trigger scenario
+        $this->recurrentPaymentsRepository->update($recurrentPayment, ['state' => RecurrentPaymentsRepository::STATE_USER_STOP]);
+
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(true); // process trigger, finish its job and create email job
+        $this->engine->run(true); // email job should be scheduled
+        $this->dispatcher->handle(); // run email job in Hermes
+        $this->engine->run(true); // job should be deleted
+
+        // Check email was sent
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+
+        // Check email's access to parameters
+        $emailParams = $this->notificationEmailParams('test@email.com', $emailCode);
+        $this->assertEquals($user->email, $emailParams['email']);
+        $this->assertEquals($subscriptionType->code, $emailParams['subscription_type']['code']);
+    }
+
+    private function createSubscriptionType(string $subscriptionTypeCode = 'test_subscription')
+    {
+        $subscriptionType = $this->subscriptionTypeBuilder
+            ->createNew()
+            ->setName('Test subscription')
+            ->setCode($subscriptionTypeCode)
+            ->setUserLabel('')
+            ->setActive(true)
+            ->setPrice(1)
+            ->setLength(10)
+            ->save();
+        return $subscriptionType;
+    }
+
+    private function createTestPaymentGateway()
+    {
+        $pgr = $this->getRepository(PaymentGatewaysRepository::class);
+        return $pgr->add('test', 'test', 10, true, true);
     }
 
     private function insertTriggerToEmailScenario(string $trigger, string $emailCode)

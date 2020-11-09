@@ -43,7 +43,7 @@ class PaymentStatusChangeHandler implements HandlerInterface
 
         $params = array_filter([
             'payment_id' => $paymentId,
-            'subscription_id' => $payment->subscription_id
+            'subscription_id' => $payment->subscription_id ?? null
         ]);
 
         $this->dispatcher->dispatch('payment_change_status', $payment->user_id, $params);

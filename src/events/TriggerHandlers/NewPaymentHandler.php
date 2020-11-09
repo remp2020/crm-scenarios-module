@@ -34,7 +34,7 @@ class NewPaymentHandler implements HandlerInterface
 
         $params = array_filter([
             'payment_id' => $payment->id,
-            'subscription_id' => $payment->subscription_id
+            'subscription_id' => $payment->subscription_id ?? null
         ]);
 
         $this->dispatcher->dispatch('new_payment', $payment->user_id, $params);
