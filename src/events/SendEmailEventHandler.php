@@ -89,8 +89,13 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $password = $parameters->password ?? null;
         $subscription = isset($parameters->subscription_id) ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
         $payment = isset($parameters->payment_id) ? $this->paymentsRepository->find($parameters->payment_id) : null;
-        $recurrentPayment = isset($parameters->recurrent_payment_id) ?
-            $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id) : null;
+
+        $recurrentPayment = null;
+        if (isset($parameters->recurrent_payment_id)) {
+            $recurrentPayment = $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id);
+        } elseif ($payment !== null) {
+            $recurrentPayment = $this->recurrentPaymentsRepository->recurrent($payment) ?? null;
+        }
 
         $subscriptionType = null;
         if ($subscription !== null) {
