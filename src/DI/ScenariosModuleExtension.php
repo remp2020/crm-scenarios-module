@@ -17,6 +17,14 @@ final class ScenariosModuleExtension extends CompilerExtension implements ITrans
         );
     }
 
+    public function beforeCompile()
+    {
+        $builder = $this->getContainerBuilder();
+        // load presenters from extension to Nette
+        $builder->getDefinition($builder->getByType(\Nette\Application\IPresenterFactory::class))
+            ->addSetup('setMapping', [['Scenarios' => 'Crm\ScenariosModule\Presenters\*Presenter']]);
+    }
+
     /**
      * Return array of directories, that contain resources for translator.
      * @return string[]
