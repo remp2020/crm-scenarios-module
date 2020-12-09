@@ -299,7 +299,7 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Expire subscription (this triggers scenario)
         $subscription = $this->subscriptionRepository->actualUserSubscription($user->id);
-        $this->subscriptionRepository->setExpired($subscription, new DateTime('now - 5 minutes'));
+        $this->subscriptionRepository->update($subscription, ['end_time' => new DateTime('now - 5 minutes')]);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(true); // process trigger, finish its job and create email job
