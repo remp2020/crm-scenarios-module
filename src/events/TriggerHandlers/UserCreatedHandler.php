@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -27,6 +28,8 @@ class UserCreatedHandler implements HandlerInterface
 
         $this->dispatcher->dispatch('user_created', $payload['user_id'], [
             'password' => $payload['password']
+        ], [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
         ]);
         return true;
     }

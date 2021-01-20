@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -38,7 +39,9 @@ class RecurrentPaymentRenewedHandler implements HandlerInterface
             'subscription_id' => $recurrentPayment->payment->subscription_id ?? null,
         ]);
 
-        $this->dispatcher->dispatch('recurrent_payment_renewed', $recurrentPayment->user_id, $params);
+        $this->dispatcher->dispatch('recurrent_payment_renewed', $recurrentPayment->user_id, $params, [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
+        ]);
         return true;
     }
 }

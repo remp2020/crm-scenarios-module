@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
@@ -47,7 +48,9 @@ class NewSubscriptionHandler implements HandlerInterface
             $params['payment_id'] = $payment->id;
         }
 
-        $this->dispatcher->dispatch('new_subscription', $subscription->user_id, $params);
+        $this->dispatcher->dispatch('new_subscription', $subscription->user_id, $params, [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
+        ]);
         return true;
     }
 }

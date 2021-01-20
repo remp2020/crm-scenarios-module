@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -37,7 +38,9 @@ class NewPaymentHandler implements HandlerInterface
             'subscription_id' => $payment->subscription_id ?? null
         ]);
 
-        $this->dispatcher->dispatch('new_payment', $payment->user_id, $params);
+        $this->dispatcher->dispatch('new_payment', $payment->user_id, $params, [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
+        ]);
         return true;
     }
 }

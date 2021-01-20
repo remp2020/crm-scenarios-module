@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -25,7 +26,9 @@ class TestUserHandler implements HandlerInterface
             throw new \Exception('unable to handle event: user_id missing');
         }
 
-        $this->dispatcher->dispatch('test_user', $payload['user_id']);
+        $this->dispatcher->dispatch('test_user', $payload['user_id'], [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
+        ]);
         return true;
     }
 

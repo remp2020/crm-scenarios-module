@@ -21,7 +21,7 @@ class Dispatcher
         $this->scenariosRepository = $scenariosRepository;
     }
 
-    public function dispatch(string $triggerCode, $userId, array $params = [])
+    public function dispatch(string $triggerCode, $userId, array $params = [], ?array $context = null)
     {
         foreach ($this->scenariosRepository->getEnabledScenarios() as $scenario) {
             $triggers = $scenario->related('scenarios_triggers')
@@ -30,15 +30,15 @@ class Dispatcher
                     'event_code' => $triggerCode,
                 ]);
             foreach ($triggers as $scenarioTrigger) {
-                $this->jobsRepository->addTrigger($scenarioTrigger->id, array_merge(['user_id' => $userId], $params));
+                $this->jobsRepository->addTrigger($scenarioTrigger->id, array_merge(['user_id' => $userId], $params), $context);
             }
         }
     }
 
-    public function dispatchTrigger(IRow $triggerRow, int $userId, array $params): void
+    public function dispatchTrigger(IRow $triggerRow, int $userId, array $params, ?array $context = null): void
     {
         if ($triggerRow->scenario->enabled) {
-            $this->jobsRepository->addTrigger($triggerRow->id, array_merge(['user_id' => $userId], $params));
+            $this->jobsRepository->addTrigger($triggerRow->id, array_merge(['user_id' => $userId], $params), $context);
         }
     }
 }

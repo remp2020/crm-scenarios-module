@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
@@ -34,6 +35,8 @@ class SubscriptionEndsHandler implements HandlerInterface
 
         $this->dispatcher->dispatch('subscription_ends', $subscription->user_id, [
             'subscription_id' => $payload['subscription_id']
+        ], [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
         ]);
         return true;
     }

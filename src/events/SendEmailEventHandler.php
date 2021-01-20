@@ -8,6 +8,7 @@ use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\UsersModule\Events\NotificationContext;
 use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
@@ -123,7 +124,12 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
         }
 
-        $this->emitter->emit(new NotificationEvent($this->emitter, $user, $templateCode, $templateParams));
+        $jobContext = Json::decode($job->context, Json::FORCE_ARRAY);
+        $notificationContext = new NotificationContext(array_filter([
+            NotificationContext::HERMES_MESSAGE_TYPE => $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE] ?? null
+        ]));
+        $notificationEvent = new NotificationEvent($this->emitter, $user, $templateCode, $templateParams, null, [], null, $notificationContext);
+        $this->emitter->emit($notificationEvent);
 
         $this->jobsRepository->finishJob($job);
         return true;

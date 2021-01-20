@@ -17,6 +17,10 @@ use Crm\SubscriptionsModule\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Events\NotificationContext;
+use Crm\UsersModule\Events\PreNotificationEvent;
+use League\Event\AbstractListener;
+use League\Event\EventInterface;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
@@ -60,6 +64,20 @@ class SimpleScenariosTest extends BaseTestCase
     {
         $this->insertTriggerToEmailScenario('user_created', 'empty_template_code');
 
+        // Handler to check if context is added to PreNotificationEvent
+        $preNotificationEventHandler = new class extends AbstractListener {
+            /**
+             * @var NotificationContext
+             */
+            public $notificationContext;
+            public function handle(EventInterface $event)
+            {
+                $this->notificationContext = $event->getNotificationContext();
+            }
+        };
+        $this->emitter->addListener(PreNotificationEvent::class, $preNotificationEventHandler);
+
+
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
@@ -79,9 +97,16 @@ class SimpleScenariosTest extends BaseTestCase
 
         $this->assertCount(1, $this->jobsRepository->getFinishedJobs()->fetchAll());
 
+        // Check hermes message type is passed down in context
+        $jobContext = Json::decode($this->jobsRepository->getFinishedJobs()->fetch()->context, Json::FORCE_ARRAY);
+        $this->assertEquals('user-created', $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE]);
+
         $this->engine->run(true); // job should be deleted
 
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
+
+        // Check notification context contains hermes trigger
+        $this->assertEquals('user-created', $preNotificationEventHandler->notificationContext->getContextValue(NotificationContext::HERMES_MESSAGE_TYPE));
     }
 
     public function testUserCreatedWaitScenario()

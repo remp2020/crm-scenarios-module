@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
+use Crm\ScenariosModule\Repository\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -36,7 +37,9 @@ class RecurrentPaymentStateChangedHandler implements HandlerInterface
             'recurrent_payment_id' => $recurrentPaymentId,
             'payment_id' => $recurrentPayment->payment_id,
             'subscription_id' => $recurrentPayment->payment->subscription_id ?? null,
-        ]));
+        ]), [
+            JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
+        ]);
 
         return true;
     }

@@ -18,6 +18,8 @@ class JobsRepository extends Repository
     const STATE_FINISHED = 'finished';
     const STATE_FAILED = 'failed';
 
+    const CONTEXT_HERMES_MESSAGE_TYPE = 'hermes_message_type';
+
     final public static function allStates(): array
     {
         return [
@@ -50,30 +52,51 @@ class JobsRepository extends Repository
         $this->elementStatsRepository = $elementStatsRepository;
     }
 
-    final public function addTrigger($triggerId, array $parameters)
+    /**
+     * Adds job associated with a trigger
+     * @param            $triggerId
+     * @param array      $parameters job parameters
+     * @param array|null $context application context
+     *
+     * @return bool|int|IRow
+     * @throws \Nette\Utils\JsonException
+     */
+    final public function addTrigger($triggerId, array $parameters, ?array $context = null)
     {
-        $trigger = $this->insert([
+        $data = [
             'trigger_id' => $triggerId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
             'retry_count' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
-        ]);
+        ];
+
+        if ($context) {
+            $data['context'] = Json::encode($context);
+        }
+
+        $trigger = $this->insert($data);
         $this->triggerStatsRepository->increment($triggerId, self::STATE_CREATED);
         return $trigger;
     }
 
-    final public function addElement($elementId, array $parameters)
+    final public function addElement($elementId, array $parameters, ?array $context = null)
     {
-        $element = $this->insert([
+        $data = [
             'element_id' => $elementId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
             'retry_count' => 0,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
-        ]);
+        ];
+
+        if ($context) {
+            $data['context'] = Json::encode($context);
+        }
+
+        $element = $this->insert($data);
         $this->elementStatsRepository->increment($elementId, self::STATE_CREATED);
         return $element;
     }
