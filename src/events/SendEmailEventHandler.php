@@ -124,11 +124,24 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
         }
 
-        $jobContext = Json::decode($job->context, Json::FORCE_ARRAY);
-        $notificationContext = new NotificationContext(array_filter([
-            NotificationContext::HERMES_MESSAGE_TYPE => $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE] ?? null
-        ]));
-        $notificationEvent = new NotificationEvent($this->emitter, $user, $templateCode, $templateParams, null, [], null, $notificationContext);
+        // Add context if present
+        $notificationContextData = [];
+        if ($job->context) {
+            $jobContext = Json::decode($job->context, Json::FORCE_ARRAY);
+            $contextMessageHermesType = $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE] ?? null;
+            $notificationContextData[NotificationContext::HERMES_MESSAGE_TYPE] = $contextMessageHermesType;
+        }
+
+        $notificationEvent = new NotificationEvent(
+            $this->emitter,
+            $user,
+            $templateCode,
+            $templateParams,
+            null,
+            [],
+            null,
+            new NotificationContext($notificationContextData)
+        );
         $this->emitter->emit($notificationEvent);
 
         $this->jobsRepository->finishJob($job);
