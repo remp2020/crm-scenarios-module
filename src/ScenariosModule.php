@@ -13,12 +13,14 @@ use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Menu\MenuContainerInterface;
 use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
+use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
+use Crm\ScenariosModule\Events\RunGenericEventHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -77,6 +79,12 @@ class ScenariosModule extends CrmModule
             ScenariosCriteriaHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
+
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'generics'),
+            ScenariosListGenericsApiHandler::class,
+            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+        ));
     }
 
     public function registerCommands(CommandsContainerInterface $commandsContainer)
@@ -99,6 +107,7 @@ class ScenariosModule extends CrmModule
 
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
         $dispatcher->registerHandler(ShowBannerEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(ShowBannerEventHandler::class));
+        $dispatcher->registerHandler(RunGenericEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(RunGenericEventHandler::class));
         $dispatcher->registerHandler(FinishWaitEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(FinishWaitEventHandler::class));
         $dispatcher->registerHandler(SegmentCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SegmentCheckEventHandler::class));
         $dispatcher->registerHandler(ConditionCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(ConditionCheckEventHandler::class));

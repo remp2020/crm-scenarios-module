@@ -14,6 +14,8 @@ services:
 			setup:
 				- setRestartInterface(@hermesRestart)
 
+	scenariosGenericEventsManager: Crm\ScenariosModule\Events\ScenariosGenericEventsManager
+
 	elementsRepository: Crm\ScenariosModule\Repository\ElementsRepository
 	jobsRepository: Crm\ScenariosModule\Repository\JobsRepository
 	elementStatsRepository: Crm\ScenariosModule\Repository\ElementStatsRepository
@@ -33,6 +35,7 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
 	- Crm\ScenariosModule\Api\ScenariosTriggerApiHandler
 	- Crm\ScenariosModule\Api\ScenariosCriteriaHandler
+	- Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
@@ -40,6 +43,7 @@ services:
 	- Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\ShowBannerEventHandler
+	- Crm\ScenariosModule\Events\RunGenericEventHandler
 
 	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler

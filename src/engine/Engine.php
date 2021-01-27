@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Engine;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
+use Crm\ScenariosModule\Events\RunGenericEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
@@ -180,6 +181,10 @@ class Engine
                 case ElementsRepository::ELEMENT_TYPE_BANNER:
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id));
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_GENERIC:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id));
                     break;
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
                     $this->jobsRepository->scheduleJob($job);

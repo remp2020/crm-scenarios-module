@@ -61,6 +61,19 @@ This node sends an email to an user who triggered the scenario and reached this 
 
 This node shows a one-time banner to user triggering the node. Available banners are loaded from Campaign tool.
 
+#### Run generic action
+
+This node emits League event specified in `createEvent` method in generic action definition. You can specify custom params which will render in ui and will be passed as options to `createEvent` method.
+
+You can try how this feature works by registering `TestGenericEvent` in your configuration:
+
+```neon
+services:
+	scenariosGenericEventsManager:	
+		setup:
+			- register('test_gen_event', Crm\ScenariosModule\Scenarios\TestGenericEvent())
+```
+
 ### Operations
 
 Typically, scenario actions should be reached only by a subset of users triggering the initial scenario trigger. 
