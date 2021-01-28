@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Presenters;
 use Crm\ApiModule\Token\InternalToken;
 use Crm\ApplicationModule\Components\VisualPaginator;
 use Crm\AdminModule\Presenters\AdminPresenter;
+use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Application\BadRequestException;
@@ -67,6 +68,10 @@ class ScenariosAdminPresenter extends AdminPresenter
         // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
         // DO NOT move this to constructor, listener might not have been added yet
         $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
+
+        // Enable Push notification element in ScenarioBuilder if OneSignalNotificationEvent has handlers (so it can be processed)
+        // DO NOT move this to constructor, listener might not have been added yet
+        $this->template->pushNotificationEnabled = $this->emitter->hasListeners(OneSignalNotificationEvent::class);
 
         $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();

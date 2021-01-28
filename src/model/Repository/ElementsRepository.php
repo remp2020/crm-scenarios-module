@@ -21,6 +21,7 @@ class ElementsRepository extends Repository
     const ELEMENT_TYPE_WAIT = 'wait';
     const ELEMENT_TYPE_BANNER = 'banner';
     const ELEMENT_TYPE_GENERIC = 'generic';
+    const ELEMENT_TYPE_PUSH_NOTIFICATION = 'push_notification';
 
     public function __construct(
         AuditLogRepository $auditLogRepository,

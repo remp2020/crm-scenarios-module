@@ -21,6 +21,7 @@ use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Events\RunGenericEventHandler;
+use Crm\ScenariosModule\Events\SendPushNotificationEventHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -112,6 +113,7 @@ class ScenariosModule extends CrmModule
         $dispatcher->registerHandler(SegmentCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SegmentCheckEventHandler::class));
         $dispatcher->registerHandler(ConditionCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(ConditionCheckEventHandler::class));
         $dispatcher->registerHandler(OnboardingGoalsCheckEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(OnboardingGoalsCheckEventHandler::class));
+        $dispatcher->registerHandler(SendPushNotificationEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendPushNotificationEventHandler::class));
     }
 
     public function registerEvents(EventsStorage $eventsStorage)

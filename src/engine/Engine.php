@@ -8,6 +8,7 @@ use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Events\RunGenericEventHandler;
 use Crm\ScenariosModule\Events\SegmentCheckEventHandler;
 use Crm\ScenariosModule\Events\SendEmailEventHandler;
+use Crm\ScenariosModule\Events\SendPushNotificationEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
@@ -200,6 +201,10 @@ class Engine
                     }
                     $this->jobsRepository->startJob($job);
                     $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']));
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id));
                     break;
                 default:
                     throw new InvalidJobException('Associated job element has wrong type');

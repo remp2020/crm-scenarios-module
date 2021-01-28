@@ -44,6 +44,7 @@ services:
 	- Crm\ScenariosModule\Events\SendEmailEventHandler
 	- Crm\ScenariosModule\Events\ShowBannerEventHandler
 	- Crm\ScenariosModule\Events\RunGenericEventHandler
+	- Crm\ScenariosModule\Events\SendPushNotificationEventHandler
 
 	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler

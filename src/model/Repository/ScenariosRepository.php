@@ -184,6 +184,16 @@ class ScenariosRepository extends Repository
                     }
                     $elementPairs[$element->id]['descendants'] = $element->goal->descendants ?? [];
                     break;
+                case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
+                    if (!isset($element->push_notification->template, $element->push_notification->application)) {
+                        throw new ScenarioInvalidDataException("Missing 'template' or 'application' parameter for the Push notification node.");
+                    }
+                    $elementOptions = [
+                        'template' => $element->push_notification->template,
+                        'application' => $element->push_notification->application,
+                    ];
+                    $elementPairs[$element->id]['descendants'] = $element->push_notification->descendants ?? [];
+                    break;
                 default:
                     $this->connection->rollback();
                     throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
@@ -458,6 +468,16 @@ class ScenariosRepository extends Repository
                     if (isset($options->timeoutMinutes)) {
                         $element[$scenarioElement->type]['timeoutMinutes'] = $options->timeoutMinutes;
                     }
+                    break;
+                case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
+                    if (!isset($options->template, $options->application)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'template' or 'application' in options");
+                    }
+                    $element[$scenarioElement->type] = [
+                        'template' => $options->template,
+                        'application' => $options->application,
+                        'descendants' => $descendants,
+                    ];
                     break;
                 default:
                     throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - unknown element type [{$scenarioElement->type}].");
