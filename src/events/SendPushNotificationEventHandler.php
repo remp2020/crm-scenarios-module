@@ -12,6 +12,8 @@ use Tomaj\Hermes\MessageInterface;
 
 class SendPushNotificationEventHandler extends ScenariosJobsHandler
 {
+    use NotificationContextTrait;
+
     public const HERMES_MESSAGE_CODE = 'scenarios-send-push-notification';
 
     private $emitter;
@@ -66,7 +68,14 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
             $this->emitter,
             $options->application,
             $user,
-            $options->template
+            $options->template,
+            array_merge(
+                (array) $options,
+                (array) $parameters
+            ),
+            null,
+            null,
+            $this->getNotificationContext($job)
         ));
 
         $this->jobsRepository->finishJob($job);

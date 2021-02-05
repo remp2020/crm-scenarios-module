@@ -8,7 +8,6 @@ use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
-use Crm\UsersModule\Events\NotificationContext;
 use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
@@ -17,6 +16,8 @@ use Tomaj\Hermes\MessageInterface;
 
 class SendEmailEventHandler extends ScenariosJobsHandler
 {
+    use NotificationContextTrait;
+
     public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
 
     private $usersRepository;
@@ -124,14 +125,6 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
         }
 
-        // Add context if present
-        $notificationContextData = [];
-        if ($job->context) {
-            $jobContext = Json::decode($job->context, Json::FORCE_ARRAY);
-            $contextMessageHermesType = $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE] ?? null;
-            $notificationContextData[NotificationContext::HERMES_MESSAGE_TYPE] = $contextMessageHermesType;
-        }
-
         $notificationEvent = new NotificationEvent(
             $this->emitter,
             $user,
@@ -140,7 +133,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             null,
             [],
             null,
-            new NotificationContext($notificationContextData)
+            $this->getNotificationContext($job)
         );
         $this->emitter->emit($notificationEvent);
 
