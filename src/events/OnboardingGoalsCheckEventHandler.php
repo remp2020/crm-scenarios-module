@@ -91,12 +91,23 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
 
         $this->jobsRepository->startJob($job);
 
+        try {
+            $onboardingGoalsIds = $this->loadOnboardingGoals($options->codes);
+        } catch (OnboardingGoalsCheckException $e) {
+            $this->jobError($job, $e->getMessage());
+            return true;
+        }
+
         // check if timeout is reached
+        // note: we want to wait till timeout is reached with finishing job;
+        //       so there is no check if all user's goals timed out before reaching this point in time
         if (isset($options->timeoutMinutes)) {
             $timeoutMinutes = (int) $options->timeoutMinutes;
             $timeoutDate = DateTime::from($job->created_at)->add(new \DateInterval("PT{$timeoutMinutes}M"));
 
             if (new DateTime("now") >= $timeoutDate) {
+                $this->timeoutUserOnboardingGoals($user->id, $onboardingGoalsIds);
+
                 $this->jobsRepository->update($job, [
                     'result' => Json::encode([self::RESULT_PARAM_TIMEOUT => true]),
                     'state' => JobsRepository::STATE_FINISHED,
@@ -106,17 +117,13 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             }
         }
 
-        try {
-            if ($this->userCompletedOnboardingGoals($parameters->user_id, $options->codes)) {
-                $this->jobsRepository->update($job, [
-                    'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
-                    'state' => JobsRepository::STATE_FINISHED,
-                    'finished_at' => new DateTime()
-                ]);
-                return true;
-            }
-        } catch (OnboardingGoalsCheckException $e) {
-            $this->jobError($job, $e->getMessage());
+        // check if user completed goals
+        if ($this->userCompletedOnboardingGoals($user->id, $onboardingGoalsIds)) {
+            $this->jobsRepository->update($job, [
+                'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
+                'state' => JobsRepository::STATE_FINISHED,
+                'finished_at' => new DateTime()
+            ]);
             return true;
         }
 
@@ -126,7 +133,13 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         return true;
     }
 
-    private function userCompletedOnboardingGoals($userId, array $onboardingGoalCodes): bool
+    /**
+     * Loads IDs of onboarding goals and checks if all goals exist.
+     * @param  array $onboardingGoalCodes Contents of `$options->codes`
+     * @return array Returns array of integers with IDs of onboarding goals.
+     * @throws OnboardingGoalsCheckException
+     */
+    private function loadOnboardingGoals(array $onboardingGoalCodes): array
     {
         $onboardingGoalCodes = array_unique($onboardingGoalCodes);
         $onboardingGoals = $this->onboardingGoalsRepository->getTable()
@@ -146,10 +159,23 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             throw new OnboardingGoalsCheckException('Missing onboarding goals:' . implode(',', array_keys($missingGoalCodes)));
         }
 
+        return $onboardingGoalIds;
+    }
+
+    private function timeoutUserOnboardingGoals(int $userId, array $onboardingGoalsIds)
+    {
+        $timedoutAt = new DateTime();
+        foreach ($onboardingGoalsIds as $onboardingGoalId) {
+            $this->userOnboardingGoalsRepository->timeout($userId, $onboardingGoalId, $timedoutAt);
+        }
+    }
+
+    private function userCompletedOnboardingGoals(int $userId, array $onboardingGoalsIDs): bool
+    {
         $completedGoalsCount = $this->userOnboardingGoalsRepository
-            ->userCompletedGoals($userId, $onboardingGoalIds)
+            ->userCompletedGoals($userId, $onboardingGoalsIDs)
             ->count('*');
 
-        return $completedGoalsCount === count($onboardingGoalCodes);
+        return $completedGoalsCount === count($onboardingGoalsIDs);
     }
 }
