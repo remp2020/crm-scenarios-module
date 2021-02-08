@@ -7,6 +7,7 @@ use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Tomaj\Hermes\Emitter;
@@ -99,7 +100,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
 
         // each user who entered scenario with goal node has to have user onboarding goal entry
-        $this->ensureUserHasOnboardingGoals($user->id, $onboardingGoalsIds);
+        $this->ensureUserHasOnboardingGoals($user->id, $onboardingGoalsIds, $job);
 
         // check if timeout is reached
         // note: we want to wait till timeout is reached with finishing job;
@@ -121,7 +122,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
 
         // check if user completed goals
-        if ($this->userCompletedOnboardingGoals($user->id, $onboardingGoalsIds)) {
+        if ($this->userCompletedOnboardingGoals($user->id, $onboardingGoalsIds, $job)) {
             $this->jobsRepository->update($job, [
                 'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
                 'state' => JobsRepository::STATE_FINISHED,
@@ -173,24 +174,41 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
     }
 
-    private function ensureUserHasOnboardingGoals(int $userId, array $onboardingGoalsIDs)
+    private function ensureUserHasOnboardingGoals(int $userId, array $onboardingGoalsIDs, ActiveRow $job)
     {
         foreach ($onboardingGoalsIDs as $onboardingGoalID) {
-            $userGoal = $this->userOnboardingGoalsRepository
-                ->userGoal($userId, $onboardingGoalID);
+            $userLastGoal = $this->userOnboardingGoalsRepository
+                ->userLastGoal($userId, $onboardingGoalID);
 
             // no goal; create new
-            if ($userGoal === null) {
+            if ($userLastGoal === null) {
                 $this->userOnboardingGoalsRepository->add($userId, $onboardingGoalID);
                 continue;
             }
+
+            // user's goal not completed or timed out
+            if ($userLastGoal->completed_at === null
+                && $userLastGoal->timedout_at === null) {
+                // "touch" user's goal entry to indicate when it was checked by scenario
+                $this->userOnboardingGoalsRepository->update($userLastGoal, ['updated_at' => new DateTime()]);
+                continue;
+            }
+
+            // user's goal is completed or timed out; but it's current user's goal entry
+            if ($userLastGoal->updated_at >= $job->created_at) {
+                continue;
+            }
+
+            // there is no current or previous goal we could use for scenario; create new
+            $this->userOnboardingGoalsRepository->add($userId, $onboardingGoalID);
         }
     }
 
-    private function userCompletedOnboardingGoals(int $userId, array $onboardingGoalsIDs): bool
+    private function userCompletedOnboardingGoals(int $userId, array $onboardingGoalsIDs, ActiveRow $job): bool
     {
         $completedGoalsCount = $this->userOnboardingGoalsRepository
             ->userCompletedGoals($userId, $onboardingGoalsIDs)
+            ->where(['completed_at >= ?' => $job->created_at])
             ->count('*');
 
         return $completedGoalsCount === count($onboardingGoalsIDs);
