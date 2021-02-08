@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Scenarios;
 
-use Crm\ApplicationModule\Criteria\Params\BooleanParam;
+use Crm\ApplicationModule\Criteria\ScenarioParams\BooleanParam;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaInterface;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;

@@ -2,9 +2,7 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ApplicationModule\Criteria\Params\BooleanParam;
-use Crm\ApplicationModule\Criteria\Params\NumberParam;
-use Crm\ApplicationModule\Criteria\Params\StringLabeledArrayParam;
+use Crm\ApplicationModule\Scenarios\ScenarioCriteriaParamInterface;
 use League\Event\EventInterface;
 
 interface ScenarioGenericEventInterface
@@ -20,7 +18,7 @@ interface ScenarioGenericEventInterface
      * Returns an array of CriteriaParam definitions available for the generic event
      *
      *
-     * @return BooleanParam|NumberParam|StringLabeledArrayParam[]
+     * @return ScenarioCriteriaParamInterface[]
      */
     public function getParams(): array;
 
