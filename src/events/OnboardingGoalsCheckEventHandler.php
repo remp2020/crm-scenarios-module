@@ -98,6 +98,9 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
+        // each user who entered scenario with goal node has to have user onboarding goal entry
+        $this->ensureUserHasOnboardingGoals($user->id, $onboardingGoalsIds);
+
         // check if timeout is reached
         // note: we want to wait till timeout is reached with finishing job;
         //       so there is no check if all user's goals timed out before reaching this point in time
@@ -167,6 +170,20 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         $timedoutAt = new DateTime();
         foreach ($onboardingGoalsIds as $onboardingGoalId) {
             $this->userOnboardingGoalsRepository->timeout($userId, $onboardingGoalId, $timedoutAt);
+        }
+    }
+
+    private function ensureUserHasOnboardingGoals(int $userId, array $onboardingGoalsIDs)
+    {
+        foreach ($onboardingGoalsIDs as $onboardingGoalID) {
+            $userGoal = $this->userOnboardingGoalsRepository
+                ->userGoal($userId, $onboardingGoalID);
+
+            // no goal; create new
+            if ($userGoal === null) {
+                $this->userOnboardingGoalsRepository->add($userId, $onboardingGoalID);
+                continue;
+            }
         }
     }
 
