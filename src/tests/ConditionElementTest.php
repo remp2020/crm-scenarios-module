@@ -195,19 +195,27 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => 'type',
-                                    'values' => [
-                                        'selection'=> ['free'],
-                                        'operator' => 'or'
+                                    'params' => [
+                                        [
+                                            'key' => 'type',
+                                            'values' => [
+                                                'selection'=> ['free'],
+                                                'operator' => 'or'
+                                            ]
+                                        ]
                                     ]
                                 ],
                                 [
-                                    'id' => 2,
                                     'key' => 'subscription_type',
-                                    'values' => [
-                                        'selection' => [$checkForSubscriptionType],
-                                        'operator' => 'or'
+                                    'params' => [
+                                        [
+                                            'key' => 'subscription_type',
+                                            'values' => [
+                                                'selection' => [$checkForSubscriptionType],
+                                                'operator' => 'or'
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]
@@ -265,11 +273,15 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => 'content_access',
-                                    'values' => [
-                                        'selection'=> ['plus'],
-                                        'operator' => 'or'
+                                    'params' => [
+                                        [
+                                            'key' => 'content_access',
+                                            'values' => [
+                                                'selection'=> ['plus'],
+                                                'operator' => 'or'
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]
@@ -363,10 +375,14 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => 'is_recurrent',
-                                    'values' => [
-                                        'selection' => false
+                                    'params' => [
+                                        [
+                                            'key' => 'is_recurrent',
+                                            'values' => [
+                                                'selection' => false
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]
@@ -459,11 +475,15 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => 'source',
-                                    'values' => [
-                                        'selection'=> ['mobile_app'],
-                                        'operator' => 'or'
+                                    'params' => [
+                                        [
+                                            'key' => 'source',
+                                            'values' => [
+                                                'selection'=> ['mobile_app'],
+                                                'operator' => 'or'
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]
@@ -553,10 +573,14 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => HasPaymentCriteria::KEY,
-                                    'values' => [
-                                        'selection'=> true,
+                                    'params' => [
+                                        [
+                                            'key' => HasPaymentCriteria::KEY,
+                                            'values' => [
+                                                'selection'=> true,
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]
@@ -654,10 +678,14 @@ class ConditionElementTest extends BaseTestCase
                             'version' => 1,
                             'nodes' => [
                                 [
-                                    'id' => 1,
                                     'key' => HasPaymentCriteria::KEY,
-                                    'values' => [
-                                        'selection'=> true,
+                                    'params' => [
+                                        [
+                                            'key' => HasPaymentCriteria::KEY,
+                                            'values' => [
+                                                'selection'=> true,
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]

@@ -67,7 +67,7 @@ class ComplexSegmentScenariosTest extends BaseTestCase
         $jr = $this->getRepository(JobsRepository::class);
 
         // Insert segment containing all users
-        $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('test_group');
+        $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('Test group', 'test_group');
         $this->getRepository(SegmentsRepository::class)->add(
             'All users (tests)',
             1,

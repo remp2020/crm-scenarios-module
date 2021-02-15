@@ -182,7 +182,7 @@ class SimpleScenariosTest extends BaseTestCase
             ]
         ]);
         // Insert empty segment
-        $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('test_group');
+        $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('Test group', 'test_group');
         $this->getRepository(SegmentsRepository::class)->add(
             'Empty segment',
             1,

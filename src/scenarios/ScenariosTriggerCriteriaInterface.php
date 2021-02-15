@@ -4,5 +4,5 @@ namespace Crm\ScenariosModule\Scenarios;
 
 interface ScenariosTriggerCriteriaInterface
 {
-    public function evaluate($parameters, $selection): bool;
+    public function evaluate($jobParameters, array $paramValues): bool;
 }

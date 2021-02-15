@@ -149,7 +149,12 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
                         throw new ConditionCheckException('Scenario is not evaluable');
                     }
 
-                    if (!$criterion->evaluate($jobParameters, $node->values)) {
+                    $paramValues = [];
+                    foreach ($node->params as $param) {
+                        $paramValues[$param->key] = $param->values;
+                    }
+
+                    if (!$criterion->evaluate($jobParameters, $paramValues)) {
                         return false;
                     }
                 }
@@ -161,7 +166,13 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
         foreach ($conditions->nodes as $node) {
             $criterion = $this->scenariosCriteriaStorage->getEventCriterion($conditions->event, $node->key);
-            if (!$criterion->addCondition($itemQuery, $node->values, $itemRow)) {
+
+            $paramValues = [];
+            foreach ($node->params as $param) {
+                $paramValues[$param->key] = $param->values;
+            }
+
+            if (!$criterion->addConditions($itemQuery, $paramValues, $itemRow)) {
                 return false;
             }
         }

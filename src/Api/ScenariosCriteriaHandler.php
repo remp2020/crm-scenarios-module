@@ -5,8 +5,8 @@ namespace Crm\ScenariosModule\Api;
 use Crm\ApiModule\Api\ApiHandler;
 use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
-use Crm\ApplicationModule\Criteria\CriteriaParam;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
+use Crm\ApplicationModule\Scenarios\ScenarioCriteriaParamInterface;
 use Nette\Http\Response;
 
 class ScenariosCriteriaHandler extends ApiHandler
@@ -29,11 +29,11 @@ class ScenariosCriteriaHandler extends ApiHandler
         $result = [];
         foreach ($criteriaArray as $event => $tableCriteria) {
             foreach ($tableCriteria as $key => $criteria) {
-                /** @var CriteriaParam[] $params */
+                /** @var ScenarioCriteriaParamInterface[] $params */
                 $params = $criteria->params();
                 $paramsArray = [];
                 foreach ($params as $param) {
-                    $paramsArray[$param->key()] = $param->blueprint();
+                    $paramsArray[] = $param->blueprint();
                 }
 
                 $result[$event][] = [

@@ -18,18 +18,20 @@ class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTrigger
         ];
     }
 
-    public function addCondition(Selection $selection, $values, IRow $criterionItemRow): bool
+    public function addConditions(Selection $selection, array $paramValues, IRow $criterionItemRow): bool
     {
         return true;
     }
 
-    public function evaluate($parameters, $values): bool
+    public function evaluate($jobParameters, array $paramValues): bool
     {
+        $values = $paramValues[self::KEY];
+
         if ($values->selection === true) {
-            return isset($parameters->payment_id);
+            return isset($jobParameters->payment_id);
         }
 
-        return !isset($parameters->payment_id);
+        return !isset($jobParameters->payment_id);
     }
 
     public function label(): string
