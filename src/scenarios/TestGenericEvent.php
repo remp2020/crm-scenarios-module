@@ -21,7 +21,9 @@ class TestGenericEvent implements ScenarioGenericEventInterface
         return [
             new BooleanParam('bool_param', 'Boolean param'),
             new NumberParam('number_param', 'Number param', 'unit'),
-            new StringLabeledArrayParam('labeled_string_param', 'Labeled string param', []),
+            new StringLabeledArrayParam('labeled_string_param', 'Labeled string param', [
+                'abc' => 'Abc'
+            ]),
         ];
     }
 

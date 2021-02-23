@@ -137,9 +137,10 @@ class ScenariosRepository extends Repository
                         throw new ScenarioInvalidDataException("Missing 'code' parameter for the Generic node.");
                     }
                     $elementOptions = [
-                        'code' => $element->generic->code
+                        'code' => $element->generic->code,
+                        'options' => $element->generic->options ?? [],
                     ];
-                    $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
+                    $elementPairs[$element->id]['descendants'] = $element->generic->descendants ?? [];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     if (!isset($element->segment->code)) {
@@ -424,7 +425,11 @@ class ScenariosRepository extends Repository
                     $element[$scenarioElement->type] = [
                         'code' => $options->code,
                         'descendants' => $descendants,
+                        'options' => [],
                     ];
+                    if (isset($options->options)) {
+                        $element[$scenarioElement->type]['options'] = $options->options;
+                    }
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     if (!isset($options->code)) {

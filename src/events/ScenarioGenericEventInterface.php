@@ -25,7 +25,7 @@ interface ScenarioGenericEventInterface
     /**
      * Return new League event to emit when generic action is triggered.
      *
-     * @param object $options additional settings (set in ui) passed to emitted event
+     * @param array $options additional settings (set in ui) passed to emitted event
      * @param object $params info about triggered action such as user_id, payment or subscription information
      * @return EventInterface
      */

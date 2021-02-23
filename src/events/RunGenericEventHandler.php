@@ -64,11 +64,18 @@ class RunGenericEventHandler extends ScenariosJobsHandler
             return true;
         }
 
+        $eventOptions = [];
+        if (isset($options->options)) {
+            foreach ($options->options as $option) {
+                $eventOptions[$option->key] = $option->values ?? null;
+            }
+        }
+
         $this->jobsRepository->startJob($job);
 
         try {
             $genericEvent = $this->genericEventHandlerManager->getByCode($options->code);
-            $event = $genericEvent->createEvent($options, $parameters);
+            $event = $genericEvent->createEvent($eventOptions, $parameters);
         } catch (\Exception $e) {
             $this->jobError($job, $e->getMessage());
             return true;
