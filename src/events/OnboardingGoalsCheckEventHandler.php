@@ -102,6 +102,16 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         // each user who entered scenario with goal node has to have user onboarding goal entry
         $this->ensureUserHasOnboardingGoals($user->id, $onboardingGoalsIds, $job);
 
+        // check if user completed goals
+        if ($this->userCompletedOnboardingGoals($user->id, $onboardingGoalsIds, $job)) {
+            $this->jobsRepository->update($job, [
+                'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
+                'state' => JobsRepository::STATE_FINISHED,
+                'finished_at' => new DateTime()
+            ]);
+            return true;
+        }
+
         // check if timeout is reached
         // note: we want to wait till timeout is reached with finishing job;
         //       so there is no check if all user's goals timed out before reaching this point in time
@@ -119,16 +129,6 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
                 ]);
                 return true;
             }
-        }
-
-        // check if user completed goals
-        if ($this->userCompletedOnboardingGoals($user->id, $onboardingGoalsIds, $job)) {
-            $this->jobsRepository->update($job, [
-                'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
-                'state' => JobsRepository::STATE_FINISHED,
-                'finished_at' => new DateTime()
-            ]);
-            return true;
         }
 
         // If goals are not completed, reschedule another check
