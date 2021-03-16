@@ -13,7 +13,9 @@ class HasPaymentCriteriaTest extends TestCase
     public function testHasPaymentWithoutPayment(array $parameters, bool $selectedValue, bool $expectedResult): void
     {
         $hasPaymentCriteria = new HasPaymentCriteria();
-        $result = $hasPaymentCriteria->evaluate((object)$parameters, (object)['selection' => $selectedValue]);
+        $result = $hasPaymentCriteria->evaluate((object)$parameters, [
+            HasPaymentCriteria::KEY => (object)['selection' => $selectedValue],
+        ]);
 
         $this->assertEquals($expectedResult, $result);
     }
