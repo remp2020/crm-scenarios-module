@@ -7,7 +7,6 @@ use Crm\ApplicationModule\Criteria\ScenarioParams\NumberParam;
 use Crm\ApplicationModule\Criteria\ScenarioParams\StringLabeledArrayParam;
 use Crm\ScenariosModule\Events\ScenarioGenericEventInterface;
 use League\Event\AbstractEvent;
-use League\Event\EventInterface;
 
 class TestGenericEvent implements ScenarioGenericEventInterface
 {
@@ -27,9 +26,11 @@ class TestGenericEvent implements ScenarioGenericEventInterface
         ];
     }
 
-    public function createEvent($options, $params): EventInterface
+    public function createEvents($options, $params): array
     {
-        return new class extends AbstractEvent {
-        };
+        return [
+            new class extends AbstractEvent {
+            }
+        ];
     }
 }

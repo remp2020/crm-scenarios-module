@@ -27,7 +27,7 @@ interface ScenarioGenericEventInterface
      *
      * @param array $options additional settings (set in ui) passed to emitted event
      * @param object $params info about triggered action such as user_id, payment or subscription information
-     * @return EventInterface
+     * @return EventInterface[]
      */
-    public function createEvent($options, $params): EventInterface;
+    public function createEvents($options, $params): array;
 }

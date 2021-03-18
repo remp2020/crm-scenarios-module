@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
+use League\Event\EventInterface;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 
@@ -75,13 +76,20 @@ class RunGenericEventHandler extends ScenariosJobsHandler
 
         try {
             $genericEvent = $this->genericEventHandlerManager->getByCode($options->code);
-            $event = $genericEvent->createEvent($eventOptions, $parameters);
+            $events = $genericEvent->createEvents($eventOptions, $parameters);
+            foreach ($events as $event) {
+                if (!$event instanceof EventInterface) {
+                    $genericEventClassName = get_class($genericEvent);
+                    throw new \Exception(
+                        "Generic event `{$genericEventClassName}` returned wrong event instance should be `EventInterface`"
+                    );
+                }
+                $this->emitter->emit($event);
+            }
         } catch (\Exception $e) {
             $this->jobError($job, $e->getMessage());
             return true;
         }
-
-        $this->emitter->emit($event);
 
         $this->jobsRepository->finishJob($job);
         return true;

@@ -8,7 +8,6 @@ use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\UsersModule\Auth\UserManager;
-use League\Event\EventInterface;
 
 class RunGenericEventTest extends BaseTestCase
 {
@@ -38,9 +37,9 @@ class RunGenericEventTest extends BaseTestCase
                 return [];
             }
 
-            public function createEvent($options, $params): EventInterface
+            public function createEvents($options, $params): array
             {
-                return new TriggerGenericActionEvent();
+                return [new TriggerGenericActionEvent()];
             }
         });
 
