@@ -70,6 +70,11 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $this->jobError($job, 'no user with given user_id found');
             return true;
         }
+        // Not sending email to inactive user
+        if (!$user->active) {
+            $this->jobsRepository->finishJob($job);
+            return true;
+        }
 
         $element = $job->ref('scenarios_elements', 'element_id');
         if (!$element) {
