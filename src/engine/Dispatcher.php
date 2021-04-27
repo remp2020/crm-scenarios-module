@@ -28,6 +28,7 @@ class Dispatcher
                 ->where([
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'event_code' => $triggerCode,
+                    'deleted_at' => null,
                 ]);
             foreach ($triggers as $scenarioTrigger) {
                 $this->jobsRepository->addTrigger($scenarioTrigger->id, array_merge(['user_id' => $userId], $params), $context);
