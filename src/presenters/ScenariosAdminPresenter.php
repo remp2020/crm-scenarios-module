@@ -33,6 +33,9 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->linkGenerator = $linkGenerator;
     }
 
+    /**
+     * @admin-access-level read
+     */
     public function renderDefault()
     {
         $products = $this->scenariosRepository->all();
@@ -49,6 +52,9 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->scenarios = $products->limit($paginator->getLength(), $paginator->getOffset());
     }
 
+    /**
+     * @admin-access-level write
+     */
     public function renderEdit($id)
     {
         $scenario = $this->scenariosRepository->find($id);
@@ -59,10 +65,16 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->scenario = $scenario;
     }
 
+    /**
+     * @admin-access-level write
+     */
     public function renderNew()
     {
     }
 
+    /**
+     * @admin-access-level write
+     */
     public function renderEmbed($id)
     {
         // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
@@ -79,6 +91,9 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->scenario = $this->scenariosRepository->find($id);
     }
 
+    /**
+     * @admin-access-level write
+     */
     public function handleEnable($id)
     {
         $scenario = $this->scenariosRepository->find($id);
@@ -95,6 +110,9 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->redirect('default');
     }
 
+    /**
+     * @admin-access-level write
+     */
     public function handleDisable($id)
     {
         $scenario = $this->scenariosRepository->find($id);
