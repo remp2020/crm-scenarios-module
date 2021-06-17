@@ -12,7 +12,7 @@ services:
 	scenariosEngine:
 			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
 			setup:
-				- setRestartInterface(@hermesRestart)
+				- setShutdownInterface(@hermesShutdown)
 
 	scenariosGenericEventsManager: Crm\ScenariosModule\Events\ScenariosGenericEventsManager
 

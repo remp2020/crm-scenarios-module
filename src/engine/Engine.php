@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Engine;
 
+use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -20,8 +21,8 @@ use Nette\Utils\JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Emitter;
-use Tomaj\Hermes\Restart\RestartException;
-use Tomaj\Hermes\Restart\RestartInterface;
+use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
 
 class Engine
@@ -40,7 +41,8 @@ class Engine
 
     private $hermesEmitter;
 
-    private $restart;
+    /** @var ShutdownInterface */
+    private $shutdown;
 
     private $startTime;
 
@@ -59,9 +61,9 @@ class Engine
         $this->startTime = new DateTime();
     }
 
-    public function setRestartInterface(RestartInterface $restart): void
+    public function setShutdownInterface(ShutdownInterface $shutdown): void
     {
-        $this->restart = $restart;
+        $this->shutdown = $shutdown;
     }
 
     public function run(bool $once = false)
@@ -87,14 +89,14 @@ class Engine
                     break;
                 }
 
-                if ($this->restart && $this->restart->shouldRestart($this->startTime)) {
-                    throw new RestartException('Restart');
+                if ($this->shutdown && $this->shutdown->shouldShutdown($this->startTime)) {
+                    throw new ShutdownException('Shutdown');
                 }
 
                 sleep($this->sleepTime);
             }
-        } catch (RestartException $exception) {
-            $this->logger->notice('Exiting scenarios engine - restart');
+        } catch (ShutdownException $exception) {
+            $this->logger->notice('Exiting scenarios engine - shutdown');
         } catch (Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
         }
@@ -173,38 +175,38 @@ class Engine
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_BANNER:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GENERIC:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     if (!isset($options['minutes'])) {
                         throw new InvalidJobException("Associated job element has no 'minutes' option");
                     }
                     $this->jobsRepository->startJob($job);
-                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']));
+                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 default:
                     throw new InvalidJobException('Associated job element has wrong type');
