@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
@@ -40,7 +41,6 @@ use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionTypeNamesSeeder;
 use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Events\UserCreatedEvent;
-use Crm\UsersModule\Repository\LoginAttemptsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\Tests\TestNotificationHandler;
 use Kdyby\Translation\Translator;
@@ -71,7 +71,6 @@ abstract class BaseTestCase extends DatabaseTestCase
     {
         return [
             UsersRepository::class,
-            LoginAttemptsRepository::class,
             // To work with subscriptions, we need all these tables
             SubscriptionsRepository::class,
             SubscriptionTypesRepository::class,
@@ -100,7 +99,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             UserOnboardingGoalsRepository::class,
             // Content access
             ContentAccessRepository::class,
-            SubscriptionTypeContentAccess::class
+            SubscriptionTypeContentAccess::class,
         ];
     }
 
@@ -111,6 +110,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             SubscriptionLengthMethodSeeder::class,
             SubscriptionTypeNamesSeeder::class,
             PaymentGatewaysSeeder::class,
+            CountriesSeeder::class,
         ];
     }
 

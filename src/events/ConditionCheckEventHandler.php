@@ -161,7 +161,13 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
                 return true;
             default:
-                throw new ConditionCheckException("Not supported condition event {$conditions->event}");
+                $conditionModel = $this->scenariosCriteriaStorage->getConditionModel($conditions->event);
+                if ($conditionModel === null) {
+                    throw new ConditionCheckException("Not supported condition event {$conditions->event}");
+                }
+
+                $itemQuery = $conditionModel->getItemQuery($jobParameters);
+                $itemRow = (clone $itemQuery)->fetch();
         }
 
         foreach ($conditions->nodes as $node) {
