@@ -7,7 +7,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
-use Crm\SegmentModule\SegmentFactory;
+use Crm\SegmentModule\SegmentFactoryInterface;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Utils\DateTime;
@@ -30,7 +30,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
     private $paymentsRepository;
 
     public function __construct(
-        SegmentFactory $segmentFactory,
+        SegmentFactoryInterface $segmentFactory,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
