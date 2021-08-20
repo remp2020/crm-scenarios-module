@@ -24,6 +24,7 @@ services:
 	triggersRepository: Crm\ScenariosModule\Repository\TriggersRepository
 	triggerStatsRepository: Crm\ScenariosModule\Repository\TriggerStatsRepository
 	triggerElementsRepository: Crm\ScenariosModule\Repository\TriggerElementsRepository
+	scenariosSelectedVariants: Crm\ScenariosModule\Repository\SelectedVariantsRepository
 	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
 	beforeEventGenerator: Crm\ScenariosModule\Events\BeforeEventGenerator
 	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
@@ -45,6 +46,8 @@ services:
 	- Crm\ScenariosModule\Events\ShowBannerEventHandler
 	- Crm\ScenariosModule\Events\RunGenericEventHandler
 	- Crm\ScenariosModule\Events\SendPushNotificationEventHandler
+	- Crm\ScenariosModule\Events\ABTestDistributeEventHandler
+	- Crm\ScenariosModule\Events\ABTestElementUpdatedHandler
 
 	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
@@ -65,3 +68,5 @@ services:
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
 
 	- Crm\ScenariosModule\Scenarios\HasPaymentCriteria
+
+	- Crm\ScenariosModule\Seeders\SegmentGroupsSeeder

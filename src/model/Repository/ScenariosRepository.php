@@ -2,9 +2,10 @@
 
 namespace Crm\ScenariosModule\Repository;
 
-use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
+use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
+use Crm\SegmentModule\Repository\SegmentsRepository;
 use Nette\Caching\IStorage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
@@ -22,11 +23,11 @@ class ScenariosRepository extends Repository
 
     private $elementElementsRepository;
 
-    private $eventsStorage;
-
     private $triggersRepository;
 
     private $triggerElementsRepository;
+
+    private $segmentsRepository;
 
     public function __construct(
         Context $database,
@@ -35,19 +36,19 @@ class ScenariosRepository extends Repository
         Connection $connection,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
-        EventsStorage $eventsStorage,
         TriggersRepository $triggersRepository,
-        TriggerElementsRepository $triggerElementsRepository
+        TriggerElementsRepository $triggerElementsRepository,
+        SegmentsRepository $segmentsRepository
     ) {
         parent::__construct($database, $cacheStorage);
 
         $this->connection = $connection;
         $this->elementsRepository = $elementsRepository;
         $this->elementElementsRepository = $elementElementsRepository;
-        $this->eventsStorage = $eventsStorage;
         $this->triggersRepository = $triggersRepository;
         $this->triggerElementsRepository = $triggerElementsRepository;
         $this->auditLogRepository = $auditLogRepository;
+        $this->segmentsRepository = $segmentsRepository;
     }
 
     final public function all()
@@ -91,222 +92,51 @@ class ScenariosRepository extends Repository
         $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'id');
         $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'id');
 
-        // Delete all links
-        $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
-        $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
-        $this->elementElementsRepository->deleteLinksForElements(array_values($oldElements));
+        try {
+            // Delete all links
+            $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
+            $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
+            $this->elementElementsRepository->deleteLinksForElements(array_values($oldElements));
 
-        // TODO: move whole block to elements repository
-        // add elements of scenario
-        $elementPairs = [];
-        foreach ($data['elements'] ?? [] as $element) {
-            $elementData = [
-                'scenario_id' => $scenarioId,
-                'uuid' => $element->id,
-                'name' => $element->name,
-                'type' => $element->type,
-            ];
-            unset($oldElements[$element->id]);
-
-            $elementOptions = null;
-            switch ($element->type) {
-                case ElementsRepository::ELEMENT_TYPE_EMAIL:
-                    if (!isset($element->email->code)) {
-                        throw new ScenarioInvalidDataException("Missing 'code' parameter for the Email node.");
-                    }
-                    $elementOptions = [
-                        'code' => $element->email->code
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_BANNER:
-                    if (!isset($element->banner->id)) {
-                        throw new ScenarioInvalidDataException("Missing 'id' parameter for the Banner node.");
-                    }
-                    if (!isset($element->banner->expiresInMinutes)) {
-                        throw new ScenarioInvalidDataException("Missing 'expiresInMinutes' parameter for the Banner node.");
-                    }
-                    $elementOptions = [
-                        'id' => $element->banner->id,
-                        'expiresInMinutes' => $element->banner->expiresInMinutes,
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->banner->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_GENERIC:
-                    if (!isset($element->generic->code)) {
-                        throw new ScenarioInvalidDataException("Missing 'code' parameter for the Generic node.");
-                    }
-                    $elementOptions = [
-                        'code' => $element->generic->code,
-                        'options' => $element->generic->options ?? [],
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->generic->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    if (!isset($element->segment->code)) {
-                        throw new ScenarioInvalidDataException("Missing 'code' parameter for the Segment node.");
-                    }
-                    $elementOptions = [
-                        'code' => $element->segment->code
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->segment->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_CONDITION:
-                    if (!isset($element->condition->conditions)) {
-                        throw new ScenarioInvalidDataException("Missing 'conditions' parameter for the Condition node.");
-                    }
-                    $elementOptions = [
-                        'conditions' => $element->condition->conditions
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->condition->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_WAIT:
-                    if (!isset($element->wait->minutes)) {
-                        throw new ScenarioInvalidDataException("Missing 'minutes' parameter for the Wait node.");
-                    }
-                    $elementOptions = [
-                        'minutes' => $element->wait->minutes
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->wait->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_GOAL:
-                    if (!isset($element->goal->codes)) {
-                        throw new ScenarioInvalidDataException("Missing 'codes' parameter for the Goal node.");
-                    }
-                    if (!isset($element->goal->recheckPeriodMinutes)) {
-                        throw new ScenarioInvalidDataException("Missing 'recheckPeriodMinutes' parameter for the Goal node.");
-                    }
-                    $elementOptions = [
-                        'codes' => $element->goal->codes,
-                        'recheckPeriodMinutes' => $element->goal->recheckPeriodMinutes,
-                    ];
-                    if (isset($element->goal->timeoutMinutes)) {
-                        $elementOptions['timeoutMinutes'] = $element->goal->timeoutMinutes;
-                    }
-                    $elementPairs[$element->id]['descendants'] = $element->goal->descendants ?? [];
-                    break;
-                case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
-                    if (!isset($element->push_notification->template, $element->push_notification->application)) {
-                        throw new ScenarioInvalidDataException("Missing 'template' or 'application' parameter for the Push notification node.");
-                    }
-                    $elementOptions = [
-                        'template' => $element->push_notification->template,
-                        'application' => $element->push_notification->application,
-                    ];
-                    $elementPairs[$element->id]['descendants'] = $element->push_notification->descendants ?? [];
-                    break;
-                default:
-                    $this->connection->rollback();
-                    throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");
+            // add elements of scenario
+            $elementPairs = [];
+            foreach ($data['elements'] ?? [] as $element) {
+                $this->elementsRepository->saveElementData($scenarioId, $element, $elementPairs);
+                unset($oldElements[$element->id]);
             }
 
-            $elementPairs[$element->id]['type'] = $element->type;
-            $elementData['options'] = Json::encode($elementOptions);
+            // Delete old elements
+            $this->elementsRepository->deleteByUuids(array_keys($oldElements));
 
-            $element = $this->elementsRepository->findByUuid($elementData['uuid']);
-            if (!$element) {
-                $this->elementsRepository->insert($elementData);
-            } else {
-                $this->elementsRepository->update($element, $elementData);
+            // process elements' descendants
+            foreach ($elementPairs as $parentUUID => $element) {
+                $parent = $this->elementsRepository->findBy('uuid', $parentUUID);
+                if (!$parent) {
+                    throw new \Exception("Unable to find element with uuid [{$parentUUID}]");
+                }
+
+                foreach ($element['descendants'] as $descendantDef) {
+                    $descendant = $this->elementsRepository->findBy('uuid', $descendantDef->uuid);
+                    if (!$descendant) {
+                        throw new \Exception("Unable to find element with uuid [{$descendant->uuid}]");
+                    }
+
+                    $this->elementElementsRepository->upsert($parent, $descendant, $descendantDef);
+                }
             }
+
+            // process triggers (root elements)
+            foreach ($data['triggers'] ?? [] as $trigger) {
+                $this->triggersRepository->saveTriggerData($scenarioId, $trigger);
+                unset($oldTriggers[$trigger->id]);
+            }
+
+            // Delete old triggers
+            $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
+        } catch (\Exception $exception) {
+            $this->connection->rollBack();
+            throw $exception;
         }
-
-        // Delete old elements
-        $this->elementsRepository->deleteByUuids(array_keys($oldElements));
-
-        // TODO: move whole block to elementElements repository
-        // process elements' descendants
-        foreach ($elementPairs as $parentUUID => $element) {
-            $parent = $this->elementsRepository->findBy('uuid', $parentUUID);
-            if (!$parent) {
-                $this->connection->rollback();
-                throw new \Exception("Unable to find element with uuid [{$parentUUID}]");
-            }
-
-            foreach ($element['descendants'] as $descendantDef) {
-                $descendant = $this->elementsRepository->findBy('uuid', $descendantDef->uuid);
-                if (!$descendant) {
-                    $this->connection->rollback();
-                    throw new \Exception("Unable to find element with uuid [{$descendant->uuid}]");
-                }
-
-                $elementElementsData = [
-                    'parent_element_id' => $parent->id,
-                    'child_element_id' => $descendant->id,
-                ];
-
-                switch ($element['type']) {
-                    case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    case ElementsRepository::ELEMENT_TYPE_GOAL:
-                    case ElementsRepository::ELEMENT_TYPE_CONDITION:
-                        $elementElementsData['positive'] = $descendantDef->direction === 'positive' ? true : false;
-                        break;
-                }
-
-                $link = $this->elementElementsRepository->getLink($parent->id, $descendant->id);
-                if (!$link) {
-                    $this->elementElementsRepository->insert($elementElementsData);
-                } else {
-                    $this->elementElementsRepository->update($link, $elementElementsData);
-                }
-            }
-        }
-
-        // TODO: move whole block to triggers repository
-        // process triggers (root elements)
-        foreach ($data['triggers'] ?? [] as $trigger) {
-            if (!in_array($trigger->type, [TriggersRepository::TRIGGER_TYPE_EVENT, TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT], true)) {
-                $this->connection->rollback();
-                throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
-            }
-            if (!isset($trigger->event->code)) {
-                throw new ScenarioInvalidDataException("Missing 'code' parameter for the Trigger node.");
-            }
-            if (!$this->eventsStorage->isEventPublic($trigger->event->code)) {
-                $this->connection->rollback();
-                throw new ScenarioInvalidDataException("Unknown event code [{$trigger->event->code}].");
-            }
-
-            $options = [];
-            if (isset($trigger->options->minutes)) {
-                $options['minutes'] = $trigger->options->minutes;
-            }
-
-            $triggerData = [
-                'scenario_id' => $scenarioId,
-                'event_code' => $trigger->event->code,
-                'uuid' => $trigger->id,
-                'name' => $trigger->name,
-                'type' => $trigger->type,
-                'options' => empty($options) ? null : Json::encode($options)
-            ];
-
-            unset($oldTriggers[$triggerData['uuid']]);
-
-            $triggerRow = $this->triggersRepository->findByUuid($triggerData['uuid']);
-            if (!$triggerRow) {
-                $triggerRow = $this->triggersRepository->insert($triggerData);
-            } else {
-                $this->triggersRepository->update($triggerRow, $triggerData);
-            }
-
-            // insert links from triggers
-            foreach ($trigger->elements ?? [] as $triggerElementUUID) {
-                $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
-                if (!$triggerElement) {
-                    $this->connection->rollback();
-                    throw new \Exception("Unable to find element with uuid [{$triggerElementUUID}]");
-                }
-
-                $triggerElementLink = $this->triggerElementsRepository->getLink($triggerRow->id, $triggerElement->id);
-                if (!$triggerElementLink) {
-                    $this->triggerElementsRepository->addLink($triggerRow->id, $triggerElement->id);
-                }
-            }
-        }
-
-        // Delete old triggers
-        $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
 
         $this->connection->commit();
         return $scenario;
@@ -484,6 +314,38 @@ class ScenariosRepository extends Repository
                         'descendants' => $descendants,
                     ];
                     break;
+                case ElementsRepository::ELEMENT_TYPE_ABTEST:
+                    if (!isset($options->variants)) {
+                        throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - missing 'variants' in options");
+                    }
+
+                    foreach ($options->variants as $index => $variant) {
+                        $variant = (array)$variant;
+                        if (!array_key_exists('segment_id', $variant)) {
+                            continue;
+                        }
+
+                        if (is_null($variant['segment_id'])) {
+                            $elementRow = $this->elementsRepository->findByUuid($element['id']);
+                            $segmentRow = $this->segmentsRepository->findByCode(SegmentGroupsSeeder::getSegmentCode($elementRow, $variant['code']));
+                        } else {
+                            $segmentRow = $this->segmentsRepository->findById($variant['segment_id']);
+                        }
+
+                        if ($segmentRow) {
+                            $options->variants[$index]->segment = (object)[
+                                'id' => $segmentRow->id,
+                                'code' => $segmentRow->code,
+                                'name' => $segmentRow->name,
+                            ];
+                        }
+                    }
+
+                    $element[$scenarioElement->type] = [
+                        'variants' => $options->variants,
+                        'descendants' => $descendants,
+                    ];
+                    break;
                 default:
                     throw new \Exception("Unable to load element uuid [{$scenarioElement->uuid}] - unknown element type [{$scenarioElement->type}].");
             }
@@ -500,12 +362,15 @@ class ScenariosRepository extends Repository
         foreach ($element->related('scenarios_element_elements.parent_element_id')->fetchAll() as $descendant) {
             $d = [
                 'uuid' => $descendant->ref('scenarios_elements', 'child_element_id')->uuid,
+                'position' => $descendant->position
             ];
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
+                case ElementsRepository::ELEMENT_TYPE_ABTEST:
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
                     $d['direction'] = ($descendant->positive == 1 || $descendant->positive === true) ? 'positive' : 'negative';
+                    $d['position'] = $descendant->position;
                     break;
             }
             $descendants[] = $d;

@@ -77,7 +77,7 @@ class GraphConfiguration
         foreach ($this->elementElementsRepository->getTable()->fetchAll() as $ee) {
             if (array_key_exists($ee->parent_element_id, $this->elementElements)) {
                 $direction = $ee->positive ? self::POSITIVE_PATH : self::NEGATIVE_PATH;
-                $this->elementElements[$ee->parent_element_id][$direction][] = $ee->child_element_id;
+                $this->elementElements[$ee->parent_element_id][$direction][$ee->position][] = $ee->child_element_id;
             }
         }
     }
@@ -99,14 +99,15 @@ class GraphConfiguration
     /**
      * @param      $elementId
      * @param bool $positive direction from element (some element have 'negative' direction, such as Segment)
+     * @param int $position if element supports more than one positive/negative port, like AB Test
      *
      * @return array
      * @throws NodeDeletedException
      */
-    public function elementDescendants($elementId, bool $positive = true): array
+    public function elementDescendants($elementId, bool $positive = true, int $position = 0): array
     {
         if (array_key_exists($elementId, $this->elementElements)) {
-            return $this->elementElements[$elementId][$positive ? self::POSITIVE_PATH : self::NEGATIVE_PATH];
+            return $this->elementElements[$elementId][$positive ? self::POSITIVE_PATH : self::NEGATIVE_PATH][$position] ?? [];
         }
         throw new NodeDeletedException("Element with ID $elementId is missing, probably deleted");
     }

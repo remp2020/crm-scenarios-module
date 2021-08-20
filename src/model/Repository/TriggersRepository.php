@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Repository;
 
+use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Database\Table\IRow;
@@ -9,10 +10,15 @@ use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
 use Nette\Caching\IStorage;
 use Nette\Database\Context;
+use Nette\Utils\Json;
 
 class TriggersRepository extends Repository
 {
     protected $tableName = 'scenarios_triggers';
+
+    private $triggerElementsRepository;
+
+    private $eventsStorage;
 
     public const TRIGGER_TYPE_EVENT = 'event';
     public const TRIGGER_TYPE_BEFORE_EVENT = 'before_event';
@@ -20,10 +26,15 @@ class TriggersRepository extends Repository
     public function __construct(
         AuditLogRepository $auditLogRepository,
         Context $database,
+        TriggerElementsRepository $triggerElementsRepository,
+        EventsStorage $eventsStorage,
         IStorage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
+
         $this->auditLogRepository = $auditLogRepository;
+        $this->triggerElementsRepository = $triggerElementsRepository;
+        $this->eventsStorage = $eventsStorage;
     }
 
     final public function all()
@@ -69,6 +80,43 @@ class TriggersRepository extends Repository
             'scenario_id' => $scenarioId,
             'uuid' => $triggerUuid,
         ])->fetch();
+    }
+
+    final public function saveTriggerData(int $scenarioId, object $trigger): void
+    {
+        if (!in_array($trigger->type, [self::TRIGGER_TYPE_EVENT, self::TRIGGER_TYPE_BEFORE_EVENT], true)) {
+            throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");
+        }
+        if (!isset($trigger->event->code)) {
+            throw new ScenarioInvalidDataException("Missing 'code' parameter for the Trigger node.");
+        }
+        if (!$this->eventsStorage->isEventPublic($trigger->event->code)) {
+            throw new ScenarioInvalidDataException("Unknown event code [{$trigger->event->code}].");
+        }
+
+        $options = [];
+        if (isset($trigger->options->minutes)) {
+            $options['minutes'] = $trigger->options->minutes;
+        }
+
+        $triggerData = [
+            'scenario_id' => $scenarioId,
+            'event_code' => $trigger->event->code,
+            'uuid' => $trigger->id,
+            'name' => $trigger->name,
+            'type' => $trigger->type,
+            'options' => empty($options) ? null : Json::encode($options)
+        ];
+
+        $triggerRow = $this->findByUuid($triggerData['uuid']);
+        if (!$triggerRow) {
+            $triggerRow = $this->insert($triggerData);
+        } else {
+            $this->update($triggerRow, $triggerData);
+        }
+
+        // insert links from triggers
+        $this->triggerElementsRepository->addLinksForTrigger($triggerRow, $trigger->elements ?? []);
     }
 
     private function scopeNotDeleted()

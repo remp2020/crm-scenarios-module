@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Engine;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ScenariosModule\Events\ABTestDistributeEventHandler;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -266,6 +267,10 @@ class Engine
                     $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
+                case ElementsRepository::ELEMENT_TYPE_ABTEST:
+                    $this->jobsRepository->scheduleJob($job);
+                    $this->hermesEmitter->emit(ABTestDistributeEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
+                    break;
                 default:
                     throw new InvalidJobException('Associated job element has wrong type');
                     break;
@@ -335,6 +340,15 @@ class Engine
                 } else {
                     throw new InvalidJobException('goal job is neither completed nor timed out: ');
                 }
+                break;
+            case ElementsRepository::ELEMENT_TYPE_ABTEST:
+                $result = Json::decode($job->result, Json::FORCE_ARRAY);
+                if (!isset($result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX])) {
+                    throw new InvalidJobException("segment job results do not contain required parameter: " . ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX);
+                }
+
+                $selectedVariant = $result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX];
+                $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id, true, $selectedVariant);
                 break;
             default:
                 $descendantIds = $this->graphConfiguration->elementDescendants($job->element_id);

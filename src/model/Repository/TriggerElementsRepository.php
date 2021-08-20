@@ -6,18 +6,24 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\IStorage;
 use Nette\Database\Context;
+use Nette\Database\Table\IRow;
 
 class TriggerElementsRepository extends Repository
 {
     protected $tableName = 'scenarios_trigger_elements';
 
+    private $elementsRepository;
+
     public function __construct(
         AuditLogRepository $auditLogRepository,
         Context $database,
+        ElementsRepository $elementsRepository,
         IStorage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
+
         $this->auditLogRepository = $auditLogRepository;
+        $this->elementsRepository = $elementsRepository;
     }
 
     final public function addLink($triggerId, $elementId)
@@ -47,6 +53,21 @@ class TriggerElementsRepository extends Repository
     {
         foreach ($this->getTable()->where('element_id IN ?', $elementIds) as $link) {
             $this->delete($link);
+        }
+    }
+
+    final public function addLinksForTrigger(IRow $triggerRow, array $elements): void
+    {
+        foreach ($elements as $triggerElementUUID) {
+            $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);
+            if (!$triggerElement) {
+                throw new \Exception("Unable to find element with uuid [{$triggerElementUUID}]");
+            }
+
+            $triggerElementLink = $this->getLink($triggerRow->id, $triggerElement->id);
+            if (!$triggerElementLink) {
+                $this->addLink($triggerRow->id, $triggerElement->id);
+            }
         }
     }
 }

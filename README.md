@@ -100,6 +100,10 @@ This node simply delays execution of next element in a graph by specified time i
 
 Goal element checks if user triggering the node have completed selected onboarding goals. For more details, see "Onboarding module" documentation.
 
+### AB Test
+
+AB Test element chooses one flow from two or more variants based on the percentual distribution.
+
 ## Installing module
 
 We recommend using Composer for installation and update management.

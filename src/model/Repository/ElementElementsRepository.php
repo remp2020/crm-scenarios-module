@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\IStorage;
 use Nette\Database\Context;
+use Nette\Database\Table\IRow;
 
 class ElementElementsRepository extends Repository
 {
@@ -33,6 +34,32 @@ class ElementElementsRepository extends Repository
         $q = $this->getTable()->where('parent_element_id IN (?) OR child_element_id IN (?)', $elementIds, $elementIds);
         foreach ($q as $link) {
             $this->delete($link);
+        }
+    }
+
+    final public function upsert(IRow $parent, IRow $descendant, object $descendantDef)
+    {
+        $elementElementsData = [
+            'parent_element_id' => $parent->id,
+            'child_element_id' => $descendant->id,
+        ];
+
+        switch ($parent->type) {
+            case ElementsRepository::ELEMENT_TYPE_SEGMENT:
+            case ElementsRepository::ELEMENT_TYPE_GOAL:
+            case ElementsRepository::ELEMENT_TYPE_CONDITION:
+                $elementElementsData['positive'] = $descendantDef->direction === 'positive';
+                break;
+            case ElementsRepository::ELEMENT_TYPE_ABTEST:
+                $elementElementsData['positive'] = $descendantDef->direction === 'positive';
+                $elementElementsData['position'] = $descendantDef->position;
+        }
+
+        $link = $this->getLink($parent->id, $descendant->id);
+        if (!$link) {
+            $this->insert($elementElementsData);
+        } else {
+            $this->update($link, $elementElementsData);
         }
     }
 }

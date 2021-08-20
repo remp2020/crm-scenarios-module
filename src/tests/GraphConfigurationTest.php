@@ -30,7 +30,7 @@ class GraphConfigurationTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_created'],
-                    'elements' => ['element_wait']
+                    'elements' => ['element_wait', 'element_ab_test']
                 ])
             ],
             'elements' => [
@@ -43,6 +43,18 @@ class GraphConfigurationTest extends BaseTestCase
                         'descendants' => [
                             ['uuid' => 'element_segment']
                         ]
+                    ]
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_ab_test',
+                    'type' => ElementsRepository::ELEMENT_TYPE_ABTEST,
+                    ElementsRepository::ELEMENT_TYPE_ABTEST => [
+                        'variants' => [],
+                        'descendants' => [
+                            ['uuid' => 'element_email3', 'direction' => 'positive', 'position' => 0],
+                            ['uuid' => 'element_email4', 'direction' => 'positive', 'position' => 1],
+                        ],
                     ]
                 ]),
                 self::obj([
@@ -68,14 +80,26 @@ class GraphConfigurationTest extends BaseTestCase
                     'id' => 'element_email2',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
                     'email' => ['code' => 'TESTEMAIL']
-                ])
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email3',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => 'TESTEMAIL']
+                ]),
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_email4',
+                    'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
+                    'email' => ['code' => 'TESTEMAIL']
+                ]),
             ]
         ]);
 
         $this->graph->reload();
 
         $this->assertEquals(
-            [$this->elementId('element_wait')],
+            [$this->elementId('element_wait'), $this->elementId('element_ab_test')],
             $this->graph->triggerDescendants($this->triggerId('trigger1'))
         );
 
@@ -92,6 +116,16 @@ class GraphConfigurationTest extends BaseTestCase
         $this->assertEquals(
             [$this->elementId('element_email2')],
             $this->graph->elementDescendants($this->elementId('element_segment'), false)
+        );
+
+        $this->assertEquals(
+            [$this->elementId('element_email3')],
+            $this->graph->elementDescendants($this->elementId('element_ab_test'), true, 0)
+        );
+
+        $this->assertEquals(
+            [$this->elementId('element_email4')],
+            $this->graph->elementDescendants($this->elementId('element_ab_test'), true, 1)
         );
 
         $this->assertEmpty($this->graph->elementDescendants($this->elementId('element_email1')));

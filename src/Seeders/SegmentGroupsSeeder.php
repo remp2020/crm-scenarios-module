@@ -1,0 +1,38 @@
+<?php
+
+namespace Crm\ScenariosModule\Seeders;
+
+use Crm\ApplicationModule\Seeders\ISeeder;
+use Crm\SegmentModule\Repository\SegmentGroupsRepository;
+use Crm\SegmentModule\Seeders\SegmentsTrait;
+use Nette\Database\Table\IRow;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class SegmentGroupsSeeder implements ISeeder
+{
+    use SegmentsTrait;
+
+    public const AB_TEST_SEGMENT_GROUP_CODE = 'scenarios-ab-test';
+
+    private $segmentGroupsRepository;
+
+    public function __construct(SegmentGroupsRepository $segmentGroupsRepository)
+    {
+        $this->segmentGroupsRepository = $segmentGroupsRepository;
+    }
+
+    public function seed(OutputInterface $output)
+    {
+        $this->seedSegmentGroup(
+            $output,
+            'Scenarios - AB Test',
+            self::AB_TEST_SEGMENT_GROUP_CODE,
+            1800
+        );
+    }
+
+    public static function getSegmentCode(IRow $elementRow, string $code): string
+    {
+        return "scenarios_ab_test_element_{$elementRow->id}_variant_{$code}";
+    }
+}
