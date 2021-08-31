@@ -4,13 +4,13 @@ services:
 			- addModule(Crm\ScenariosModule\ScenariosModule())
 
 	scenariosLogger:
-			class: Monolog\Logger('scenarios-logger')
+			factory: Monolog\Logger('scenarios-logger')
 			setup:
 				- pushHandler(Monolog\Handler\StreamHandler("%appDir%/../log/scenarios.log"))
 				- pushHandler(Monolog\Handler\ErrorLogHandler())
 
 	scenariosEngine:
-			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
+			factory: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
 			setup:
 				- setShutdownInterface(@hermesShutdown)
 
