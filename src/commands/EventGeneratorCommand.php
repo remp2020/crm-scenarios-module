@@ -36,6 +36,6 @@ class EventGeneratorCommand extends Command
 
         $output->writeln("Generating before events - DONE");
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
