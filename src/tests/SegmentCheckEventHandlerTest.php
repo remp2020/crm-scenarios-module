@@ -95,7 +95,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
 
         /** @var UserManager $userManager */
         $userManager = $this->inject(UserManager::class);
-        $this->userRow = $userManager->addNewUser('test@test.sk', null, 'funnel');
+        $this->userRow = $userManager->addNewUser('test@test.sk', false, 'funnel');
 
         /** @var SegmentFactory $segmentFactory */
         $segmentFactory = $this->inject(SegmentFactory::class);
