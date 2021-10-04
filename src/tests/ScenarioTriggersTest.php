@@ -19,6 +19,7 @@ use Crm\UsersModule\Events\AddressChangedEvent;
 use Crm\UsersModule\Events\NewAddressEvent;
 use Crm\UsersModule\Repository\AddressChangeRequestsRepository;
 use Crm\UsersModule\Repository\AddressesRepository;
+use Crm\UsersModule\Repository\AddressTypesRepository;
 use Nette\Utils\DateTime;
 use Tomaj\Hermes\Emitter;
 
@@ -53,6 +54,7 @@ class ScenarioTriggersTest extends BaseTestCase
         $repositories = parent::requiredRepositories();
         $repositories[] = AddressChangeRequestsRepository::class;
         $repositories[] = AddressesRepository::class;
+        $repositories[] = AddressTypesRepository::class;
         return $repositories;
     }
 
@@ -79,15 +81,15 @@ class ScenarioTriggersTest extends BaseTestCase
         // Add user, which triggers scenario
         $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $this->userManager->addNewUser('user2@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $this->userManager->addNewUser('user3@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $jobsRepository = $this->getRepository(JobsRepository::class);
         $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());

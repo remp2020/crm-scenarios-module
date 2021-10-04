@@ -70,8 +70,7 @@ class RunGenericEventTest extends BaseTestCase
         $this->inject(UserManager::class)->addNewUser('user1@email.com', false, 'unknown', null, false);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true);// job(generic): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(generic): scheduled -> started -> finished
 
         $this->assertTrue($this->triggerGenericActionEventHandler->eventWasTriggered);

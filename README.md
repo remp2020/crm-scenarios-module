@@ -125,7 +125,7 @@ php bin/command.php api:generate_access
 php bin/command.php application:seed
 ```
 
-#### Engine
+### Engine
 
 Scenarios module requires Scenario engine worker to run separately in a background to process graph execution flows. 
 In addition, it also requires Hermes worker to process asynchronous tasks.
@@ -138,13 +138,27 @@ php bin/command.php scenarios:worker
 
 Make sure both workers are started again if killed, e.g. by running a service or a watchog.
 
+Speed of engine processing is configurable. One can specify lower and upper limit on sleep delay between processing rounds (in each round, all jobs in queue are processed) in your configuration:
+
+```neon
+scenariosEngine:
+    setup:
+        # time in microseconds
+        - setMinSleepTime(10000) #0.01s
+        - setMaxSleepTime(10000000) # 10s 
+```
+The actual sleep time is computed using exponential backoff algorithm.
+Default values are 0.05 and 1 second for min/max delay.
+
+### Before events
+
 For generating "Before Event" triggers, add the following command to your crontab. Optionally set it up to run every 10 minutes.
 
 ```bash
 php bin/command.php scenarios:event_generator
 ```
 
-#### Graceful shutdown of workers
+### Graceful shutdown of workers
 
 To gracefully shutdown both workers (`application:hermes_worker` and `scenarios:worker`) use command from [ApplicationModule](https://github.com/remp2020/crm-application-module):
 

@@ -48,8 +48,7 @@ class PushNotificationActionTest extends BaseTestCase
         $scenariosJobsRepository = $this->getRepository(JobsRepository::class);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true);// job(push_notification): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
 
         $this->assertEquals(1, $scenariosJobsRepository->getScheduledJobs()->count('*'));
 

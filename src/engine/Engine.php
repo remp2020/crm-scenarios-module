@@ -29,7 +29,13 @@ class Engine
 {
     public const MAX_RETRY_COUNT = 3;
 
-    private $sleepTime = 5; // in seconds
+    // 50000us = 50ms = 0.05s
+    private $minSleepTime = 50000; // in microseconds
+    
+    // 1s
+    private $maxSleepTime = 1000000; // in microseconds
+    
+    private $minGraphReloadDelay = 60; // in seconds
 
     private $logger;
 
@@ -61,45 +67,97 @@ class Engine
         $this->startTime = new DateTime();
     }
 
+    public function setMinSleepTime(int $minSleepTime): void
+    {
+        $this->minSleepTime = $minSleepTime;
+    }
+
+    public function setMaxSleepTime(int $maxSleepTime): void
+    {
+        $this->maxSleepTime = $maxSleepTime;
+    }
+
     public function setShutdownInterface(ShutdownInterface $shutdown): void
     {
         $this->shutdown = $shutdown;
     }
-
-    public function run(bool $once = false)
+    
+    public function run(?int $times = null): void
     {
         $this->logger->log(LogLevel::INFO, 'Scenarios engine started');
+        $i = $times;
         try {
-            while (true) {
-                $this->graphConfiguration->reload();
+            $emptyIterationCounter = 0;
+            while ($times === null || $i > 0) {
+                // For fixed amount of iterations, always reload graph
+                $this->graphConfiguration->reload($times !== null ? 0 : $this->minGraphReloadDelay);
 
-                foreach ($this->jobsRepository->getUnprocessedJobs()->fetchAll() as $job) {
-                    $this->processCreatedJob($job);
+                $jobs = $this->jobsRepository->getTable()
+                    ->where('state IN (?)', [
+                        JobsRepository::STATE_CREATED, JobsRepository::STATE_FINISHED, JobsRepository::STATE_FAILED
+                    ])
+                    ->order(
+                        'FIELD(state, ?, ?, ?), updated_at',
+                        JobsRepository::STATE_CREATED,
+                        JobsRepository::STATE_FINISHED,
+                        JobsRepository::STATE_FAILED
+                    )
+                    ->fetchAll();
+
+                $emptyIterationCounter++;
+                foreach ($jobs as $job) {
+                    $emptyIterationCounter = 0; // if jobs are found, iteration is not empty
+                    if ($job->state === JobsRepository::STATE_CREATED) {
+                        $this->processCreatedJob($job);
+                    } elseif ($job->state === JobsRepository::STATE_FINISHED) {
+                        $this->processFinishedJob($job);
+                    } elseif ($job->state === JobsRepository::STATE_FAILED) {
+                        $this->processFailedJob($job);
+                    }
                 }
 
-                foreach ($this->jobsRepository->getFinishedJobs()->fetchAll() as $job) {
-                    $this->processFinishedJob($job);
+                // for fixed amount of iterations, do not sleep or wait for shutdown
+                if ($times !== null) {
+                    $i--;
+                } else {
+                    [$sleepTime, $ifMaxDelayIsUsed] = $this->calculateDelay($emptyIterationCounter);
+                    if ($ifMaxDelayIsUsed) {
+                        // do not increase iterations without upper bound to avoid overflow
+                        $emptyIterationCounter = max(0, $emptyIterationCounter-1);
+                    }
+                    
+                    usleep($sleepTime);
+                    if ($this->shutdown && $this->shutdown->shouldShutdown($this->startTime)) {
+                        throw new ShutdownException('Shutdown');
+                    }
                 }
-
-                foreach ($this->jobsRepository->getFailedJobs()->fetchAll() as $job) {
-                    $this->processFailedJob($job);
-                }
-
-                if ($once) {
-                    break;
-                }
-
-                if ($this->shutdown && $this->shutdown->shouldShutdown($this->startTime)) {
-                    throw new ShutdownException('Shutdown');
-                }
-
-                sleep($this->sleepTime);
             }
         } catch (ShutdownException $exception) {
             $this->logger->notice('Exiting scenarios engine - shutdown');
         } catch (Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
         }
+    }
+
+
+    /**
+     * Calculates exponential delay.
+     *
+     * @param int   $attempt The attempt number used to calculate the delay.
+     *                       First attempt should be 0.
+     * @param float $exp     by default 1.5
+     *
+     * @return array [int $delayInMicroseconds, bool $ifMaxDelayIsUsed]
+     */
+    private function calculateDelay(int $attempt, float $exp = 1.5): array
+    {
+        // look for maximum $attempt that will not exceed $maxSleepTime in the exponential express below
+        if ($attempt >= log($this->maxSleepTime/$this->minSleepTime, $exp)) {
+            return [$this->maxSleepTime, true];
+        }
+        
+        $delay = min($this->maxSleepTime, (int)floor($exp ** $attempt) * $this->minSleepTime);
+        return [$delay, false];
     }
 
     private function processFailedJob(ActiveRow $job)

@@ -106,13 +106,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -152,13 +150,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created -> schedule
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -329,13 +325,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created + scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -429,13 +423,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created+scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -510,13 +502,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -528,13 +518,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+scheduled condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         $mails = $this->mailsSentTo('test2@email.com');
         $this->assertCount(1, $mails);
@@ -632,13 +620,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created+scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
@@ -720,13 +706,11 @@ class ConditionElementTest extends BaseTestCase
 
         // SIMULATE RUN
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create condition job
-        $this->engine->run(true); // job(cond): created -> scheduled
+        $this->engine->run(3); // process trigger, finish its job and create+schedule condition job
         $this->dispatcher->handle(); // job(cond): scheduled -> started -> finished
-        $this->engine->run(true); // job(cond): deleted, job(email): created
-        $this->engine->run(true); // job(email): created -> scheduled
+        $this->engine->run(3); // job(cond): deleted, job(email): created+scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished
-        $this->engine->run(true); // job(email): deleted
+        $this->engine->run(1); // job(email): deleted
 
         // Check email was sent
         $mails = $this->mailsSentTo('test@email.com');
