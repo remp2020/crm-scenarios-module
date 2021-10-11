@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use League\Event\Emitter;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storage;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
@@ -33,7 +33,7 @@ class ElementsRepository extends Repository
         AuditLogRepository $auditLogRepository,
         Context $database,
         Emitter $emitter,
-        IStorage $cacheStorage = null
+        Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
 

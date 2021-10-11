@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storage;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
 
@@ -15,7 +15,7 @@ class ElementElementsRepository extends Repository
     public function __construct(
         AuditLogRepository $auditLogRepository,
         Context $database,
-        IStorage $cacheStorage = null
+        Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
         $this->auditLogRepository = $auditLogRepository;

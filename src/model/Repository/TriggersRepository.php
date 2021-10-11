@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Repository;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storage;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
@@ -28,7 +28,7 @@ class TriggersRepository extends Repository
         Context $database,
         TriggerElementsRepository $triggerElementsRepository,
         EventsStorage $eventsStorage,
-        IStorage $cacheStorage = null
+        Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
 

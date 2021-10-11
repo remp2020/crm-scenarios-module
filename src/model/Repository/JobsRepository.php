@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
@@ -41,7 +41,7 @@ class JobsRepository extends Repository
 
     public function __construct(
         Context $database,
-        IStorage $cacheStorage = null,
+        Storage $cacheStorage = null,
         Connection $connection,
         TriggerStatsRepository $triggerStatsRepository,
         ElementStatsRepository $elementStatsRepository

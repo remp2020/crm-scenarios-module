@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Crm\SegmentModule\Repository\SegmentsRepository;
-use Nette\Caching\IStorage;
+use Nette\Caching\Storage;
 use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Table\ActiveRow;
@@ -32,7 +32,7 @@ class ScenariosRepository extends Repository
     public function __construct(
         Context $database,
         AuditLogRepository $auditLogRepository,
-        IStorage $cacheStorage = null,
+        Storage $cacheStorage = null,
         Connection $connection,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
