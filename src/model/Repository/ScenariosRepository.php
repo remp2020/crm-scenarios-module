@@ -8,7 +8,7 @@ use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
@@ -30,7 +30,7 @@ class ScenariosRepository extends Repository
     private $segmentsRepository;
 
     public function __construct(
-        Context $database,
+        Explorer $database,
         AuditLogRepository $auditLogRepository,
         Storage $cacheStorage = null,
         Connection $connection,

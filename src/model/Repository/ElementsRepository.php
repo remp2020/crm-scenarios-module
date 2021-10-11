@@ -7,7 +7,7 @@ use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use League\Event\Emitter;
 use Nette\Caching\Storage;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
@@ -31,7 +31,7 @@ class ElementsRepository extends Repository
 
     public function __construct(
         AuditLogRepository $auditLogRepository,
-        Context $database,
+        Explorer $database,
         Emitter $emitter,
         Storage $cacheStorage = null
     ) {

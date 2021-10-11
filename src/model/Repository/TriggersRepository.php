@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\Storage;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
@@ -25,7 +25,7 @@ class TriggersRepository extends Repository
 
     public function __construct(
         AuditLogRepository $auditLogRepository,
-        Context $database,
+        Explorer $database,
         TriggerElementsRepository $triggerElementsRepository,
         EventsStorage $eventsStorage,
         Storage $cacheStorage = null

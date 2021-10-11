@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Repository;
 use Crm\ApplicationModule\Repository;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;
-use Nette\Database\Context;
+use Nette\Database\Explorer;
 use Nette\Database\Table\IRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
@@ -40,7 +40,7 @@ class JobsRepository extends Repository
     private $elementStatsRepository;
 
     public function __construct(
-        Context $database,
+        Explorer $database,
         Storage $cacheStorage = null,
         Connection $connection,
         TriggerStatsRepository $triggerStatsRepository,
