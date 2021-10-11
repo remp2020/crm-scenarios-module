@@ -10,8 +10,8 @@ use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SegmentModule\SegmentFactory;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
-use Nette\Utils\DateTime;
 use Nette\UnexpectedValueException;
+use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 

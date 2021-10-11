@@ -5,11 +5,11 @@ namespace Crm\ScenariosModule\Repository;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
+use Nette\Caching\IStorage;
+use Nette\Database\Context;
 use Nette\Database\Table\IRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
-use Nette\Caching\IStorage;
-use Nette\Database\Context;
 use Nette\Utils\Json;
 
 class TriggersRepository extends Repository

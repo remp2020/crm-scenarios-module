@@ -7,8 +7,8 @@ use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Repository\GeneratedEventsRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
-use Nette\Utils\Json;
 use DateInterval;
+use Nette\Utils\Json;
 
 class BeforeEventGenerator
 {

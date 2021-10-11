@@ -8,8 +8,8 @@ use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
 use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\ScenariosModule\Repository\TriggerStatsRepository;
+use Crm\ScenariosModule\Repository\TriggersRepository;
 use Latte\Engine;
 use Nette\Http\Response;
 

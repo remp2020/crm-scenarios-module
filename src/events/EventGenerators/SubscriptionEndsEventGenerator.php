@@ -2,12 +2,12 @@
 
 namespace Crm\ScenariosModule\Events\EventGenerators;
 
-use Crm\ApplicationModule\Event\EventGeneratorInterface;
 use Crm\ApplicationModule\Event\BeforeEvent;
+use Crm\ApplicationModule\Event\EventGeneratorInterface;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use DateInterval;
 use Nette\Database\Table\IRow;
 use Nette\Utils\DateTime;
-use DateInterval;
 
 class SubscriptionEndsEventGenerator implements EventGeneratorInterface
 {

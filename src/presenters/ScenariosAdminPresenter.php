@@ -2,9 +2,9 @@
 
 namespace Crm\ScenariosModule\Presenters;
 
+use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ApiModule\Token\InternalToken;
 use Crm\ApplicationModule\Components\VisualPaginator;
-use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;

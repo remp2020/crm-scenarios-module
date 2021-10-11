@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ApplicationModule\Event\BeforeEvent;
+use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Events\BeforeEventGenerator;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Repository\GeneratedEventsRepository;
