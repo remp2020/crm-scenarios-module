@@ -141,7 +141,7 @@ class ScenariosModule extends CrmModule
 
     public function registerAssets(AssetsManager $assetsManager)
     {
-        $assetsManager->copyAssets(__DIR__ . '/../assets/scenariobuilder', 'layouts/admin/scenariobuilder');
+        $assetsManager->copyAssets(__DIR__ . '/assets/scenariobuilder', 'layouts/admin/scenariobuilder');
     }
 
     public function registerScenariosCriteria(ScenariosCriteriaStorage $scenariosCriteriaStorage)
