@@ -82,7 +82,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         $scenarioJobRow = $this->scenarioJobsRepository->find($scenarioJobRow->id);
         $selectedVariantRow = $this->selectedVariantRepository->findBy('element_id', $scenarioJobRow->element_id);
 
-        $result = Json::decode($scenarioJobRow->result, JSON::FORCE_ARRAY);
+        $result = Json::decode($scenarioJobRow->result, Json::FORCE_ARRAY);
 
         $this->assertArrayHasKey(ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_CODE, $result);
         $this->assertArrayHasKey(ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX, $result);
@@ -122,7 +122,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         $ABTestDistributeHandler->handle($message);
 
         $scenarioJobRow = $this->scenarioJobsRepository->find($scenarioJobRow->id);
-        $firstResult = Json::decode($scenarioJobRow->result, JSON::FORCE_ARRAY);
+        $firstResult = Json::decode($scenarioJobRow->result, Json::FORCE_ARRAY);
 
         // schedule new job with same element
         $scenarioJobRow = $this->scenarioJobsRepository->addElement($scenarioElementRow->id, ['user_id' => $this->userRow->id]);
@@ -132,7 +132,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         $ABTestDistributeHandler->handle($message);
 
         $scenarioJobRow = $this->scenarioJobsRepository->find($scenarioJobRow->id);
-        $secondResult = Json::decode($scenarioJobRow->result, JSON::FORCE_ARRAY);
+        $secondResult = Json::decode($scenarioJobRow->result, Json::FORCE_ARRAY);
 
         $this->assertEquals($firstResult, $secondResult);
     }
