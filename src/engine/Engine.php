@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Engine;
 
+use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -20,15 +21,21 @@ use Nette\Utils\JsonException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Tomaj\Hermes\Emitter;
-use Tomaj\Hermes\Restart\RestartException;
-use Tomaj\Hermes\Restart\RestartInterface;
+use Tomaj\Hermes\Shutdown\ShutdownException;
+use Tomaj\Hermes\Shutdown\ShutdownInterface;
 use Tracy\Debugger;
 
 class Engine
 {
     public const MAX_RETRY_COUNT = 3;
 
-    private $sleepTime = 5; // in seconds
+    // 50000us = 50ms = 0.05s
+    private $minSleepTime = 50000; // in microseconds
+    
+    // 1s
+    private $maxSleepTime = 1000000; // in microseconds
+    
+    private $minGraphReloadDelay = 60; // in seconds
 
     private $logger;
 
@@ -40,7 +47,8 @@ class Engine
 
     private $hermesEmitter;
 
-    private $restart;
+    /** @var ShutdownInterface */
+    private $shutdown;
 
     private $startTime;
 
@@ -59,45 +67,97 @@ class Engine
         $this->startTime = new DateTime();
     }
 
-    public function setRestartInterface(RestartInterface $restart): void
+    public function setMinSleepTime(int $minSleepTime): void
     {
-        $this->restart = $restart;
+        $this->minSleepTime = $minSleepTime;
     }
 
-    public function run(bool $once = false)
+    public function setMaxSleepTime(int $maxSleepTime): void
+    {
+        $this->maxSleepTime = $maxSleepTime;
+    }
+
+    public function setShutdownInterface(ShutdownInterface $shutdown): void
+    {
+        $this->shutdown = $shutdown;
+    }
+    
+    public function run(?int $times = null): void
     {
         $this->logger->log(LogLevel::INFO, 'Scenarios engine started');
+        $i = $times;
         try {
-            while (true) {
-                $this->graphConfiguration->reload();
+            $emptyIterationCounter = 0;
+            while ($times === null || $i > 0) {
+                // For fixed amount of iterations, always reload graph
+                $this->graphConfiguration->reload($times !== null ? 0 : $this->minGraphReloadDelay);
 
-                foreach ($this->jobsRepository->getUnprocessedJobs()->fetchAll() as $job) {
-                    $this->processCreatedJob($job);
+                $jobs = $this->jobsRepository->getTable()
+                    ->where('state IN (?)', [
+                        JobsRepository::STATE_CREATED, JobsRepository::STATE_FINISHED, JobsRepository::STATE_FAILED
+                    ])
+                    ->order(
+                        'FIELD(state, ?, ?, ?), updated_at',
+                        JobsRepository::STATE_CREATED,
+                        JobsRepository::STATE_FINISHED,
+                        JobsRepository::STATE_FAILED
+                    )
+                    ->fetchAll();
+
+                $emptyIterationCounter++;
+                foreach ($jobs as $job) {
+                    $emptyIterationCounter = 0; // if jobs are found, iteration is not empty
+                    if ($job->state === JobsRepository::STATE_CREATED) {
+                        $this->processCreatedJob($job);
+                    } elseif ($job->state === JobsRepository::STATE_FINISHED) {
+                        $this->processFinishedJob($job);
+                    } elseif ($job->state === JobsRepository::STATE_FAILED) {
+                        $this->processFailedJob($job);
+                    }
                 }
 
-                foreach ($this->jobsRepository->getFinishedJobs()->fetchAll() as $job) {
-                    $this->processFinishedJob($job);
+                // for fixed amount of iterations, do not sleep or wait for shutdown
+                if ($times !== null) {
+                    $i--;
+                } else {
+                    [$sleepTime, $ifMaxDelayIsUsed] = $this->calculateDelay($emptyIterationCounter);
+                    if ($ifMaxDelayIsUsed) {
+                        // do not increase iterations without upper bound to avoid overflow
+                        $emptyIterationCounter = max(0, $emptyIterationCounter-1);
+                    }
+                    
+                    usleep($sleepTime);
+                    if ($this->shutdown && $this->shutdown->shouldShutdown($this->startTime)) {
+                        throw new ShutdownException('Shutdown');
+                    }
                 }
-
-                foreach ($this->jobsRepository->getFailedJobs()->fetchAll() as $job) {
-                    $this->processFailedJob($job);
-                }
-
-                if ($once) {
-                    break;
-                }
-
-                if ($this->restart && $this->restart->shouldRestart($this->startTime)) {
-                    throw new RestartException('Restart');
-                }
-
-                sleep($this->sleepTime);
             }
-        } catch (RestartException $exception) {
-            $this->logger->notice('Exiting scenarios engine - restart');
+        } catch (ShutdownException $exception) {
+            $this->logger->notice('Exiting scenarios engine - shutdown');
         } catch (Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
         }
+    }
+
+
+    /**
+     * Calculates exponential delay.
+     *
+     * @param int   $attempt The attempt number used to calculate the delay.
+     *                       First attempt should be 0.
+     * @param float $exp     by default 1.5
+     *
+     * @return array [int $delayInMicroseconds, bool $ifMaxDelayIsUsed]
+     */
+    private function calculateDelay(int $attempt, float $exp = 1.5): array
+    {
+        // look for maximum $attempt that will not exceed $maxSleepTime in the exponential express below
+        if ($attempt >= log($this->maxSleepTime/$this->minSleepTime, $exp)) {
+            return [$this->maxSleepTime, true];
+        }
+        
+        $delay = min($this->maxSleepTime, (int)floor($exp ** $attempt) * $this->minSleepTime);
+        return [$delay, false];
     }
 
     private function processFailedJob(ActiveRow $job)
@@ -173,38 +233,38 @@ class Engine
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_BANNER:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GENERIC:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     if (!isset($options['minutes'])) {
                         throw new InvalidJobException("Associated job element has no 'minutes' option");
                     }
                     $this->jobsRepository->startJob($job);
-                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']));
+                    $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
                     $this->jobsRepository->scheduleJob($job);
-                    $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id));
+                    $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 default:
                     throw new InvalidJobException('Associated job element has wrong type');

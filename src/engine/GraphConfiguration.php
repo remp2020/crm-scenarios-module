@@ -23,6 +23,8 @@ class GraphConfiguration
     private $triggerElements = [];
 
     private $elementElements = [];
+    
+    private $lastReloadTimestamp;
 
     public function __construct(
         ElementsRepository $elementsRepository,
@@ -36,8 +38,19 @@ class GraphConfiguration
         $this->triggerElementsRepository = $triggerElementsRepository;
     }
 
-    public function reload()
+    /**
+     * Reload graph configuration
+     *
+     * @param int $minReloadDelay in seconds
+     */
+    public function reload(int $minReloadDelay = 0)
     {
+        $currentTime = time();
+        if ($this->lastReloadTimestamp && ($this->lastReloadTimestamp + $minReloadDelay) > $currentTime) {
+            return;
+        }
+        $this->lastReloadTimestamp = $currentTime;
+
         // Reload triggers and their links
         $this->triggerElements = [];
 

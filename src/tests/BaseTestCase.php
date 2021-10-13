@@ -111,6 +111,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             SubscriptionTypeNamesSeeder::class,
             PaymentGatewaysSeeder::class,
             CountriesSeeder::class,
+            \Crm\PrintModule\Seeders\AddressTypesSeeder::class,
         ];
     }
 

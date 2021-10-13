@@ -64,7 +64,7 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create email job
+        $this->engine->run(2); // process trigger, finish its job and create email job
 
         // Update replaces email element
         $this->getRepository(ScenariosRepository::class)->createOrUpdate([
@@ -90,9 +90,9 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
             ]
         ]);
 
-        $this->engine->run(true); // email job should be scheduled
+        $this->engine->run(1); // email job should be scheduled
         $this->dispatcher->handle(); // run email job in Hermes
-        $this->engine->run(true); // job should be deleted even if element is finished, WARNING log is created
+        $this->engine->run(1); // job should be deleted even if element is finished, WARNING log is created
 
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
     }

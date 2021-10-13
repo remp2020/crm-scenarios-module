@@ -67,7 +67,7 @@ class ElementsRepository extends Repository
     final public function delete(IRow &$row)
     {
         // Soft-delete
-        $this->update($row, ['deleted_at' => new DateTime()]);
+        return $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
     final public function deleteByUuids(array $uuids)

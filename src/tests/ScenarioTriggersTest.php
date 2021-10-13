@@ -15,6 +15,11 @@ use Crm\SubscriptionsModule\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Events\AddressChangedEvent;
+use Crm\UsersModule\Events\NewAddressEvent;
+use Crm\UsersModule\Repository\AddressChangeRequestsRepository;
+use Crm\UsersModule\Repository\AddressesRepository;
+use Crm\UsersModule\Repository\AddressTypesRepository;
 use Nette\Utils\DateTime;
 use Tomaj\Hermes\Emitter;
 
@@ -38,6 +43,21 @@ class ScenarioTriggersTest extends BaseTestCase
     /** @var PaymentsRepository */
     private $paymentsRepository;
 
+    /** @var AddressesRepository */
+    private $addressesRepository;
+
+    /** @var AddressChangeRequestsRepository */
+    private $addressChangeRequestRepository;
+
+    protected function requiredRepositories(): array
+    {
+        $repositories = parent::requiredRepositories();
+        $repositories[] = AddressChangeRequestsRepository::class;
+        $repositories[] = AddressesRepository::class;
+        $repositories[] = AddressTypesRepository::class;
+        return $repositories;
+    }
+
     public function setUp(): void
     {
         parent::setUp();
@@ -47,6 +67,11 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->subscriptionGenerator = $this->inject(SubscriptionsGenerator::class);
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
         $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
+        $this->addressesRepository = $this->getRepository(AddressesRepository::class);
+        $this->addressChangeRequestRepository = $this->getRepository(AddressChangeRequestsRepository::class);
+
+        $this->eventsStorage->register('new_address', NewAddressEvent::class, true);
+        $this->eventsStorage->register('address_changed', AddressChangedEvent::class, true);
     }
 
     public function testTriggerUserCreatedScenario()
@@ -56,15 +81,15 @@ class ScenarioTriggersTest extends BaseTestCase
         // Add user, which triggers scenario
         $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $this->userManager->addNewUser('user2@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $this->userManager->addNewUser('user3@email.com', false, 'unknown', null, false);
         $this->dispatcher->handle();
-        $this->engine->run(true); // process trigger
+        $this->engine->run(2); // process trigger
 
         $jobsRepository = $this->getRepository(JobsRepository::class);
         $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
@@ -184,6 +209,82 @@ class ScenarioTriggersTest extends BaseTestCase
 
         // Trigger the scenario
         $this->paymentsRepository->updateStatus($paymentRow, PaymentsRepository::STATUS_PAID, true);
+        $this->dispatcher->handle();
+        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+    }
+
+    public function testTriggerNewAddressHandler()
+    {
+        $this->addTestScenario('address_changed');
+
+        $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
+
+        $request = $this->addressChangeRequestRepository->add(
+            $user1,
+            false,
+            'Jan',
+            'Novak',
+            'Company s.r.o.',
+            'Rovná',
+            '123',
+            'Bratislava',
+            '123 12',
+            null,
+            null,
+            null,
+            null,
+            null,
+            'print'
+        );
+
+        /** @var JobsRepository $jobsRepository */
+        $jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->addressChangeRequestRepository->acceptRequest($request);
+        $this->dispatcher->handle();
+        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+    }
+
+    public function testTriggerAddressChangedHandler()
+    {
+        $this->addTestScenario('address_changed');
+
+        $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
+
+        $address = $this->addressesRepository->add(
+            $user1,
+            'print',
+            'Jan',
+            'Novak',
+            'Rovná',
+            '123',
+            'Bratislava',
+            '123 12',
+            null,
+            null,
+            null,
+        );
+
+        $request = $this->addressChangeRequestRepository->add(
+            $user1,
+            $address,
+            'Jan',
+            'Novak',
+            'Company s.r.o.',
+            'Rovná',
+            '321',
+            'Bratislava',
+            '123 12',
+            null,
+            null,
+            null,
+            null,
+            null,
+            'print'
+        );
+
+        /** @var JobsRepository $jobsRepository */
+        $jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->addressChangeRequestRepository->acceptRequest($request);
         $this->dispatcher->handle();
         $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
     }

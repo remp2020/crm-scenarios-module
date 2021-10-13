@@ -83,29 +83,23 @@ class ComplexSegmentScenariosTest extends BaseTestCase
 
         // Simulate running of Hermes + Scenarios Engine
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create segment job
-        $this->engine->run(true); // job(wait): created -> started
-
+        $this->engine->run(3); // // process trigger, finish its job and create+schedule segment job
         $this->dispatcher->handle(); // job(wait): started -> finished
-
-        $this->engine->run(true); // job(wait) deleted, job(segment) created
-        $this->engine->run(true); // job(segment) created -> scheduled
-
+        $this->engine->run(2); // // job(wait) deleted, job(segment) created+scheduled
         $this->dispatcher->handle(); // job(segment): scheduled -> started -> finished()
 
         // Check user was in segment
         $segmentJob = $jr->getFinishedJobs()->fetch();
         $this->assertTrue(Json::decode($segmentJob->result)->in);
 
-        $this->engine->run(true); // job(segment) deleted, job(email) created
-        $this->engine->run(true); // job(email) created -> scheduled
+        $this->engine->run(3); // job(segment) deleted, job(email) created+scheduled
 
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
         $this->assertCount(1, $this->mailsSentTo('test@email.com'));
 
-        $this->engine->run(true); // job(email) deleted
+        $this->engine->run(1); // job(email) deleted
 
         $this->assertCount(0, $jr->getAllJobs()->fetchAll());
 

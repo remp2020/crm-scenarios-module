@@ -40,6 +40,6 @@ class TestUserCommand extends Command
         $this->hermesEmitter->emit(TestUserHandler::createHermesMessage($userId));
 
         $output->writeln("<info>Event 'scenarios-test-user' with UserID={$userId} fired</info>");
-        return 0;
+        return Command::SUCCESS;
     }
 }

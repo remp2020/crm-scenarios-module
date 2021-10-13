@@ -12,7 +12,7 @@ services:
 	scenariosEngine:
 			class: Crm\ScenariosModule\Engine\Engine(@scenariosLogger)
 			setup:
-				- setRestartInterface(@hermesRestart)
+				- setShutdownInterface(@hermesShutdown)
 
 	scenariosGenericEventsManager: Crm\ScenariosModule\Events\ScenariosGenericEventsManager
 
@@ -52,6 +52,8 @@ services:
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\AddressChangedHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler
 

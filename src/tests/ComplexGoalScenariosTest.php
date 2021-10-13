@@ -62,8 +62,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $jobResults = Json::decode($this->jobsRepository->getFinishedJobs()->fetch()->result, Json::FORCE_ARRAY);
         $this->assertTrue($jobResults[OnboardingGoalsCheckEventHandler::RESULT_PARAM_GOALS_COMPLETED]);
 
-        $this->engine->run(true); // job(goal) deleted, job(email) created
-        $this->engine->run(true); // job(email) created -> scheduled
+        $this->engine->run(3); // job(goal) deleted, job(email) created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
@@ -71,7 +70,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $this->assertCount(1, $mails);
         $this->assertEquals('empty_template_code_pos', $mails[0]);
 
-        $this->engine->run(true); // job(email) deleted
+        $this->engine->run(1); // job(email) deleted
         $this->assertCount(0, $this->jobsRepository->getAllJobs()->fetchAll());
 
         // assert scenario didn't modify user's onboarding goal entry
@@ -117,8 +116,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $jobResult = Json::decode(reset($jobResults)->result, Json::FORCE_ARRAY);
         $this->assertTrue($jobResult[OnboardingGoalsCheckEventHandler::RESULT_PARAM_GOALS_COMPLETED]);
 
-        $this->engine->run(true); // job(goal) deleted, job(email) created
-        $this->engine->run(true); // job(email) created -> scheduled
+        $this->engine->run(3); // job(goal) deleted, job(email) created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
@@ -126,7 +124,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $this->assertCount(1, $mails);
         $this->assertEquals('empty_template_code_pos', $mails[0]);
 
-        $this->engine->run(true); // job(email) deleted
+        $this->engine->run(1); // job(email) deleted
         $this->assertCount(2, $this->jobsRepository->getAllJobs()->fetchAll()); // user1 and user3 goal job still waiting
 
         // Finish the rest
@@ -167,15 +165,14 @@ class ComplexGoalScenariosTest extends BaseTestCase
         $jobResults = Json::decode($this->jobsRepository->getFinishedJobs()->fetch()->result, Json::FORCE_ARRAY);
         $this->assertTrue($jobResults[OnboardingGoalsCheckEventHandler::RESULT_PARAM_TIMEOUT]);
 
-        $this->engine->run(true); // job(goal) deleted, job(email) created
-        $this->engine->run(true); // job(email) created -> scheduled
+        $this->engine->run(3); // job(goal) deleted, job(email) created -> scheduled
         $this->dispatcher->handle(); // job(email): scheduled -> started -> finished()
 
         // Check email was sent
         $mails = $this->mailsSentTo($user->email);
         $this->assertCount(1, $mails);
         $this->assertEquals('empty_template_code_neg', $mails[0]);
-        $this->engine->run(true); // job(email) deleted
+        $this->engine->run(1); // job(email) deleted
         $this->assertCount(0, $this->jobsRepository->getAllJobs()->fetchAll());
 
         // assert user's user_onboarding_goals entry was timed out
@@ -417,9 +414,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
     private function simulateEngineAndHermes()
     {
         $this->dispatcher->handle(); // run Hermes to create trigger job
-        $this->engine->run(true); // process trigger, finish its job and create goal job
-        $this->engine->run(true); // job(goal): created -> scheduled
-
+        $this->engine->run(3); // process trigger, finish its job and create + schedule goal job
         // GOAL is not yet finished, reschedule
         $this->dispatcher->handle(); // job(goal): scheduled -> started -> (re)scheduled
     }
