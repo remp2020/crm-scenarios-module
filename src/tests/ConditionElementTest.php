@@ -18,7 +18,6 @@ use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\SubscriptionsModule\SubscriptionsModule;
 use Crm\UsersModule\Auth\Permissions;
 use Crm\UsersModule\Auth\UserManager;
-use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\UsersModule;
 use Kdyby\Translation\Translator;
 use Nette\Security\User;
@@ -67,7 +66,6 @@ class ConditionElementTest extends BaseTestCase
             $this->inject(Translator::class),
             $this->createMock(User::class),
             $this->createMock(Permissions::class),
-            $this->getRepository(UsersRepository::class)
         );
         $usersModule->registerScenariosCriteria($scenariosCriteriaStorage);
 
