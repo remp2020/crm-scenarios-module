@@ -10,7 +10,7 @@ use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\SelectedVariantsRepository;
 use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\Repository\UsersRepository;
-use Nette\Database\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\Json;
 use Ramsey\Uuid\Uuid;
 
@@ -25,7 +25,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
     /** @var SelectedVariantsRepository */
     private $selectedVariantRepository;
 
-    /** @var \Nette\Database\Table\IRow */
+    /** @var ActiveRow */
     private $userRow;
 
     protected function requiredRepositories(): array
@@ -137,7 +137,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         $this->assertEquals($firstResult, $secondResult);
     }
 
-    private function prepareScenarioElementWithTrigger(array $variants): IRow
+    private function prepareScenarioElementWithTrigger(array $variants): ActiveRow
     {
         /** @var ScenariosRepository $scenariosRepository */
         $scenariosRepository = $this->getRepository(ScenariosRepository::class);

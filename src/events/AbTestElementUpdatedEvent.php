@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use League\Event\AbstractEvent;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class AbTestElementUpdatedEvent extends AbstractEvent
 {
@@ -11,13 +11,13 @@ class AbTestElementUpdatedEvent extends AbstractEvent
 
     private $segments;
 
-    public function __construct(IRow $elementRow, array $segments)
+    public function __construct(ActiveRow $elementRow, array $segments)
     {
         $this->elementRow = $elementRow;
         $this->segments = $segments;
     }
 
-    public function getElement(): IRow
+    public function getElement(): ActiveRow
     {
         return $this->elementRow;
     }

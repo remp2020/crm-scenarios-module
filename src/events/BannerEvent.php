@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use League\Event\AbstractEvent;
-use Nette\Database\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class BannerEvent extends AbstractEvent
 {
@@ -14,7 +14,7 @@ class BannerEvent extends AbstractEvent
     private $expiresInMinutes;
 
     public function __construct(
-        IRow $user,
+        ActiveRow $user,
         $bannerId,
         int $expiresInMinutes
     ) {
@@ -23,7 +23,7 @@ class BannerEvent extends AbstractEvent
         $this->expiresInMinutes = $expiresInMinutes;
     }
 
-    public function getUser(): IRow
+    public function getUser(): ActiveRow
     {
         return $this->user;
     }

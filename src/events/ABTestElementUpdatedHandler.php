@@ -8,7 +8,7 @@ use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use League\Event\AbstractListener;
 use League\Event\EventInterface;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\Json;
 
 class ABTestElementUpdatedHandler extends AbstractListener
@@ -73,7 +73,7 @@ class ABTestElementUpdatedHandler extends AbstractListener
         }
     }
 
-    private function prepareSegmentProperties(IRow $elementRow, string $code, string $name): array
+    private function prepareSegmentProperties(ActiveRow $elementRow, string $code, string $name): array
     {
         return [
             'name' => $name,
@@ -102,7 +102,7 @@ SQL;
         return $query;
     }
 
-    private function updateSegmentReferenceInElementOptions(IRow $elementRow, string $code, IRow $segmentRow): void
+    private function updateSegmentReferenceInElementOptions(ActiveRow $elementRow, string $code, ActiveRow $segmentRow): void
     {
         $elementRow = $this->elementsRepository->find($elementRow->id);
 

@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\Storage;
 use Nette\Database\Explorer;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class TriggerElementsRepository extends Repository
 {
@@ -56,7 +56,7 @@ class TriggerElementsRepository extends Repository
         }
     }
 
-    final public function addLinksForTrigger(IRow $triggerRow, array $elements): void
+    final public function addLinksForTrigger(ActiveRow $triggerRow, array $elements): void
     {
         foreach ($elements as $triggerElementUUID) {
             $triggerElement = $this->elementsRepository->findBy('uuid', $triggerElementUUID);

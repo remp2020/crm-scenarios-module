@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Seeders;
 use Crm\ApplicationModule\Seeders\ISeeder;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Seeders\SegmentsTrait;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SegmentGroupsSeeder implements ISeeder
@@ -31,7 +31,7 @@ class SegmentGroupsSeeder implements ISeeder
         );
     }
 
-    public static function getSegmentCode(IRow $elementRow, string $code): string
+    public static function getSegmentCode(ActiveRow $elementRow, string $code): string
     {
         return "scenarios_ab_test_element_{$elementRow->id}_variant_{$code}";
     }

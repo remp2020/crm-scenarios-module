@@ -25,7 +25,7 @@ use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionTypeNamesSeeder;
 use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\Repository\UsersRepository;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\Json;
 use Ramsey\Uuid\Uuid;
 
@@ -46,7 +46,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
     /** @var SegmentCheckEventHandler */
     private $segmentCheckEventHandler;
 
-    /** @var IRow */
+    /** @var ActiveRow */
     private $userRow;
 
     protected function requiredRepositories(): array
@@ -239,7 +239,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $this->assertEquals(JobsRepository::STATE_FAILED, $scenarioJobRow->state);
     }
 
-    private function prepareScenarioJob(IRow $segmentRow, array $scenarioJobParameters): IRow
+    private function prepareScenarioJob(ActiveRow $segmentRow, array $scenarioJobParameters): ActiveRow
     {
         /** @var ScenariosRepository $scenariosRepository */
         $scenariosRepository = $this->getRepository(ScenariosRepository::class);
@@ -269,7 +269,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         return $scenarioJobRow;
     }
 
-    private function prepareSegment(string $table, string $queryString): IRow
+    private function prepareSegment(string $table, string $queryString): ActiveRow
     {
         /** @var SegmentGroupsRepository $segmentGroupRepository */
         $segmentGroupRepository = $this->getRepository(SegmentGroupsRepository::class);
@@ -288,7 +288,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         return $segmentRow;
     }
 
-    private function prepareSubscription(): IRow
+    private function prepareSubscription(): ActiveRow
     {
         $subscriptionTypeRow = $this->subscriptionTypeBuilder
             ->createNew()
@@ -306,7 +306,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         );
     }
 
-    private function preparePayment(): IRow
+    private function preparePayment(): ActiveRow
     {
         $subscriptionTypeRow = $this->subscriptionTypeBuilder->createNew()
             ->setNameAndUserLabel('test')

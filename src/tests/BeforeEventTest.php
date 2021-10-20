@@ -13,7 +13,7 @@ use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\SubscriptionsModule\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Auth\UserManager;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 
 class BeforeEventTest extends BaseTestCase
@@ -186,7 +186,7 @@ class BeforeEventTest extends BaseTestCase
         $this->assertEquals(2, $scenariosJobsRepository->getUnprocessedJobs()->count('*'));
     }
 
-    private function prepareSubscription(IRow $userRow, string $endTimeMinutesDiff): IRow
+    private function prepareSubscription(ActiveRow $userRow, string $endTimeMinutesDiff): ActiveRow
     {
         /** @var SubscriptionTypeBuilder $subscriptionTypeBuilder */
         $subscriptionTypeBuilder = $this->inject(SubscriptionTypeBuilder::class);

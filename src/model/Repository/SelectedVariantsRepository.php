@@ -3,13 +3,13 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class SelectedVariantsRepository extends Repository
 {
     protected $tableName = 'scenarios_selected_variants';
 
-    public function add(IRow $scenarioElementRow, IRow $userRow, string $variantCode)
+    public function add(ActiveRow $scenarioElementRow, ActiveRow $userRow, string $variantCode)
     {
         return $this->insert([
             'element_id' => $scenarioElementRow->id,
@@ -19,7 +19,7 @@ class SelectedVariantsRepository extends Repository
         ]);
     }
 
-    public function findByUserAndElement(IRow $userRow, IRow $scenariosElementRow)
+    public function findByUserAndElement(ActiveRow $userRow, ActiveRow $scenariosElementRow)
     {
         return $this->getTable()->where([
             'user_id' => $userRow->id,

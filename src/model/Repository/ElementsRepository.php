@@ -8,7 +8,7 @@ use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use League\Event\Emitter;
 use Nette\Caching\Storage;
 use Nette\Database\Explorer;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
@@ -73,7 +73,7 @@ class ElementsRepository extends Repository
             ->fetch();
     }
 
-    final public function delete(IRow &$row)
+    final public function delete(ActiveRow &$row)
     {
         // Soft-delete
         return $this->update($row, ['deleted_at' => new DateTime()]);

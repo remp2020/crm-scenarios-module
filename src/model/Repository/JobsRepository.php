@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;
 use Nette\Database\Explorer;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
@@ -58,7 +58,7 @@ class JobsRepository extends Repository
      * @param array      $parameters job parameters
      * @param array|null $context application context
      *
-     * @return bool|int|IRow
+     * @return bool|int|ActiveRow
      * @throws \Nette\Utils\JsonException
      */
     final public function addTrigger($triggerId, array $parameters, ?array $context = null)
@@ -101,7 +101,7 @@ class JobsRepository extends Repository
         return $element;
     }
 
-    final public function update(IRow &$row, $data)
+    final public function update(ActiveRow &$row, $data)
     {
         // Update element/triggers stats if job state is changing
         if (array_key_exists('state', $data) && $row->state !== $data['state']) {
@@ -116,7 +116,7 @@ class JobsRepository extends Repository
         return parent::update($row, $data);
     }
 
-    final public function startJob(IRow &$row)
+    final public function startJob(ActiveRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_STARTED,
@@ -124,7 +124,7 @@ class JobsRepository extends Repository
         ]);
     }
 
-    final public function finishJob(IRow &$row)
+    final public function finishJob(ActiveRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_FINISHED,
@@ -132,7 +132,7 @@ class JobsRepository extends Repository
         ]);
     }
 
-    final public function scheduleJob(IRow &$row)
+    final public function scheduleJob(ActiveRow &$row)
     {
         $this->update($row, [
             'state' => self::STATE_SCHEDULED,

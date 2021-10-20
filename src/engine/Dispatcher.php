@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Engine;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class Dispatcher
 {
@@ -36,7 +36,7 @@ class Dispatcher
         }
     }
 
-    public function dispatchTrigger(IRow $triggerRow, int $userId, array $params, ?array $context = null): void
+    public function dispatchTrigger(ActiveRow $triggerRow, int $userId, array $params, ?array $context = null): void
     {
         if ($triggerRow->scenario->enabled) {
             $this->jobsRepository->addTrigger($triggerRow->id, array_merge(['user_id' => $userId], $params), $context);

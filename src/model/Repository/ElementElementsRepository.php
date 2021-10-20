@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Nette\Caching\Storage;
 use Nette\Database\Explorer;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 
 class ElementElementsRepository extends Repository
 {
@@ -37,7 +37,7 @@ class ElementElementsRepository extends Repository
         }
     }
 
-    final public function upsert(IRow $parent, IRow $descendant, object $descendantDef)
+    final public function upsert(ActiveRow $parent, ActiveRow $descendant, object $descendantDef)
     {
         $elementElementsData = [
             'parent_element_id' => $parent->id,

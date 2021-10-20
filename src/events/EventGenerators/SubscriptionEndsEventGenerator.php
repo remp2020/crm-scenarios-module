@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Event\BeforeEvent;
 use Crm\ApplicationModule\Event\EventGeneratorInterface;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use DateInterval;
-use Nette\Database\Table\IRow;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 
 class SubscriptionEndsEventGenerator implements EventGeneratorInterface
@@ -29,7 +29,7 @@ class SubscriptionEndsEventGenerator implements EventGeneratorInterface
 
         $endTimeFrom = $endTimeTo->modifyClone("-30 minutes");
 
-        return array_map(function (IRow $subscriptionRow) {
+        return array_map(function (ActiveRow $subscriptionRow) {
             $parameters['subscription_id'] = $subscriptionRow->id;
             $payment = $subscriptionRow->related('payments')->limit(1)->fetch();
             if ($payment) {
