@@ -81,9 +81,11 @@ class ScenariosAdminPresenter extends AdminPresenter
         // DO NOT move this to constructor, listener might not have been added yet
         $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
 
-        // Enable Push notification element in ScenarioBuilder if OneSignalNotificationEvent has handlers (so it can be processed)
-        // DO NOT move this to constructor, listener might not have been added yet
-        $this->template->pushNotificationEnabled = $this->emitter->hasListeners(OneSignalNotificationEvent::class);
+        if (class_exists(OneSignalNotificationEvent::class)) {
+            // Enable Push notification element in ScenarioBuilder if OneSignalNotificationEvent has handlers (so it can be processed)
+            // DO NOT move this to constructor, listener might not have been added yet
+            $this->template->pushNotificationEnabled = $this->emitter->hasListeners(OneSignalNotificationEvent::class);
+        }
 
         $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
         $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();

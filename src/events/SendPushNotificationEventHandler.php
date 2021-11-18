@@ -33,6 +33,10 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
 
     public function handle(MessageInterface $message): bool
     {
+        if (!class_exists(OneSignalNotificationEvent::class)) {
+            throw new \Exception('Unable to send push notification, OneSignal module has not been installed yet.');
+        }
+
         $job = $this->getJob($message);
 
         if ($job->state !== JobsRepository::STATE_SCHEDULED) {
