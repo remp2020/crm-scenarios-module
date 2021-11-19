@@ -51,11 +51,11 @@ class ScenarioTriggersTest extends BaseTestCase
 
     protected function requiredRepositories(): array
     {
-        $repositories = parent::requiredRepositories();
-        $repositories[] = AddressChangeRequestsRepository::class;
-        $repositories[] = AddressesRepository::class;
-        $repositories[] = AddressTypesRepository::class;
-        return $repositories;
+        return array_merge(parent::requiredRepositories(), [
+            AddressChangeRequestsRepository::class,
+            AddressesRepository::class,
+            AddressTypesRepository::class,
+        ]);
     }
 
     public function setUp(): void
