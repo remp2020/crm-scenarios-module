@@ -76,7 +76,7 @@ class SimpleScenariosTest extends BaseTestCase
             }
         };
         $this->emitter->addListener(PreNotificationEvent::class, $preNotificationEventHandler);
-        
+
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
 
@@ -85,27 +85,30 @@ class SimpleScenariosTest extends BaseTestCase
         $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(2); // trigger created -> finished -> element created
-        
+
         $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
-        
+
         $this->engine->run(1); // element created -> scheduled
-        
+
         $this->assertCount(1, $this->jobsRepository->getScheduledJobs()->fetchAll());
-        
+
         $this->dispatcher->handle(); // run email job in Hermes
-        
+
         $this->assertCount(1, $this->jobsRepository->getFinishedJobs()->fetchAll());
-        
+
         // Check hermes message type is passed down in context
         $jobContext = Json::decode($this->jobsRepository->getFinishedJobs()->fetch()->context, Json::FORCE_ARRAY);
         $this->assertEquals('user-created', $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE]);
-        
+
         $this->engine->run(1); // job should be deleted
-        
+
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
-        
+
         // Check notification context contains hermes trigger
         $this->assertEquals('user-created', $preNotificationEventHandler->notificationContext->getContextValue(NotificationContext::HERMES_MESSAGE_TYPE));
+
+        // cleanup
+        $this->emitter->removeListener(PreNotificationEvent::class, $preNotificationEventHandler);
     }
 
     public function testUserCreatedWaitScenario()
@@ -144,16 +147,16 @@ class SimpleScenariosTest extends BaseTestCase
         $this->assertCount(1, $this->jobsRepository->getUnprocessedJobs()->fetchAll());
 
         $this->engine->run(2); // wait job should be directly started
-        
+
         $this->assertCount(1, $this->jobsRepository->getStartedJobs()->fetchAll());
-        
+
         // 'execute_at' parameter is only supported in Redis driver for Hermes, dummy driver executes job right away
         $this->dispatcher->handle();
-        
+
         $this->assertCount(1, $this->jobsRepository->getFinishedJobs()->fetchAll());
-        
+
         $this->engine->run(1); // job should be deleted
-        
+
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
     }
 
@@ -325,7 +328,7 @@ class SimpleScenariosTest extends BaseTestCase
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(3);
-        
+
         // check email job has 'subscription_id' parameter
         $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
         $emailJobParameters = Json::decode($emailJob->parameters);

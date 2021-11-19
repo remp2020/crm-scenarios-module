@@ -74,5 +74,8 @@ class RunGenericEventTest extends BaseTestCase
         $this->dispatcher->handle(); // job(generic): scheduled -> started -> finished
 
         $this->assertTrue($this->triggerGenericActionEventHandler->eventWasTriggered);
+
+        // cleanup
+        $this->emitter->removeListener(TriggerGenericActionEvent::class, $this->triggerGenericActionEventHandler);
     }
 }
