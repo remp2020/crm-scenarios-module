@@ -104,7 +104,7 @@ class ComplexGoalScenariosTest extends BaseTestCase
 
         // GOAL element shouldn't be completed yet, one more goal to finish
         $this->dispatcher->handle(); // job(goal): scheduled -> started -> finished
-        $this->assertFalse($this->jobsRepository->getFinishedJobs()->fetch());
+        $this->assertNull($this->jobsRepository->getFinishedJobs()->fetch());
 
         // Complete second goal for user2
         $this->userOnboardingGoalsRepository->complete($user2->id, $goal2->id);
