@@ -120,6 +120,11 @@ class ScenariosRepository extends Repository
                     if (!$descendant) {
                         throw new \Exception("Unable to find element with uuid [{$descendant->uuid}]");
                     }
+                    if ($descendant->id === $parent->id) {
+                        throw new \Exception(
+                            "Element '{$parent->name}' has link to itself, unable to save the scenario."
+                        );
+                    }
 
                     $this->elementElementsRepository->upsert($parent, $descendant, $descendantDef);
                 }

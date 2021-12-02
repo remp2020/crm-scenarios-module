@@ -118,4 +118,52 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         $newElement = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait2');
         $this->assertNotEquals($newElement->id, $updatedElement->id);
     }
+
+    public function testElementCycleIsForbidden()
+    {
+        $this->expectException(\Exception::class);
+        $this->scenariosRepository->createOrUpdate([
+            'name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
+                    'id' => 'trigger_user_created',
+                    'event' => ['code' => 'user_created'],
+                    'elements' => ['element_condition'],
+                ])
+            ],
+            'elements' => [
+                self::obj([
+                    'name' => '',
+                    'id' => 'element_condition',
+                    'type' => ElementsRepository::ELEMENT_TYPE_CONDITION,
+                    'condition' => [
+                        'descendants' => [
+                            ['uuid' => 'element_condition', 'direction' => 'positive'],
+                        ],
+                        'conditions' => [
+                            'event' => 'subscription',
+                            'version' => 1,
+                            'nodes' => [
+                                [
+                                    'key' => 'type',
+                                    'params' => [
+                                        [
+                                            'key' => 'type',
+                                            'values' => [
+                                                'selection'=> ['free'],
+                                                'operator' => 'or'
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]),
+            ]
+        ]);
+    }
 }
