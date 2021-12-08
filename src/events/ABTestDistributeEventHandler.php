@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Repository\SelectedVariantsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
@@ -17,17 +18,22 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
     public const RESULT_PARAM_SELECTED_VARIANT_CODE = 'selected_variant_code';
 
     private $usersRepository;
+
     private $selectedVariantRepository;
+
+    private $elementStatsRepository;
 
     public function __construct(
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
-        SelectedVariantsRepository $selectedVariantRepository
+        SelectedVariantsRepository $selectedVariantRepository,
+        ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($jobsRepository);
 
         $this->usersRepository = $usersRepository;
         $this->selectedVariantRepository = $selectedVariantRepository;
+        $this->elementStatsRepository = $elementStatsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -89,6 +95,8 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
             'state' => JobsRepository::STATE_FINISHED,
             'finished_at' => new \DateTime(),
         ]);
+
+        $this->elementStatsRepository->add($job->element_id, $selectedVariantRow->variant_code);
 
         return true;
     }

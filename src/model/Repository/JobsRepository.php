@@ -4,7 +4,6 @@ namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
 use Nette\Caching\IStorage;
-use Nette\Database\Connection;
 use Nette\Database\Context;
 use Nette\Database\Table\IRow;
 use Nette\Utils\DateTime;
@@ -33,22 +32,15 @@ class JobsRepository extends Repository
 
     protected $tableName = 'scenarios_jobs';
 
-    private $connection;
-
-    private $triggerStatsRepository;
-
     private $elementStatsRepository;
 
     public function __construct(
         Context $database,
         IStorage $cacheStorage = null,
-        Connection $connection,
-        TriggerStatsRepository $triggerStatsRepository,
         ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($database, $cacheStorage);
-        $this->connection = $connection;
-        $this->triggerStatsRepository = $triggerStatsRepository;
+
         $this->elementStatsRepository = $elementStatsRepository;
     }
 
@@ -77,7 +69,6 @@ class JobsRepository extends Repository
         }
 
         $trigger = $this->insert($data);
-        $this->triggerStatsRepository->increment($triggerId, self::STATE_CREATED);
         return $trigger;
     }
 
@@ -97,21 +88,11 @@ class JobsRepository extends Repository
         }
 
         $element = $this->insert($data);
-        $this->elementStatsRepository->increment($elementId, self::STATE_CREATED);
         return $element;
     }
 
     final public function update(IRow &$row, $data)
     {
-        // Update element/triggers stats if job state is changing
-        if (array_key_exists('state', $data) && $row->state !== $data['state']) {
-            if ($row->trigger_id) {
-                $this->triggerStatsRepository->increment($row->trigger_id, $data['state']);
-            } else {
-                $this->elementStatsRepository->increment($row->element_id, $data['state']);
-            }
-        }
-
         $data['updated_at'] = new DateTime();
         return parent::update($row, $data);
     }
@@ -124,12 +105,15 @@ class JobsRepository extends Repository
         ]);
     }
 
-    final public function finishJob(IRow &$row)
+    final public function finishJob(IRow &$row, bool $recordStats = true)
     {
         $this->update($row, [
             'state' => self::STATE_FINISHED,
             'finished_at' => new DateTime(),
         ]);
+        if ($recordStats) {
+            $this->elementStatsRepository->add($row->element_id, ElementStatsRepository::STATE_FINISHED);
+        }
     }
 
     final public function scheduleJob(IRow &$row)
@@ -167,5 +151,20 @@ class JobsRepository extends Repository
     final public function getFailedJobs()
     {
         return $this->getTable()->where(['state' => self::STATE_FAILED]);
+    }
+
+    final public function getCountForElementsAndState(array $elementIds): array
+    {
+        $items = $this->getTable()->select('element_id, state, COUNT(*) AS total')
+            ->where('element_id', $elementIds)
+            ->group('element_id, state')
+            ->fetchAll();
+
+        $result = [];
+        foreach ($items as $item) {
+            $result[$item->element_id][$item->state] = (int)$item->total;
+        }
+
+        return $result;
     }
 }

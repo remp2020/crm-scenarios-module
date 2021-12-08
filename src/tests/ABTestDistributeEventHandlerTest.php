@@ -19,9 +19,6 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
     /** @var JobsRepository */
     private $scenarioJobsRepository;
 
-    /** @var UsersRepository */
-    private $usersRepository;
-
     /** @var SelectedVariantsRepository */
     private $selectedVariantRepository;
 
@@ -49,7 +46,6 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         parent::setUp();
 
         $this->scenarioJobsRepository = $this->getRepository(JobsRepository::class);
-        $this->usersRepository = $this->getRepository(UsersRepository::class);
         $this->selectedVariantRepository = $this->getRepository(SelectedVariantsRepository::class);
 
         /** @var UserManager $userManager */
@@ -72,11 +68,8 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
 
         $message = ABTestDistributeEventHandler::createHermesMessage($scenarioJobRow->id);
 
-        $ABTestDistributeHandler = new ABTestDistributeEventHandler(
-            $this->scenarioJobsRepository,
-            $this->usersRepository,
-            $this->selectedVariantRepository
-        );
+        /** @var ABTestDistributeEventHandler $ABTestDistributeHandler */
+        $ABTestDistributeHandler = $this->inject(ABTestDistributeEventHandler::class);
         $ABTestDistributeHandler->handle($message);
 
         $scenarioJobRow = $this->scenarioJobsRepository->find($scenarioJobRow->id);
@@ -114,11 +107,8 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
 
         $message = ABTestDistributeEventHandler::createHermesMessage($scenarioJobRow->id);
 
-        $ABTestDistributeHandler = new ABTestDistributeEventHandler(
-            $this->scenarioJobsRepository,
-            $this->usersRepository,
-            $this->selectedVariantRepository
-        );
+        /** @var ABTestDistributeEventHandler $ABTestDistributeHandler */
+        $ABTestDistributeHandler = $this->inject(ABTestDistributeEventHandler::class);
         $ABTestDistributeHandler->handle($message);
 
         $scenarioJobRow = $this->scenarioJobsRepository->find($scenarioJobRow->id);

@@ -16,7 +16,6 @@ use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SegmentModule\Seeders\SegmentsSeeder;
-use Crm\SegmentModule\SegmentFactory;
 use Crm\SubscriptionsModule\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\SubscriptionsModule\Seeders\ContentAccessSeeder;
@@ -87,27 +86,12 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $this->segmentsRepository = $this->getRepository(SegmentsRepository::class);
         $this->scenarioJobsRepository = $this->getRepository(JobsRepository::class);
 
-        /** @var UsersRepository $usersRepository */
-        $usersRepository = $this->getRepository(UsersRepository::class);
-
-        /** @var PaymentsRepository $paymentsRepository */
-        $paymentsRepository = $this->getRepository(PaymentsRepository::class);
-
         /** @var UserManager $userManager */
         $userManager = $this->inject(UserManager::class);
         $this->userRow = $userManager->addNewUser('test@test.sk');
 
-        /** @var SegmentFactory $segmentFactory */
-        $segmentFactory = $this->inject(SegmentFactory::class);
 
-        $this->segmentCheckEventHandler =  new SegmentCheckEventHandler(
-            $segmentFactory,
-            $this->scenarioJobsRepository,
-            $usersRepository,
-            $this->subscriptionsRepository,
-            $paymentsRepository,
-            $this->segmentsRepository
-        );
+        $this->segmentCheckEventHandler =  $this->inject(SegmentCheckEventHandler::class);
     }
 
     public function testUserInSegmentPositiveResult(): void

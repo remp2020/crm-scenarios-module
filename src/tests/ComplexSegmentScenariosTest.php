@@ -11,6 +11,7 @@ use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\UsersModule\Auth\UserManager;
+use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
 class ComplexSegmentScenariosTest extends BaseTestCase
@@ -105,46 +106,29 @@ class ComplexSegmentScenariosTest extends BaseTestCase
 
         // Check stats count
 
+        /** @var TriggerStatsRepository $tsr */
         $tsr = $this->getRepository(TriggerStatsRepository::class);
+
+        /** @var ElementStatsRepository $esr */
         $esr = $this->getRepository(ElementStatsRepository::class);
 
-        $triggerStats = $tsr->countsFor($this->triggerId('trigger1'));
+        $triggerStats = $tsr->countsForTriggers([$this->triggerId('trigger1')], new DateTime('-1 hour'));
         // Triggers are only CREATED and then FINISHED
-        $this->assertEquals($triggerStats[JobsRepository::STATE_CREATED], 1);
-        $this->assertEquals($triggerStats[JobsRepository::STATE_FINISHED], 1);
+        $this->assertEquals($triggerStats[$this->triggerId('trigger1')][JobsRepository::STATE_FINISHED], 1);
 
-        $waitStats = $esr->countsFor($this->elementId('element_wait'));
-        foreach (JobsRepository::allStates() as $state) {
-            $count = $waitStats[$state] ?? 0;
+        $elementStats = $esr->countsForElements([
+            $this->elementId('element_wait'),
+            $this->elementId('element_segment'),
+            $this->elementId('element_email')
+        ], new DateTime('-1 hour'));
 
-            // WAIT is a special element, it's directly STARTED from CREATED state (SCHEDULED is skipped)
-            if ($state === JobsRepository::STATE_SCHEDULED || $state === JobsRepository::STATE_FAILED) {
-                $this->assertEquals(0, $count);
-            } else {
-                $this->assertEquals(1, $count);
-            }
-        }
+        $this->assertEquals(1, sizeof($elementStats[$this->elementId('element_wait')]));
+        $this->assertEquals(1, $elementStats[$this->elementId('element_wait')][JobsRepository::STATE_FINISHED]);
 
-        $segmentStats = $esr->countsFor($this->elementId('element_segment'));
-        foreach (JobsRepository::allStates() as $state) {
-            $count = $segmentStats[$state] ?? 0;
+        $this->assertEquals(1, sizeof($elementStats[$this->elementId('element_segment')]));
+        $this->assertEquals(1, $elementStats[$this->elementId('element_segment')][ElementStatsRepository::STATE_POSITIVE]);
 
-            if ($state == JobsRepository::STATE_FAILED) {
-                $this->assertEquals(0, $count);
-            } else {
-                $this->assertEquals(1, $count);
-            }
-        }
-
-        $emailStats = $esr->countsFor($this->elementId('element_email'));
-        foreach (JobsRepository::allStates() as $state) {
-            $count = $emailStats[$state] ?? 0;
-
-            if ($state == JobsRepository::STATE_FAILED) {
-                $this->assertEquals(0, $count);
-            } else {
-                $this->assertEquals(1, $count);
-            }
-        }
+        $this->assertEquals(1, sizeof($elementStats[$this->elementId('element_email')]));
+        $this->assertEquals(1, $elementStats[$this->elementId('element_email')][JobsRepository::STATE_FINISHED]);
     }
 }

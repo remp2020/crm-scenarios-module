@@ -97,10 +97,10 @@ class ScenarioTriggersTest extends BaseTestCase
 
         // Check stats
         // Triggers are only CREATED and then FINISHED
+        /** @var TriggerStatsRepository $tsr */
         $tsr = $this->getRepository(TriggerStatsRepository::class);
-        $triggerStats = $tsr->countsFor($this->triggerId('trigger1'));
-        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_CREATED]);
-        $this->assertEquals(3, $triggerStats[JobsRepository::STATE_FINISHED]);
+        $triggerStats = $tsr->countsForTriggers([$this->triggerId('trigger1')], new DateTime('-1 hour'));
+        $this->assertEquals(3, $triggerStats[$this->triggerId('trigger1')][JobsRepository::STATE_FINISHED]);
     }
 
     public function testTriggerNewSubscription()

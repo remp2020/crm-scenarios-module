@@ -14,6 +14,7 @@ use Crm\ScenariosModule\Events\SendPushNotificationEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repository\TriggerStatsRepository;
 use Exception;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
@@ -53,12 +54,15 @@ class Engine
 
     private $startTime;
 
+    private $triggerStatsRepository;
+
     public function __construct(
         LoggerInterface $logger,
         Emitter $hermesEmitter,
         JobsRepository $jobsRepository,
         GraphConfiguration $graphConfiguration,
-        ElementsRepository $elementsRepository
+        ElementsRepository $elementsRepository,
+        TriggerStatsRepository $triggerStatsRepository
     ) {
         $this->logger = $logger;
         $this->jobsRepository = $jobsRepository;
@@ -66,6 +70,7 @@ class Engine
         $this->elementsRepository = $elementsRepository;
         $this->hermesEmitter = $hermesEmitter;
         $this->startTime = new DateTime();
+        $this->triggerStatsRepository = $triggerStatsRepository;
     }
 
     public function setMinSleepTime(int $minSleepTime): void
@@ -217,6 +222,7 @@ class Engine
                 'finished_at' => new DateTime(),
                 'state' => JobsRepository::STATE_FINISHED
             ]);
+            $this->triggerStatsRepository->add($job->trigger_id, JobsRepository::STATE_FINISHED);
         } elseif ($job->element_id) {
             $this->processJobElement($job);
         } else {

@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Events;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ApplicationModule\Repository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SegmentModule\SegmentFactoryInterface;
@@ -29,13 +30,16 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
 
     private $paymentsRepository;
 
+    private $elementStatsRepository;
+
     public function __construct(
         SegmentFactoryInterface $segmentFactory,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
         PaymentsRepository $paymentsRepository,
-        SegmentsRepository $segmentsRepository
+        SegmentsRepository $segmentsRepository,
+        ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -43,6 +47,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
         $this->paymentsRepository = $paymentsRepository;
         $this->segmentFactory = $segmentFactory;
         $this->segmentsRepository = $segmentsRepository;
+        $this->elementStatsRepository = $elementStatsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -103,6 +108,8 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
             $this->jobError($job, $e->getMessage());
             return true;
         }
+
+        $this->elementStatsRepository->add($element->id, $inSegment ? ElementStatsRepository::STATE_POSITIVE : ElementStatsRepository::STATE_NEGATIVE);
 
         $this->jobsRepository->update($job, [
             'result' => Json::encode(['in' => $inSegment]),

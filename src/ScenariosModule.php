@@ -16,6 +16,8 @@ use Crm\ApplicationModule\SeederManager;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
 use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
+use Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand;
+use Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\ABTestDistributeEventHandler;
@@ -73,17 +75,6 @@ class ScenariosModule extends CrmModule
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
-            new ApiIdentifier('1', 'scenarios', 'element'),
-            \Crm\ScenariosModule\Api\ScenariosElementApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
-        ));
-        $apiRoutersContainer->attachRouter(new ApiRoute(
-            new ApiIdentifier('1', 'scenarios', 'trigger'),
-            \Crm\ScenariosModule\Api\ScenariosTriggerApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
-        ));
-
-        $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),
             ScenariosCriteriaHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
@@ -94,6 +85,11 @@ class ScenariosModule extends CrmModule
             ScenariosListGenericsApiHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'stats'),
+            \Crm\ScenariosModule\Api\ScenariosStatsApiHandler::class,
+            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+        ));
     }
 
     public function registerCommands(CommandsContainerInterface $commandsContainer)
@@ -101,6 +97,8 @@ class ScenariosModule extends CrmModule
         $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
         $commandsContainer->registerCommand($this->getInstance(TestUserCommand::class));
         $commandsContainer->registerCommand($this->getInstance(EventGeneratorCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(ScenariosStatsAggregatorCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(RemoveOldStatsDataCommand::class));
     }
 
     public function registerHermesHandlers(Dispatcher $dispatcher)

@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Events;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Database\Table\ActiveRow;
@@ -27,18 +28,22 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
 
     private $userOnboardingGoalsRepository;
 
+    private $elementStatsRepository;
+
     public function __construct(
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         OnboardingGoalsRepository $onboardingGoalsRepository,
         UserOnboardingGoalsRepository $userOnboardingGoalsRepository,
-        Emitter $hermesEmitter
+        Emitter $hermesEmitter,
+        ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
         $this->hermesEmitter = $hermesEmitter;
         $this->onboardingGoalsRepository = $onboardingGoalsRepository;
         $this->userOnboardingGoalsRepository = $userOnboardingGoalsRepository;
+        $this->elementStatsRepository = $elementStatsRepository;
     }
 
     public static function createHermesMessage($jobId, int $minutesDelay = null)
@@ -109,6 +114,8 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
                 'state' => JobsRepository::STATE_FINISHED,
                 'finished_at' => new DateTime()
             ]);
+
+            $this->elementStatsRepository->add($job->element_id, ElementStatsRepository::STATE_POSITIVE);
             return true;
         }
 
@@ -127,6 +134,8 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
                     'state' => JobsRepository::STATE_FINISHED,
                     'finished_at' => new DateTime(),
                 ]);
+
+                $this->elementStatsRepository->add($job->element_id, ElementStatsRepository::STATE_NEGATIVE);
                 return true;
             }
         }

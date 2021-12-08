@@ -154,6 +154,20 @@ scenariosEngine:
 The actual sleep time is computed using exponential backoff algorithm.
 Default values are 0.05 and 1 second for min/max delay.
 
+### Schedule commands
+
+Aggregate statistic data older than 5 days or data from the specific date with using option `from`. Setup cron to run command every hour.
+```sh
+# Aggregate scenarios statistics 
+php bin/command.php scenarios:aggregate_stats
+```
+
+Remove statistic data older than 31 days. To specify exact date use option `date-to`. Setup cron to run command daily.
+```sh
+# Remove old statistic data
+php bin/command.php scenarios:remove_stats
+```
+
 ### Before events
 
 For generating "Before Event" triggers, add the following command to your crontab. Optionally set it up to run every 10 minutes.

@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
+use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\ScenariosModule\Scenarios\ScenariosTriggerCriteriaInterface;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
@@ -30,13 +31,16 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
     private $scenariosCriteriaStorage;
 
+    private $scenariosElementStatsRepository;
+
     public function __construct(
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SubscriptionsRepository $subscriptionsRepository,
         PaymentsRepository $paymentsRepository,
         RecurrentPaymentsRepository $recurrentPaymentsRepository,
-        ScenariosCriteriaStorage $scenariosCriteriaStorage
+        ScenariosCriteriaStorage $scenariosCriteriaStorage,
+        ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -44,6 +48,7 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
         $this->paymentsRepository = $paymentsRepository;
         $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
         $this->scenariosCriteriaStorage = $scenariosCriteriaStorage;
+        $this->scenariosElementStatsRepository = $elementStatsRepository;
     }
 
     public function handle(MessageInterface $message): bool
@@ -81,6 +86,8 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
             $this->jobError($job, $e->getMessage());
             return true;
         }
+
+        $this->scenariosElementStatsRepository->add($element->id, $conditionMet ? ElementStatsRepository::STATE_POSITIVE: ElementStatsRepository::STATE_NEGATIVE);
 
         $this->jobsRepository->update($job, [
             'result' => Json::encode([self::RESULT_PARAM_CONDITION_MET => $conditionMet]),

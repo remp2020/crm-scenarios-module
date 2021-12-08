@@ -11,11 +11,6 @@ class FinishWaitEventHandler extends ScenariosJobsHandler
 {
     public const HERMES_MESSAGE_CODE = 'scenarios-finish-wait';
 
-    public function __construct(JobsRepository $jobsRepository)
-    {
-        parent::__construct($jobsRepository);
-    }
-
     public function handle(MessageInterface $message): bool
     {
         $job = $this->getJob($message);
@@ -25,10 +20,7 @@ class FinishWaitEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->update($job, [
-            'state' => JobsRepository::STATE_FINISHED,
-            'finished_at' => new DateTime(),
-        ]);
+        $this->jobsRepository->finishJob($job);
         return true;
     }
 
