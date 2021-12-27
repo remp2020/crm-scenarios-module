@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\PaymentsModule\Gateways\BankTransfer;
 use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
@@ -165,7 +166,7 @@ class ScenarioTriggersTest extends BaseTestCase
 
         /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
         $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
-        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', 'bank_transfer');
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', BankTransfer::GATEWAY_CODE);
 
         $jobsRepository = $this->getRepository(JobsRepository::class);
         $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
@@ -192,7 +193,7 @@ class ScenarioTriggersTest extends BaseTestCase
 
         /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
         $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
-        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', 'bank_transfer');
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', BankTransfer::GATEWAY_CODE);
 
         $paymentRow = $this->paymentsRepository->add(
             null,
