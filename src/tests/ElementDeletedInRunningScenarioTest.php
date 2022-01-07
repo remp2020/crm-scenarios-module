@@ -36,7 +36,7 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
         $this->userManager = $this->inject(UserManager::class);
     }
 
-    public function testTriggerUserCreatedScenario()
+    public function testTriggerUserRegisteredScenario()
     {
         $scenario = $this->getRepository(ScenariosRepository::class)->createOrUpdate([
             'name' => 'test1',
@@ -46,7 +46,7 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_email']
                 ])
             ],
@@ -76,7 +76,7 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_email2']
                 ])
             ],

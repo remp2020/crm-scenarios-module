@@ -40,7 +40,7 @@ use Crm\SubscriptionsModule\Seeders\SubscriptionExtensionMethodsSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionLengthMethodSeeder;
 use Crm\SubscriptionsModule\Seeders\SubscriptionTypeNamesSeeder;
 use Crm\UsersModule\Events\NotificationEvent;
-use Crm\UsersModule\Events\UserCreatedEvent;
+use Crm\UsersModule\Events\UserRegisteredEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\Tests\TestNotificationHandler;
 use Kdyby\Translation\Translator;
@@ -131,7 +131,7 @@ abstract class BaseTestCase extends DatabaseTestCase
 
         // Events are not automatically registered, we need to register them manually for tests
         $this->eventsStorage = $this->inject(EventsStorage::class);
-        $this->eventsStorage->register('user_created', UserCreatedEvent::class, true);
+        $this->eventsStorage->register('user_registered', UserRegisteredEvent::class, true);
         $this->eventsStorage->register('new_payment', NewPaymentEvent::class, true);
         $this->eventsStorage->register('payment_change_status', PaymentChangeStatusEvent::class, true);
         $this->eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);

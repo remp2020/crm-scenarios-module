@@ -53,7 +53,7 @@ services:
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\AddressChangedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler

@@ -75,9 +75,9 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->eventsStorage->register('address_changed', AddressChangedEvent::class, true);
     }
 
-    public function testTriggerUserCreatedScenario()
+    public function testTriggerUserRegisteredScenario()
     {
-        $this->addTestScenario('user_created');
+        $this->addTestScenario('user_registered');
 
         // Add user, which triggers scenario
         $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);

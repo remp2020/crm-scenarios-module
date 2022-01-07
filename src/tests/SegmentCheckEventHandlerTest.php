@@ -95,7 +95,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
 
         /** @var UserManager $userManager */
         $userManager = $this->inject(UserManager::class);
-        $this->userRow = $userManager->addNewUser('test@test.sk', null, 'funnel');
+        $this->userRow = $userManager->addNewUser('test@test.sk');
 
         /** @var SegmentFactory $segmentFactory */
         $segmentFactory = $this->inject(SegmentFactory::class);
@@ -118,7 +118,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
-        $message = new HermesMessage('user-created', ['job_id' => $scenarioJobRow->id]);
+        $message = new HermesMessage('user-registered', ['job_id' => $scenarioJobRow->id]);
 
         $this->segmentCheckEventHandler->handle($message);
 
@@ -136,7 +136,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
-        $message = new HermesMessage('user-created', ['job_id' => $scenarioJobRow->id]);
+        $message = new HermesMessage('user-registered', ['job_id' => $scenarioJobRow->id]);
 
         $this->segmentCheckEventHandler->handle($message);
 
@@ -230,7 +230,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
-        $message = new HermesMessage('user-created', ['job_id' => $scenarioJobRow->id]);
+        $message = new HermesMessage('user-registered', ['job_id' => $scenarioJobRow->id]);
 
         $this->segmentCheckEventHandler->handle($message);
 

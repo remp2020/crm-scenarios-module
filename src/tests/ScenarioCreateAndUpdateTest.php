@@ -30,7 +30,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         $this->triggerElementsRepository = $this->getRepository(TriggerElementsRepository::class);
     }
 
-    public function testTriggerUserCreatedScenario()
+    public function testTriggerUserRegisteredScenario()
     {
         $scenario = $this->scenariosRepository->createOrUpdate([
             'name' => 'test1',
@@ -39,8 +39,8 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                 self::obj([
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger_user_created',
-                    'event' => ['code' => 'user_created'],
+                    'id' => 'trigger_user_registered',
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_wait']
                 ])
             ],
@@ -55,7 +55,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         ]);
 
         $element = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
-        $trigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_created');
+        $trigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_registered');
 
         $this->scenariosRepository->createOrUpdate([
             'id' => $scenario->id,
@@ -65,8 +65,8 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                 self::obj([
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger_user_created',
-                    'event' => ['code' => 'user_created'],
+                    'id' => 'trigger_user_registered',
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_wait']
                 ])
             ],
@@ -81,7 +81,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
         ]);
 
         $updatedElement = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
-        $updatedTrigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_created');
+        $updatedTrigger = $this->triggersRepository->findByScenarioIdAndTriggerUuid($scenario->id, 'trigger_user_registered');
         
         // Check that when element is updated and keeps the same UUID, actual database ID (primary key) doesn't change
         $this->assertEquals($element->id, $updatedElement->id);
@@ -95,8 +95,8 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                 self::obj([
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
-                    'id' => 'trigger_user_created',
-                    'event' => ['code' => 'user_created'],
+                    'id' => 'trigger_user_registered',
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_wait2']
                 ])
             ],

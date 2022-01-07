@@ -60,9 +60,9 @@ class SimpleScenariosTest extends BaseTestCase
         $this->jobsRepository = $this->getRepository(JobsRepository::class);
     }
 
-    public function testUserCreatedEmailScenario()
+    public function testUserRegisteredEmailScenario()
     {
-        $this->insertTriggerToEmailScenario('user_created', 'empty_template_code');
+        $this->insertTriggerToEmailScenario('user_registered', 'empty_template_code');
 
         // Handler to check if context is added to PreNotificationEvent
         $preNotificationEventHandler = new class extends AbstractListener {
@@ -98,20 +98,20 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Check hermes message type is passed down in context
         $jobContext = Json::decode($this->jobsRepository->getFinishedJobs()->fetch()->context, Json::FORCE_ARRAY);
-        $this->assertEquals('user-created', $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE]);
+        $this->assertEquals('user-registered', $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE]);
 
         $this->engine->run(1); // job should be deleted
 
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
 
         // Check notification context contains hermes trigger
-        $this->assertEquals('user-created', $preNotificationEventHandler->notificationContext->getContextValue(NotificationContext::HERMES_MESSAGE_TYPE));
+        $this->assertEquals('user-registered', $preNotificationEventHandler->notificationContext->getContextValue(NotificationContext::HERMES_MESSAGE_TYPE));
 
         // cleanup
         $this->emitter->removeListener(PreNotificationEvent::class, $preNotificationEventHandler);
     }
 
-    public function testUserCreatedWaitScenario()
+    public function testUserRegisteredWaitScenario()
     {
         $this->getRepository(ScenariosRepository::class)->createOrUpdate([
             'name' => 'test1',
@@ -121,7 +121,7 @@ class SimpleScenariosTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_wait']
                 ])
             ],
@@ -160,7 +160,7 @@ class SimpleScenariosTest extends BaseTestCase
         $this->assertCount(0, $this->jobsRepository->getFinishedJobs()->fetchAll());
     }
 
-    public function testUserCreatedSegmentScenario()
+    public function testUserRegisteredSegmentScenario()
     {
         $this->getRepository(ScenariosRepository::class)->createOrUpdate([
             'name' => 'test1',
@@ -170,7 +170,7 @@ class SimpleScenariosTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_segment']
                 ])
             ],
@@ -233,7 +233,7 @@ class SimpleScenariosTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'user_created'],
+                    'event' => ['code' => 'user_registered'],
                     'elements' => ['element_segment']
                 ])
             ],
