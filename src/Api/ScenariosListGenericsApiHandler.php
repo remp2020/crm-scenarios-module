@@ -17,7 +17,7 @@ class ScenariosListGenericsApiHandler extends ApiHandler
         $this->manager = $manager;
     }
 
-    public function params()
+    public function params(): array
     {
         return [];
     }

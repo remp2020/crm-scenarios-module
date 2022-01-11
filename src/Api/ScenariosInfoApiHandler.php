@@ -20,7 +20,7 @@ class ScenariosInfoApiHandler extends ApiHandler
         $this->scenariosRepository = $scenariosRepository;
     }
 
-    public function params()
+    public function params(): array
     {
         return [
             new InputParam(InputParam::TYPE_GET, 'id', InputParam::REQUIRED),
