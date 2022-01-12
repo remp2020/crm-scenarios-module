@@ -4,9 +4,9 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
 use Crm\ApiModule\Api\JsonResponse;
-use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
+use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Repository\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;
@@ -41,7 +41,7 @@ class ScenariosCreateApiHandler extends ApiHandler
         ];
     }
 
-    public function handle(ApiAuthorizationInterface $authorization)
+    public function handle(array $params): ApiResponseInterface
     {
         $data = $authorization->getAuthorizedData();
         if (!isset($data['token'])) {
