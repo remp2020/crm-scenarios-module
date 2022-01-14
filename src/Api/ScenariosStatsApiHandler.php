@@ -119,7 +119,7 @@ class ScenariosStatsApiHandler extends ApiHandler
         $elementStatsDay = $this->elementStatsRepository->countsForElements($relatedElementsIds, new DateTime('- 24 hours'));
         $elementStatsMonth = $this->elementStatsRepository->countsForElements($relatedElementsIds, new DateTime('- 30 days'));
 
-        $jobStats = $this->jobsRepository->getCountForElementsAndState($relatedElements);
+        $jobStats = $this->jobsRepository->getCountForElementsAndState($relatedElementsIds);
 
         $result = [];
         foreach ($relatedElements as $elementId => $elementRow) {

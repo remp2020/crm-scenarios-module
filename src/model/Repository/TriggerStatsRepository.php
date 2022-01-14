@@ -26,8 +26,7 @@ class TriggerStatsRepository extends Repository
         $items = $this->getTable()->select('trigger_id, state, SUM(count) AS total')
             ->where('trigger_id', $triggerIds)
             ->where('created_at >=', $from)
-            ->group('trigger_id, state')
-            ->fetchAll();
+            ->group('trigger_id, state');
 
         $result = [];
         foreach ($items as $item) {

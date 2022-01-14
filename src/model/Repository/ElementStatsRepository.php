@@ -30,8 +30,7 @@ class ElementStatsRepository extends Repository
         $items = $this->getTable()->select('element_id, state, SUM(count) AS total')
             ->where('element_id', $elementIds)
             ->where('created_at >=', $from)
-            ->group('element_id, state')
-            ->fetchAll();
+            ->group('element_id, state');
 
         $result = [];
         foreach ($items as $item) {

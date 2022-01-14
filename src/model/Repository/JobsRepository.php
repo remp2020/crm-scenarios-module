@@ -157,8 +157,7 @@ class JobsRepository extends Repository
     {
         $items = $this->getTable()->select('element_id, state, COUNT(*) AS total')
             ->where('element_id', $elementIds)
-            ->group('element_id, state')
-            ->fetchAll();
+            ->group('element_id, state');
 
         $result = [];
         foreach ($items as $item) {
