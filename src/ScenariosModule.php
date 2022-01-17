@@ -24,6 +24,7 @@ use Crm\ScenariosModule\Events\ABTestDistributeEventHandler;
 use Crm\ScenariosModule\Events\ABTestElementUpdatedHandler;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
+use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -130,6 +131,7 @@ class ScenariosModule extends CrmModule
         $eventsStorage->register('test_user', TestUserEvent::class, true);
 
         $eventsStorage->registerEventGenerator('subscription_ends', $this->getInstance(SubscriptionEndsEventGenerator::class));
+        $eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
     }
 
     public function registerEventHandlers(Emitter $emitter)
