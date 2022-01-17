@@ -21,11 +21,12 @@ class ElementElementsRepository extends Repository
         $this->auditLogRepository = $auditLogRepository;
     }
 
-    final public function getLink($parentElementId, $childElementId)
+    final public function getLink(int $parentElementId, int $childElementId, int $position = 0)
     {
         return $this->getTable()->where([
             'parent_element_id' => $parentElementId,
             'child_element_id' => $childElementId,
+            'position' => $position,
         ])->fetch();
     }
 
@@ -55,7 +56,7 @@ class ElementElementsRepository extends Repository
                 $elementElementsData['position'] = $descendantDef->position;
         }
 
-        $link = $this->getLink($parent->id, $descendant->id);
+        $link = $this->getLink($parent->id, $descendant->id, $descendantDef->position ?? 0);
         if (!$link) {
             $this->insert($elementElementsData);
         } else {
