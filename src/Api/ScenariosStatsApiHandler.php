@@ -4,9 +4,8 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
 use Crm\ApiModule\Api\JsonResponse;
-use Crm\ApiModule\Authorization\ApiAuthorizationInterface;
 use Crm\ApiModule\Params\InputParam;
-use Crm\ApiModule\Params\ParamsProcessor;
+use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
@@ -36,38 +35,23 @@ class ScenariosStatsApiHandler extends ApiHandler
         TriggerStatsRepository $triggerStatsRepository,
         JobsRepository $jobsRepository
     ) {
+        parent::__construct();
+
         $this->scenariosRepository = $scenariosRepository;
         $this->elementStatsRepository = $elementStatsRepository;
         $this->triggerStatsRepository = $triggerStatsRepository;
         $this->jobsRepository = $jobsRepository;
     }
 
-    public function params()
+    public function params(): array
     {
         return [
             new InputParam(InputParam::TYPE_GET, 'id', InputParam::REQUIRED),
         ];
     }
 
-    public function handle(ApiAuthorizationInterface $authorization)
+    public function handle(array $params): ApiResponseInterface
     {
-        $data = $authorization->getAuthorizedData();
-        if (!isset($data['token'])) {
-            $response = new JsonResponse(['status' => 'error', 'message' => 'Cannot authorize user']);
-            $response->setHttpCode(Response::S403_FORBIDDEN);
-            return $response;
-        }
-
-        $paramsProcessor = new ParamsProcessor($this->params());
-        $error = $paramsProcessor->isError();
-        if ($error) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Wrong request parameters [{$error}]."]);
-            $response->setHttpCode(Response::S400_BAD_REQUEST);
-            return $response;
-        }
-
-        $params = $paramsProcessor->getValues();
-
         $scenarioRow = $this->scenariosRepository->find((int)$params['id']);
 
         if (!$scenarioRow) {
