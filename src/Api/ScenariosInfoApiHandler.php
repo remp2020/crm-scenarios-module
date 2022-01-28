@@ -38,7 +38,7 @@ class ScenariosInfoApiHandler extends ApiHandler
         }
 
         $paramsProcessor = new ParamsProcessor($this->params());
-        $error = $paramsProcessor->isError();
+        $error = $paramsProcessor->hasError();
         if ($error) {
             $response = new JsonResponse(['status' => 'error', 'message' => "Wrong request parameters [{$error}]."]);
             $response->setHttpCode(Response::S400_BAD_REQUEST);
