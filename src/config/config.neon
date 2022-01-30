@@ -30,13 +30,13 @@ services:
 	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
 	generatedEventsRepository: Crm\ScenariosModule\Repository\GeneratedEventsRepository
 	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator
+	beforeRecurrentPaymentChargeEventGenerator: Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator
 
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler
-	- Crm\ScenariosModule\Api\ScenariosElementApiHandler
-	- Crm\ScenariosModule\Api\ScenariosTriggerApiHandler
 	- Crm\ScenariosModule\Api\ScenariosCriteriaHandler
 	- Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler
+	- Crm\ScenariosModule\Api\ScenariosStatsApiHandler
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
@@ -53,7 +53,7 @@ services:
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\AddressChangedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler
@@ -62,6 +62,8 @@ services:
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand
+	- Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand
+	- Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 

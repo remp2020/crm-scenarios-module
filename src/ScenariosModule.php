@@ -16,12 +16,15 @@ use Crm\ApplicationModule\SeederManager;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
 use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
+use Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand;
+use Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
 use Crm\ScenariosModule\Events\ABTestDistributeEventHandler;
 use Crm\ScenariosModule\Events\ABTestElementUpdatedHandler;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
+use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -40,7 +43,7 @@ use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
-use Crm\ScenariosModule\Events\TriggerHandlers\UserCreatedHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler;
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use League\Event\Emitter;
@@ -73,17 +76,6 @@ class ScenariosModule extends CrmModule
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
-            new ApiIdentifier('1', 'scenarios', 'element'),
-            \Crm\ScenariosModule\Api\ScenariosElementApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
-        ));
-        $apiRoutersContainer->attachRouter(new ApiRoute(
-            new ApiIdentifier('1', 'scenarios', 'trigger'),
-            \Crm\ScenariosModule\Api\ScenariosTriggerApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
-        ));
-
-        $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),
             ScenariosCriteriaHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
@@ -94,6 +86,11 @@ class ScenariosModule extends CrmModule
             ScenariosListGenericsApiHandler::class,
             \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
         ));
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'stats'),
+            \Crm\ScenariosModule\Api\ScenariosStatsApiHandler::class,
+            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+        ));
     }
 
     public function registerCommands(CommandsContainerInterface $commandsContainer)
@@ -101,11 +98,13 @@ class ScenariosModule extends CrmModule
         $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
         $commandsContainer->registerCommand($this->getInstance(TestUserCommand::class));
         $commandsContainer->registerCommand($this->getInstance(EventGeneratorCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(ScenariosStatsAggregatorCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(RemoveOldStatsDataCommand::class));
     }
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
     {
-        $dispatcher->registerHandler('user-created', $this->getInstance(UserCreatedHandler::class));
+        $dispatcher->registerHandler('user-registered', $this->getInstance(UserRegisteredHandler::class));
         $dispatcher->registerHandler('new-subscription', $this->getInstance(NewSubscriptionHandler::class));
         $dispatcher->registerHandler('subscription-ends', $this->getInstance(SubscriptionEndsHandler::class));
         $dispatcher->registerHandler('new-payment', $this->getInstance(NewPaymentHandler::class));
@@ -132,6 +131,7 @@ class ScenariosModule extends CrmModule
         $eventsStorage->register('test_user', TestUserEvent::class, true);
 
         $eventsStorage->registerEventGenerator('subscription_ends', $this->getInstance(SubscriptionEndsEventGenerator::class));
+        $eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
     }
 
     public function registerEventHandlers(Emitter $emitter)
