@@ -10,7 +10,7 @@ admin:
 			enable: Enable
 			disable: Disable
 		messages:
-			scenario_not_found: Selected scenario doesn't exist
+			scenario_not_found: "Selected scenario doesn't exist"
 			scenario_enabled: "Scenario <em>%name%</em> was enabled."
 			scenario_disabled: "Scenario <em>%name%</em> was disabled."
 		edit:
