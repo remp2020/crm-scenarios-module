@@ -1,24 +1,24 @@
 admin:
-	menu:
-		default: Scénáře
-	scenarios:
-		default:
-			title: Scénáře
-			new: Nový scénář
-			enabled: Zapnutý
-			disabled: Vypnutý
-			enable: Zapnout
-			disable: Vypnout
-		messages:
-			scenario_not_found: Vybraný scénář neexistuje
-			scenario_enabled: "Scénář <em>%name%</em> byl zapnutý"
-			scenario_disabled: "Scénář <em>%name%</em> byl vypnutý"
-		edit:
-			title: Editace scénáře
-		new:
-			title: Nový scénář
+    menu:
+        default: Scénáře
+    scenarios:
+        default:
+            title: Scénáře
+            new: Nový scénář
+            enabled: Zapnutý
+            disabled: Vypnutý
+            enable: Zapnout
+            disable: Vypnout
+        messages:
+            scenario_not_found: Vybraný scénář neexistuje
+            scenario_enabled: "Scénář <em>%name%</em> byl zapnutý"
+            scenario_disabled: "Scénář <em>%name%</em> byl vypnutý"
+        edit:
+            title: Editace scénáře
+        new:
+            title: Nový scénář
 data:
-	fields:
-		name: Jméno
-		created_at: Vytvořen
-		modified_at: Upraven
+    fields:
+        name: Jméno
+        created_at: Vytvořen
+        modified_at: Upraven
