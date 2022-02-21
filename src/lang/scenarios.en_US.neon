@@ -20,6 +20,5 @@ admin:
 data:
 	fields:
 		name: Name
-		enabled: Enabled
 		created_at: Created at
 		modified_at: Modified at
