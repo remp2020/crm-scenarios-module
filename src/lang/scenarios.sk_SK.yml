@@ -10,9 +10,9 @@ admin:
             enable: Zapnúť
             disable: Vypnúť
         messages:
-            scenario_not_found: Vybraný scenár neexistuje
-            scenario_enabled: "Scenár <em>%name%</em> bol zapnutý"
-            scenario_disabled: "Scenár <em>%name%</em> bol vypnutý"
+            scenario_not_found: Vybraný scenár neexistuje.
+            scenario_enabled: "Scenár <em>%name%</em> bol zapnutý."
+            scenario_disabled: "Scenár <em>%name%</em> bol vypnutý."
         edit:
             title: Editácia scenára
         new:
