@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\User\ReachChecker;
 use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
@@ -16,19 +17,23 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
 
     public const HERMES_MESSAGE_CODE = 'scenarios-send-push-notification';
 
-    private $emitter;
+    private Emitter $emitter;
 
-    private $usersRepository;
+    private UsersRepository $usersRepository;
+
+    private ReachChecker $reachChecker;
 
     public function __construct(
         JobsRepository $jobsRepository,
         Emitter $emitter,
-        UsersRepository $usersRepository
+        UsersRepository $usersRepository,
+        ReachChecker $reachChecker
     ) {
         parent::__construct($jobsRepository);
 
         $this->emitter = $emitter;
         $this->usersRepository = $usersRepository;
+        $this->reachChecker = $reachChecker;
     }
 
     public function handle(MessageInterface $message): bool
@@ -53,6 +58,11 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
         $user = $this->usersRepository->find($parameters->user_id);
         if (!$user) {
             $this->jobError($job, 'no user with given user_id found');
+            return true;
+        }
+        // Not sending notification to people who are/should be not reachable
+        if (!$this->reachChecker->isReachable($user)) {
+            $this->jobsRepository->finishJob($job);
             return true;
         }
 
