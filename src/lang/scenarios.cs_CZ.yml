@@ -10,9 +10,9 @@ admin:
             enable: Zapnout
             disable: Vypnout
         messages:
-            scenario_not_found: Vybraný scénář neexistuje
-            scenario_enabled: "Scénář <em>%name%</em> byl zapnutý"
-            scenario_disabled: "Scénář <em>%name%</em> byl vypnutý"
+            scenario_not_found: Vybraný scénář neexistuje.
+            scenario_enabled: "Scénář <em>%name%</em> byl zapnutý."
+            scenario_disabled: "Scénář <em>%name%</em> byl vypnutý."
         edit:
             title: Editace scénáře
         new:
