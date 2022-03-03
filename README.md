@@ -1,5 +1,6 @@
 # CRM Scenarios Module
 
+[![Translation status @ Weblate](https://hosted.weblate.org/widgets/remp-crm/-/scenarios-module/svg-badge.svg)](https://hosted.weblate.org/projects/remp-crm/scenarios-module/)
 
 Scenarios module main feature is a scenario builder, a tool for modeling scenarios within CRM system using drag-and-drop UI toolkit. 
 Each scenario is visually represented by a graph, connecting various events (e.g. user registration, subscription) 

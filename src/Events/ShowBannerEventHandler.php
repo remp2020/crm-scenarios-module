@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Events;
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\User\ReachChecker;
 use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
@@ -13,18 +14,22 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
 {
     public const HERMES_MESSAGE_CODE = 'scenarios-show-banner';
 
-    private $usersRepository;
+    private UsersRepository $usersRepository;
 
-    private $emitter;
+    private Emitter $emitter;
+
+    private ReachChecker $reachChecker;
 
     public function __construct(
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
-        Emitter $emitter
+        Emitter $emitter,
+        ReachChecker $reachChecker
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
         $this->emitter = $emitter;
+        $this->reachChecker = $reachChecker;
     }
 
     public function handle(MessageInterface $message): bool
@@ -45,6 +50,11 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
         $user = $this->usersRepository->find($parameters->user_id);
         if (!$user) {
             $this->jobError($job, 'no user with given user_id found');
+            return true;
+        }
+        // Not showing banner to people who are/should be not reachable
+        if (!$this->reachChecker->isReachable($user)) {
+            $this->jobsRepository->finishJob($job);
             return true;
         }
 
