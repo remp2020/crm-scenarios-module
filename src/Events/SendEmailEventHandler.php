@@ -10,6 +10,7 @@ use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\User\ReachChecker;
 use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
@@ -20,17 +21,19 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
     public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
 
-    private $usersRepository;
+    private UsersRepository $usersRepository;
 
-    private $emitter;
+    private Emitter $emitter;
 
-    private $subscriptionsRepository;
+    private SubscriptionsRepository $subscriptionsRepository;
 
-    private $paymentsRepository;
+    private PaymentsRepository $paymentsRepository;
 
-    private $recurrentPaymentsRepository;
+    private RecurrentPaymentsRepository $recurrentPaymentsRepository;
 
-    private $recurrentPaymentsResolver;
+    private RecurrentPaymentsResolver $recurrentPaymentsResolver;
+
+    private ReachChecker $reachChecker;
 
     public function __construct(
         Emitter $emitter,
@@ -39,7 +42,8 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         SubscriptionsRepository $subscriptionsRepository,
         RecurrentPaymentsRepository $recurrentPaymentsRepository,
         PaymentsRepository $paymentsRepository,
-        RecurrentPaymentsResolver $recurrentPaymentsResolver
+        RecurrentPaymentsResolver $recurrentPaymentsResolver,
+        ReachChecker $reachChecker
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -48,6 +52,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $this->paymentsRepository = $paymentsRepository;
         $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
         $this->recurrentPaymentsResolver = $recurrentPaymentsResolver;
+        $this->reachChecker = $reachChecker;
     }
 
     public function handle(MessageInterface $message): bool
@@ -70,8 +75,8 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             $this->jobError($job, 'no user with given user_id found');
             return true;
         }
-        // Not sending email to inactive user
-        if (!$user->active) {
+        // Not sending email to people who aren't/shouldn't be reachable
+        if (!$this->reachChecker->isReachable($user)) {
             $this->jobsRepository->finishJob($job);
             return true;
         }
