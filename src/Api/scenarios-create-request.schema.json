@@ -1,0 +1,28 @@
+{
+    "$id": "https://example.com/post.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Description",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "triggers", "elements", "visual"],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "triggers": {
+            "type": "object"
+        },
+        "elements": {
+            "type": "object"
+        },
+        "visual": {
+            "type": "object"
+        },
+        "id": {
+            "type": "integer"
+        },
+        "enabled": {
+            "type": "number"
+        }
+    }
+}

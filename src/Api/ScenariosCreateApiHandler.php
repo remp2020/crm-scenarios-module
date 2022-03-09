@@ -4,19 +4,18 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
 use Crm\ApiModule\Api\JsonResponse;
-use Crm\ApiModule\Params\InputParam;
-use Crm\ApiModule\Params\ParamsProcessor;
+use Crm\ApiModule\Api\JsonValidationTrait;
 use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Repository\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;
 use Nette\Http\Response;
-use Nette\Utils\Json;
-use Nette\Utils\JsonException;
 use Tracy\Debugger;
 
 class ScenariosCreateApiHandler extends ApiHandler
 {
+    use JsonValidationTrait;
+
     private $request;
 
     private $scenariosRepository;
@@ -31,14 +30,7 @@ class ScenariosCreateApiHandler extends ApiHandler
 
     public function params(): array
     {
-        return [
-            new InputParam(InputParam::TYPE_POST, 'name', InputParam::REQUIRED),
-            new InputParam(InputParam::TYPE_POST, 'triggers', InputParam::REQUIRED),
-            new InputParam(InputParam::TYPE_POST, 'elements', InputParam::REQUIRED),
-            new InputParam(InputParam::TYPE_POST, 'visual', InputParam::REQUIRED),
-            new InputParam(InputParam::TYPE_POST, 'id', InputParam::OPTIONAL),
-            new InputParam(InputParam::TYPE_POST, 'enabled', InputParam::OPTIONAL),
-        ];
+        return [];
     }
 
     public function handle(array $params): ApiResponseInterface
@@ -61,35 +53,19 @@ class ScenariosCreateApiHandler extends ApiHandler
             return $response;
         }
 
-        try {
-            $body = Json::decode($this->request->getRawBody());
-        } catch (JsonException $e) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Malformed JSON: " . $e->getMessage()]);
-            $response->setHttpCode(Response::S400_BAD_REQUEST);
-            return $response;
+        $requestValidationResult = $this->validateInput(
+            __DIR__ . '/scenarios-create-request.schema.json',
+            $this->rawPayload()
+        );
+
+        if ($requestValidationResult->hasErrorResponse()) {
+            return $requestValidationResult->getErrorResponse();
         }
 
-        $_POST['id'] = $body->id ?? null;
-        $_POST['name'] = $body->name ?? null;
-        $_POST['triggers'] = $body->triggers ?? null;
-        $_POST['elements'] = $body->elements ?? null;
-        $_POST['visual'] = $body->visual ?? null;
-        if (isset($body->enabled)) {
-            $_POST['enabled'] = $body->enabled;
-        }
-
-        $paramsProcessor = new ParamsProcessor($this->params());
-        $error = $paramsProcessor->hasError();
-        if ($error) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Wrong request parameters [{$error}]."]);
-            $response->setHttpCode(Response::S400_BAD_REQUEST);
-            return $response;
-        }
-
-        $params = $paramsProcessor->getValues();
+        $data = (array)$requestValidationResult->getParsedObject();
 
         try {
-            $scenario = $this->scenariosRepository->createOrUpdate($params);
+            $scenario = $this->scenariosRepository->createOrUpdate($data);
         } catch (ScenarioInvalidDataException $exception) {
             $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
             $response->setHttpCode(Response::S409_CONFLICT);
@@ -102,7 +78,7 @@ class ScenariosCreateApiHandler extends ApiHandler
         }
 
         if (!$scenario) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Scenario with provided ID [{$params['id']}] not found."]);
+            $response = new JsonResponse(['status' => 'error', 'message' => "Scenario with provided ID [{$data['id']}] not found."]);
             $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }
