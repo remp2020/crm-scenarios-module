@@ -9,7 +9,6 @@ use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Application\BadRequestException;
-use Nette\Application\LinkGenerator;
 
 class ScenariosAdminPresenter extends AdminPresenter
 {
@@ -17,20 +16,14 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     private $internalToken;
 
-    private $bannerEnabled;
-
-    private $linkGenerator;
-
     public function __construct(
         ScenariosRepository $scenariosRepository,
-        InternalToken $internalToken,
-        LinkGenerator $linkGenerator
+        InternalToken $internalToken
     ) {
         parent::__construct();
 
         $this->scenariosRepository = $scenariosRepository;
         $this->internalToken = $internalToken;
-        $this->linkGenerator = $linkGenerator;
     }
 
     /**
