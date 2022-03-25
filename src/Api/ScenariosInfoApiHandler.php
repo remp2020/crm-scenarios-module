@@ -3,12 +3,12 @@
 namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
-use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Params\InputParam;
 use Crm\ApiModule\Params\ParamsProcessor;
-use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Response;
+use Tomaj\NetteApi\Response\JsonApiResponse;
+use Tomaj\NetteApi\Response\ResponseInterface;
 
 class ScenariosInfoApiHandler extends ApiHandler
 {
@@ -27,21 +27,19 @@ class ScenariosInfoApiHandler extends ApiHandler
         ];
     }
 
-    public function handle(array $params): ApiResponseInterface
+    public function handle(array $params): ResponseInterface
     {
         $authorization = $this->getAuthorization();
         $data = $authorization->getAuthorizedData();
         if (!isset($data['token'])) {
-            $response = new JsonResponse(['status' => 'error', 'message' => 'Cannot authorize user']);
-            $response->setHttpCode(Response::S403_FORBIDDEN);
+            $response = new JsonApiResponse(Response::S403_FORBIDDEN, ['status' => 'error', 'message' => 'Cannot authorize user']);
             return $response;
         }
 
         $paramsProcessor = new ParamsProcessor($this->params());
         $error = $paramsProcessor->hasError();
         if ($error) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Wrong request parameters [{$error}]."]);
-            $response->setHttpCode(Response::S400_BAD_REQUEST);
+            $response = new JsonApiResponse(Response::S400_BAD_REQUEST, ['status' => 'error', 'message' => "Wrong request parameters [{$error}]."]);
             return $response;
         }
 
@@ -50,19 +48,16 @@ class ScenariosInfoApiHandler extends ApiHandler
         try {
             $result = $this->scenariosRepository->getScenario((int)$params['id']);
         } catch (\Exception $exception) {
-            $response = new JsonResponse(['status' => 'error', 'message' => $exception->getMessage()]);
-            $response->setHttpCode(Response::S500_INTERNAL_SERVER_ERROR);
+            $response = new JsonApiResponse(Response::S500_INTERNAL_SERVER_ERROR, ['status' => 'error', 'message' => $exception->getMessage()]);
             return $response;
         }
 
         if (!$result) {
-            $response = new JsonResponse(['status' => 'error', 'message' => "Scenario with ID [{$params['id']}] not found."]);
-            $response->setHttpCode(Response::S404_NOT_FOUND);
+            $response = new JsonApiResponse(Response::S404_NOT_FOUND, ['status' => 'error', 'message' => "Scenario with ID [{$params['id']}] not found."]);
             return $response;
         }
 
-        $response = new JsonResponse($result);
-        $response->setHttpCode(Response::S200_OK);
+        $response = new JsonApiResponse(Response::S200_OK, $result);
         return $response;
     }
 }

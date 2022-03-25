@@ -3,9 +3,7 @@
 namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
-use Crm\ApiModule\Api\JsonResponse;
 use Crm\ApiModule\Params\InputParam;
-use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
@@ -15,6 +13,8 @@ use Nette\Database\Table\ActiveRow;
 use Nette\Http\Response;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
+use Tomaj\NetteApi\Response\JsonApiResponse;
+use Tomaj\NetteApi\Response\ResponseInterface;
 
 class ScenariosStatsApiHandler extends ApiHandler
 {
@@ -50,23 +50,21 @@ class ScenariosStatsApiHandler extends ApiHandler
         ];
     }
 
-    public function handle(array $params): ApiResponseInterface
+    public function handle(array $params): ResponseInterface
     {
         $scenarioRow = $this->scenariosRepository->find((int)$params['id']);
 
         if (!$scenarioRow) {
-            $response = new JsonResponse([
+            $response = new JsonApiResponse(Response::S404_NOT_FOUND, [
                 'status' => 'error',
                 'message' => "Scenario with ID [{$params['id']}] not found."
             ]);
-            $response->setHttpCode(Response::S404_NOT_FOUND);
             return $response;
         }
 
         $statistics = $this->getTriggerStatistics($scenarioRow) + $this->getElementsStatistics($scenarioRow);
 
-        $response = new JsonResponse(['statistics' => $statistics]);
-        $response->setHttpCode(Response::S200_OK);
+        $response = new JsonApiResponse(Response::S200_OK, ['statistics' => $statistics]);
         return $response;
     }
 

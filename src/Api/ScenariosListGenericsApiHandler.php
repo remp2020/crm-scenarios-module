@@ -3,10 +3,10 @@
 namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Api\ApiHandler;
-use Crm\ApiModule\Api\JsonResponse;
-use Crm\ApiModule\Response\ApiResponseInterface;
 use Crm\ScenariosModule\Events\ScenariosGenericEventsManager;
 use Nette\Http\Response;
+use Tomaj\NetteApi\Response\JsonApiResponse;
+use Tomaj\NetteApi\Response\ResponseInterface;
 
 class ScenariosListGenericsApiHandler extends ApiHandler
 {
@@ -22,7 +22,7 @@ class ScenariosListGenericsApiHandler extends ApiHandler
         return [];
     }
 
-    public function handle(array $params): ApiResponseInterface
+    public function handle(array $params): ResponseInterface
     {
         $events = [];
         foreach ($this->manager->getAllRegisteredEvents() as $code => $event) {
@@ -38,8 +38,7 @@ class ScenariosListGenericsApiHandler extends ApiHandler
             ];
         }
 
-        $response = new JsonResponse($events);
-        $response->setHttpCode(Response::S200_OK);
+        $response = new JsonApiResponse(Response::S200_OK, $events);
         return $response;
     }
 }
