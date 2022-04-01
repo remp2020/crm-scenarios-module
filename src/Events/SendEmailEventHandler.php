@@ -70,17 +70,6 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $user = $this->usersRepository->find($parameters->user_id);
-        if (!$user) {
-            $this->jobError($job, 'no user with given user_id found');
-            return true;
-        }
-        // Not sending email to people who aren't/shouldn't be reachable
-        if (!$this->reachChecker->isReachable($user)) {
-            $this->jobsRepository->finishJob($job);
-            return true;
-        }
-
         $element = $job->ref('scenarios_elements', 'element_id');
         if (!$element) {
             $this->jobError($job, 'no associated element');
@@ -90,6 +79,17 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $options = Json::decode($element->options);
         if (!isset($options->code)) {
             $this->jobError($job, 'missing code option in associated element');
+            return true;
+        }
+
+        $user = $this->usersRepository->find($parameters->user_id);
+        if (!$user) {
+            $this->jobError($job, 'no user with given user_id found');
+            return true;
+        }
+        // Not sending email to people who aren't/shouldn't be reachable
+        if (!$this->reachChecker->isReachable($user)) {
+            $this->jobsRepository->finishJob($job);
             return true;
         }
 

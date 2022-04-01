@@ -47,17 +47,6 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $user = $this->usersRepository->find($parameters->user_id);
-        if (!$user) {
-            $this->jobError($job, 'no user with given user_id found');
-            return true;
-        }
-        // Not showing banner to people who are/should be not reachable
-        if (!$this->reachChecker->isReachable($user)) {
-            $this->jobsRepository->finishJob($job);
-            return true;
-        }
-
         $element = $job->ref('scenarios_elements', 'element_id');
         if (!$element) {
             $this->jobError($job, 'no associated element');
@@ -71,6 +60,17 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
         }
         if (!isset($options->expiresInMinutes)) {
             $this->jobError($job, 'missing expiresInMinutes option in associated element');
+            return true;
+        }
+
+        $user = $this->usersRepository->find($parameters->user_id);
+        if (!$user) {
+            $this->jobError($job, 'no user with given user_id found');
+            return true;
+        }
+        // Not showing banner to people who are/should be not reachable
+        if (!$this->reachChecker->isReachable($user)) {
+            $this->jobsRepository->finishJob($job);
             return true;
         }
 

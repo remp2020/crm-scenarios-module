@@ -55,17 +55,6 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $user = $this->usersRepository->find($parameters->user_id);
-        if (!$user) {
-            $this->jobError($job, 'no user with given user_id found');
-            return true;
-        }
-        // Not sending notification to people who are/should be not reachable
-        if (!$this->reachChecker->isReachable($user)) {
-            $this->jobsRepository->finishJob($job);
-            return true;
-        }
-
         $element = $job->ref('scenarios_elements', 'element_id');
         if (!$element) {
             $this->jobError($job, 'no associated element');
@@ -75,6 +64,17 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
         $options = Json::decode($element->options);
         if (!isset($options->application, $options->template)) {
             $this->jobError($job, "missing 'application' or 'template' option in associated element");
+            return true;
+        }
+
+        $user = $this->usersRepository->find($parameters->user_id);
+        if (!$user) {
+            $this->jobError($job, 'no user with given user_id found');
+            return true;
+        }
+        // Not sending notification to people who are/should be not reachable
+        if (!$this->reachChecker->isReachable($user)) {
+            $this->jobsRepository->finishJob($job);
             return true;
         }
 
