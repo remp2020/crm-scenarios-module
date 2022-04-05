@@ -20,6 +20,12 @@ class FinishWaitEventHandler extends ScenariosJobsHandler
             return true;
         }
 
+        $element = $job->ref('scenarios_elements', 'element_id');
+        if (!$element) {
+            $this->jobError($job, 'no associated element');
+            return true;
+        }
+
         $this->jobsRepository->finishJob($job);
         return true;
     }
