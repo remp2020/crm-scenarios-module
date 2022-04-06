@@ -93,7 +93,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         $templateCode = $options->code;
 

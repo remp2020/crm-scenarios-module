@@ -74,7 +74,7 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         $bannerId = $options->id;
         $expiresInMinutes = (int) $options->expiresInMinutes;

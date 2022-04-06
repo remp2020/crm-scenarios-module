@@ -83,7 +83,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         try {
             switch ($segmentRow->table_name) {

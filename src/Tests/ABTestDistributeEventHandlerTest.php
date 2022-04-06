@@ -64,7 +64,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         // Prepare element and schedule job
         $scenarioElementRow = $this->prepareScenarioElementWithTrigger($variants);
         $scenarioJobRow = $this->scenarioJobsRepository->addElement($scenarioElementRow->id, ['user_id' => $this->userRow->id]);
-        $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
+        $scenarioJobRow = $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
 
         $message = ABTestDistributeEventHandler::createHermesMessage($scenarioJobRow->id);
 
@@ -103,7 +103,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         // Prepare element and schedule job
         $scenarioElementRow = $this->prepareScenarioElementWithTrigger($variants);
         $scenarioJobRow = $this->scenarioJobsRepository->addElement($scenarioElementRow->id, ['user_id' => $this->userRow->id]);
-        $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
+        $scenarioJobRow = $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
 
         $message = ABTestDistributeEventHandler::createHermesMessage($scenarioJobRow->id);
 
@@ -116,7 +116,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
 
         // schedule new job with same element
         $scenarioJobRow = $this->scenarioJobsRepository->addElement($scenarioElementRow->id, ['user_id' => $this->userRow->id]);
-        $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
+        $scenarioJobRow = $this->scenarioJobsRepository->scheduleJob($scenarioJobRow);
 
         $message = ABTestDistributeEventHandler::createHermesMessage($scenarioJobRow->id);
         $ABTestDistributeHandler->handle($message);

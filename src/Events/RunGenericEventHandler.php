@@ -72,7 +72,7 @@ class RunGenericEventHandler extends ScenariosJobsHandler
             }
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         try {
             $genericEvent = $this->genericEventHandlerManager->getByCode($options->code);

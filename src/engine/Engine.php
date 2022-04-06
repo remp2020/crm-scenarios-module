@@ -33,10 +33,10 @@ class Engine
 
     // 50000us = 50ms = 0.05s
     private $minSleepTime = 50000; // in microseconds
-    
+
     // 1s
     private $maxSleepTime = 1000000; // in microseconds
-    
+
     private $minGraphReloadDelay = 60; // in seconds
 
     private $logger;
@@ -87,7 +87,7 @@ class Engine
     {
         $this->shutdown = $shutdown;
     }
-    
+
     public function run(?int $times = null): void
     {
         $this->logger->log(LogLevel::INFO, 'Scenarios engine started');
@@ -131,7 +131,7 @@ class Engine
                         // do not increase iterations without upper bound to avoid overflow
                         $emptyIterationCounter = max(0, $emptyIterationCounter-1);
                     }
-                    
+
                     usleep($sleepTime);
                     if ($this->shutdown && $this->shutdown->shouldShutdown($this->startTime)) {
                         throw new ShutdownException('Shutdown');
@@ -161,7 +161,7 @@ class Engine
         if ($attempt >= log($this->maxSleepTime/$this->minSleepTime, $exp)) {
             return [$this->maxSleepTime, true];
         }
-        
+
         $delay = min($this->maxSleepTime, (int)floor($exp ** $attempt) * $this->minSleepTime);
         return [$delay, false];
     }
@@ -239,42 +239,42 @@ class Engine
         try {
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(OnboardingGoalsCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_EMAIL:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendEmailEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_BANNER:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(ShowBannerEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GENERIC:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(RunGenericEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_CONDITION:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(ConditionCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SegmentCheckEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_WAIT:
                     if (!isset($options['minutes'])) {
                         throw new InvalidJobException("Associated job element has no 'minutes' option");
                     }
-                    $this->jobsRepository->startJob($job);
+                    $job = $this->jobsRepository->startJob($job);
                     $this->hermesEmitter->emit(FinishWaitEventHandler::createHermesMessage($job->id, (int) $options['minutes']), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(SendPushNotificationEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 case ElementsRepository::ELEMENT_TYPE_ABTEST:
-                    $this->jobsRepository->scheduleJob($job);
+                    $job = $this->jobsRepository->scheduleJob($job);
                     $this->hermesEmitter->emit(ABTestDistributeEventHandler::createHermesMessage($job->id), HermesMessage::PRIORITY_DEFAULT);
                     break;
                 default:

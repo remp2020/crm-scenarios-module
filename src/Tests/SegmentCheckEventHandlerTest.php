@@ -248,7 +248,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         /** @var JobsRepository $scenarioJobsRepository */
         $scenarioJobsRepository = $this->getRepository(JobsRepository::class);
         $scenarioJobRow = $scenarioJobsRepository->addElement($scenarioElementRow->id, $scenarioJobParameters);
-        $scenarioJobsRepository->scheduleJob($scenarioJobRow);
+        $scenarioJobRow = $scenarioJobsRepository->scheduleJob($scenarioJobRow);
 
         return $scenarioJobRow;
     }

@@ -97,15 +97,16 @@ class JobsRepository extends Repository
         return parent::update($row, $data);
     }
 
-    final public function startJob(ActiveRow &$row)
+    final public function startJob(ActiveRow $row): ActiveRow
     {
         $this->update($row, [
             'state' => self::STATE_STARTED,
             'started_at' => new DateTime(),
         ]);
+        return $row;
     }
 
-    final public function finishJob(ActiveRow &$row, bool $recordStats = true)
+    final public function finishJob(ActiveRow $row, bool $recordStats = true): ActiveRow
     {
         $this->update($row, [
             'state' => self::STATE_FINISHED,
@@ -114,13 +115,15 @@ class JobsRepository extends Repository
         if ($recordStats) {
             $this->elementStatsRepository->add($row->element_id, ElementStatsRepository::STATE_FINISHED);
         }
+        return $row;
     }
 
-    final public function scheduleJob(ActiveRow &$row)
+    final public function scheduleJob(ActiveRow $row): ActiveRow
     {
         $this->update($row, [
             'state' => self::STATE_SCHEDULED,
         ]);
+        return $row;
     }
 
     final public function getAllJobs()

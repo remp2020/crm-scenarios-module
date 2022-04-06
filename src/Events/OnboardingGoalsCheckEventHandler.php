@@ -95,7 +95,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         try {
             $onboardingGoalsIds = $this->loadOnboardingGoals($options->codes);
@@ -141,7 +141,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
 
         // If goals are not completed, reschedule another check
-        $this->jobsRepository->scheduleJob($job);
+        $job = $this->jobsRepository->scheduleJob($job);
         $this->hermesEmitter->emit(self::createHermesMessage($job->id, (int) $options->recheckPeriodMinutes));
         return true;
     }

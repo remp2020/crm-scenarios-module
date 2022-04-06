@@ -64,7 +64,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $this->jobsRepository->startJob($job);
+        $job = $this->jobsRepository->startJob($job);
 
         try {
             $selectedVariantRow = $this->selectedVariantRepository->findByUserAndElement($userRow, $element);
