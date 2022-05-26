@@ -50,9 +50,11 @@ class ReconstructWaitEventsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $now = new DateTime();
         $jobsQuery = $this->jobsRepository->getTable()
             ->where('state = ?', JobsRepository::STATE_STARTED)
             ->where('element.type = ?', ElementsRepository::ELEMENT_TYPE_WAIT)
+            ->where('created_at < ?', $now)
             ->order('scenarios_jobs.id ASC');
 
         if ($startedAtFrom = $input->getOption('started_at_from')) {
