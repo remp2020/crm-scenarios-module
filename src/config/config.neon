@@ -64,6 +64,7 @@ services:
 	- Crm\ScenariosModule\Commands\TestUserCommand
 	- Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand
 	- Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand
+	- Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand
 
 	- Crm\ScenariosModule\Engine\Dispatcher
 

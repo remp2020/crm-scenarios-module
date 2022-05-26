@@ -16,6 +16,7 @@ use Crm\ApplicationModule\SeederManager;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
 use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
+use Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand;
 use Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand;
 use Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
@@ -100,6 +101,7 @@ class ScenariosModule extends CrmModule
         $commandsContainer->registerCommand($this->getInstance(EventGeneratorCommand::class));
         $commandsContainer->registerCommand($this->getInstance(ScenariosStatsAggregatorCommand::class));
         $commandsContainer->registerCommand($this->getInstance(RemoveOldStatsDataCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(ReconstructWaitEventsCommand::class));
     }
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
