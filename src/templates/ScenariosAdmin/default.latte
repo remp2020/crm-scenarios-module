@@ -1,4 +1,4 @@
-{block #title}{_scenarios.admin.scenarios.default.title}{/block}
+{block #title}{_'scenarios.admin.scenarios.default.title'}{/block}
 
 {block #content}
 
@@ -6,13 +6,13 @@
 
   <div class="col-md-12">
     <h1>
-      {_scenarios.admin.scenarios.default.title}
+      {_'scenarios.admin.scenarios.default.title'}
       <small>
         / {_system.total} {$filteredCount}
       </small>
       <a n:href="new" class="btn btn-success btn-lg pull-right"><i
                 class="fa fa-sliders-h"></i>
-        {_scenarios.admin.scenarios.default.new}
+        {_'scenarios.admin.scenarios.default.new'}
       </a>
     </h1>
     <hr>
@@ -35,9 +35,9 @@
               <a n:href="Edit $scenario->id">{$scenario->name}</a>
 
               {if $scenario->enabled}
-                <label class="label label-success">{_scenarios.admin.scenarios.default.enabled}</label>
+                <label class="label label-success">{_'scenarios.admin.scenarios.default.enabled'}</label>
               {else}
-                <label class="label label-default">{_scenarios.admin.scenarios.default.disabled}</label>
+                <label class="label label-default">{_'scenarios.admin.scenarios.default.disabled'}</label>
               {/if}
             </td>
             <td>{$scenario->created_at|userDate}</td>
@@ -49,11 +49,11 @@
                 </a>
 
                 {if $scenario->enabled}
-                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-success" title="{_scenarios.admin.scenarios.default.disable}">
+                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-success" title="{_'scenarios.admin.scenarios.default.disable'}">
                     <i class="fa fa-stop"></i>
                   </a>
                 {else}
-                  <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_scenarios.admin.scenarios.default.enable}">
+                  <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.enable'}">
                     <i class="fa fa-play"></i>
                   </a>
                 {/if}
