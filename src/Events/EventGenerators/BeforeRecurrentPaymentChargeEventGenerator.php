@@ -11,6 +11,8 @@ use Nette\Utils\DateTime;
 
 class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterface
 {
+    public const BEFORE_EVENT_CODE = 'before_recurrent_payment_charge';
+
     private RecurrentPaymentsRepository $recurrentPaymentsRepository;
 
     public function __construct(

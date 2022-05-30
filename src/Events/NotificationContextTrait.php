@@ -14,8 +14,12 @@ trait NotificationContextTrait
         $notificationContextData = [];
         if ($job->context) {
             $jobContext = Json::decode($job->context, Json::FORCE_ARRAY);
+
             $contextMessageHermesType = $jobContext[JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE] ?? null;
             $notificationContextData[NotificationContext::HERMES_MESSAGE_TYPE] = $contextMessageHermesType;
+
+            $contextBeforeEvent = $jobContext[JobsRepository::CONTEXT_BEFORE_EVENT] ?? null;
+            $notificationContextData[NotificationContext::BEFORE_EVENT] = $contextBeforeEvent;
         }
         return new NotificationContext($notificationContextData);
     }

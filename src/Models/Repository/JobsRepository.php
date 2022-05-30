@@ -18,6 +18,7 @@ class JobsRepository extends Repository
     const STATE_FAILED = 'failed';
 
     const CONTEXT_HERMES_MESSAGE_TYPE = 'hermes_message_type';
+    const CONTEXT_BEFORE_EVENT = 'before_event';
 
     final public static function allStates(): array
     {

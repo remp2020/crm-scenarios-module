@@ -11,6 +11,8 @@ use Nette\Utils\DateTime;
 
 class SubscriptionEndsEventGenerator implements EventGeneratorInterface
 {
+    public const BEFORE_EVENT_CODE = 'subscription_ends';
+
     private $subscriptionsRepository;
 
     public function __construct(SubscriptionsRepository $subscriptionsRepository)

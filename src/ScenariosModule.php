@@ -132,8 +132,8 @@ class ScenariosModule extends CrmModule
     {
         $eventsStorage->register('test_user', TestUserEvent::class, true);
 
-        $eventsStorage->registerEventGenerator('subscription_ends', $this->getInstance(SubscriptionEndsEventGenerator::class));
-        $eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
+        $eventsStorage->registerEventGenerator(SubscriptionEndsEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(SubscriptionEndsEventGenerator::class));
+        $eventsStorage->registerEventGenerator(BeforeRecurrentPaymentChargeEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
     }
 
     public function registerEventHandlers(Emitter $emitter)
