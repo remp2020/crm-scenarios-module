@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Presenters;
 
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ApiModule\Token\InternalToken;
-use Crm\ApplicationModule\Components\VisualPaginator;
+use Crm\ApplicationModule\Components\PreviousNextPaginator;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
@@ -31,18 +31,17 @@ class ScenariosAdminPresenter extends AdminPresenter
      */
     public function renderDefault()
     {
-        $products = $this->scenariosRepository->all();
+        $scenarios = $this->scenariosRepository->all();
 
-        $filteredCount = $this->template->filteredCount = $products->count('*');
-
-        $vp = new VisualPaginator();
-        $this->addComponent($vp, 'scenarios_vp');
-        $paginator = $vp->getPaginator();
-        $paginator->setItemCount($filteredCount);
+        $pnp = new PreviousNextPaginator();
+        $this->addComponent($pnp, 'paginator');
+        $paginator = $pnp->getPaginator();
         $paginator->setItemsPerPage($this->onPage);
 
-        $this->template->vp = $vp;
-        $this->template->scenarios = $products->limit($paginator->getLength(), $paginator->getOffset());
+        $scenarios = $scenarios->limit($paginator->getLength(), $paginator->getOffset())->fetchAll();
+        $pnp->setActualItemCount(count($scenarios));
+
+        $this->template->scenarios = $scenarios;
     }
 
     /**

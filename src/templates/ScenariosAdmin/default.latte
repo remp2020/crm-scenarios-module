@@ -7,9 +7,7 @@
   <div class="col-md-12">
     <h1>
       {_'scenarios.admin.scenarios.default.title'}
-      <small>
-        / {_system.total} {$filteredCount}
-      </small>
+
       <a n:href="new" class="btn btn-success btn-lg pull-right"><i
                 class="fa fa-sliders-h"></i>
         {_'scenarios.admin.scenarios.default.new'}
@@ -64,7 +62,7 @@
       </tbody>
     </table>
 
-    {control scenarios_vp}
+    {control paginator}
   </div>
 
 </div>
