@@ -31,6 +31,7 @@ class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterf
         return array_map(function (ActiveRow $recurrentPaymentRow) {
             $parameters['recurrent_payment_id'] = $recurrentPaymentRow->id;
             $parameters['subscription_type_id'] = $recurrentPaymentRow->subscription_type_id;
+            $parameters['subscription_id'] = $recurrentPaymentRow->parent_payment->subscription_id ?? null;
 
             return new BeforeEvent($recurrentPaymentRow->id, $recurrentPaymentRow->user_id, $parameters);
         }, $this->recurrentPaymentsRepository->activeFirstChargeBetween($endTimeFrom, $endTimeTo)->fetchAll());
