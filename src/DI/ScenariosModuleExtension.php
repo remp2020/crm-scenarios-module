@@ -2,10 +2,10 @@
 
 namespace Crm\ScenariosModule\DI;
 
-use Kdyby\Translation\DI\ITranslationProvider;
+use Contributte\Translation\DI\TranslationProviderInterface;
 use Nette\DI\CompilerExtension;
 
-final class ScenariosModuleExtension extends CompilerExtension implements ITranslationProvider
+final class ScenariosModuleExtension extends CompilerExtension implements TranslationProviderInterface
 {
     public function loadConfiguration()
     {
@@ -27,7 +27,7 @@ final class ScenariosModuleExtension extends CompilerExtension implements ITrans
      * Return array of directories, that contain resources for translator.
      * @return string[]
      */
-    public function getTranslationResources()
+    public function getTranslationResources(): array
     {
         return [__DIR__ . '/../lang/'];
     }

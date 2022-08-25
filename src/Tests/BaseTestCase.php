@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Tests;
 
+use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
@@ -44,7 +45,6 @@ use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Events\UserRegisteredEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\Tests\TestNotificationHandler;
-use Kdyby\Translation\Translator;
 use League\Event\Emitter;
 use Tomaj\Hermes\Dispatcher;
 

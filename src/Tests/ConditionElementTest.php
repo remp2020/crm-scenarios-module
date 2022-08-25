@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Tests;
 
+use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\PaymentsModule\Gateways\Paypal;
 use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
@@ -20,7 +21,6 @@ use Crm\SubscriptionsModule\SubscriptionsModule;
 use Crm\UsersModule\Auth\Permissions;
 use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\UsersModule;
-use Kdyby\Translation\Translator;
 use Nette\Security\User;
 use Nette\Utils\DateTime;
 
