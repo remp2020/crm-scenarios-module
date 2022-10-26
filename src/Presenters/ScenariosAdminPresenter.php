@@ -4,7 +4,6 @@ namespace Crm\ScenariosModule\Presenters;
 
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ApiModule\Token\InternalToken;
-use Crm\ApplicationModule\Components\PreviousNextPaginator;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
@@ -31,17 +30,11 @@ class ScenariosAdminPresenter extends AdminPresenter
      */
     public function renderDefault()
     {
-        $scenarios = $this->scenariosRepository->all();
-
-        $pnp = new PreviousNextPaginator();
-        $this->addComponent($pnp, 'paginator');
-        $paginator = $pnp->getPaginator();
-        $paginator->setItemsPerPage($this->onPage);
-
-        $scenarios = $scenarios->limit($paginator->getLength(), $paginator->getOffset())->fetchAll();
-        $pnp->setActualItemCount(count($scenarios));
+        $scenarios = $this->scenariosRepository->all(deleted: false);
+        $deletedScenarios = $this->scenariosRepository->all(deleted: true);
 
         $this->template->scenarios = $scenarios;
+        $this->template->deletedScenarios = $deletedScenarios;
     }
 
     /**
@@ -99,7 +92,7 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->flashMessage($this->translator->translate(
             'scenarios.admin.scenarios.messages.scenario_enabled',
             [
-                '%name%' => $scenario->name,
+                'name' => $scenario->name,
             ]
         ));
         $this->redirect('default');
@@ -118,7 +111,49 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->flashMessage($this->translator->translate(
             'scenarios.admin.scenarios.messages.scenario_disabled',
             [
-                '%name%' => $scenario->name,
+                'name' => $scenario->name,
+            ]
+        ));
+        $this->redirect('default');
+    }
+
+    /**
+     * @admin-access-level write
+     */
+    public function handleDelete($id)
+    {
+        $scenario = $this->scenariosRepository->find($id);
+        if (!$scenario) {
+            throw new BadRequestException("unable to load scenario: " . $id);
+        }
+
+        $this->scenariosRepository->softDelete($scenario);
+
+        $this->flashMessage($this->translator->translate(
+            'scenarios.admin.scenarios.messages.scenario_deleted',
+            [
+                'name' => $scenario->name,
+            ]
+        ));
+        $this->redirect('default');
+    }
+
+    /**
+     * @admin-access-level write
+     */
+    public function handleRestore($id)
+    {
+        $scenario = $this->scenariosRepository->find($id);
+        if (!$scenario) {
+            throw new BadRequestException("unable to load scenario: " . $id);
+        }
+
+        $this->scenariosRepository->restoreScenario($scenario);
+
+        $this->flashMessage($this->translator->translate(
+            'scenarios.admin.scenarios.messages.scenario_restored',
+            [
+                'name' => $scenario->name,
             ]
         ));
         $this->redirect('default');

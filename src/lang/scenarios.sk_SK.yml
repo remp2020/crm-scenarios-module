@@ -6,13 +6,18 @@ admin:
             title: Scenáre
             new: Nový scenár
             enabled: Zapnutý
-            disabled: Vypnutý
+            disabled: Zastavený
             enable: Zapnúť
-            disable: Vypnúť
+            disable: Zastaviť
+            delete: Zmazať
+            restore: Obnoviť
+            deleted_scenarios: Zmazané scenáre
         messages:
             scenario_not_found: Vybraný scenár neexistuje.
             scenario_enabled: "Scenár <em>%name%</em> bol zapnutý."
             scenario_disabled: "Scenár <em>%name%</em> bol vypnutý."
+            scenario_deleted: "Scenár <em>%name%</em> bol zmazaný."
+            scenario_restored: "Scenár <em>%name%</em> bol obnovený."
         edit:
             title: Editácia scenára
         new:
@@ -22,3 +27,4 @@ data:
         name: Meno
         created_at: Vytvorený
         modified_at: Upravený
+        deleted_at: Zmazaný

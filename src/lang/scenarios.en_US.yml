@@ -9,10 +9,15 @@ admin:
             disabled: Disabled
             enable: Enable
             disable: Disable
+            delete: Delete
+            restore: Restore
+            deleted_scenarios: Deleted scenarios
         messages:
             scenario_not_found: "Selected scenario doesn't exist."
             scenario_enabled: "Scenario <em>%name%</em> was enabled."
             scenario_disabled: "Scenario <em>%name%</em> was disabled."
+            scenario_deleted: "Scenario <em>%name%</em> was deleted."
+            scenario_restored: "Scenario <em>%name%</em> was restored."
         edit:
             title: Edit scenario
         new:
@@ -22,3 +27,4 @@ data:
         name: Name
         created_at: Created at
         modified_at: Modified at
+        deleted_at: Deleted at

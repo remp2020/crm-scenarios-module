@@ -47,12 +47,15 @@
                 </a>
 
                 {if $scenario->enabled}
-                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-success" title="{_'scenarios.admin.scenarios.default.disable'}">
-                    <i class="fa fa-stop"></i>
+                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.disable'}">
+                    <i class="fa fa-pause"></i>
                   </a>
                 {else}
                   <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.enable'}">
                     <i class="fa fa-play"></i>
+                  </a>
+                  <a n:href="delete! $scenario->id" class="btn btn-sm btn-danger" title="{_'scenarios.admin.scenarios.default.delete'}">
+                    <i class="fa fa-trash"></i>
                   </a>
                 {/if}
               </p>
@@ -62,7 +65,41 @@
       </tbody>
     </table>
 
-    {control paginator}
+    {if $deletedScenarios->count('*')}
+      <h3>{_'scenarios.admin.scenarios.default.deleted_scenarios'}</h3>
+      <table class="table table-striped table-hover table-bordered">
+        <thead>
+        <tr>
+          <th>{_scenarios.data.fields.name}</th>
+          <th>{_scenarios.data.fields.created_at}</th>
+          <th>{_scenarios.data.fields.deleted_at}</th>
+          <th>{_system.actions}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {foreach $deletedScenarios as $scenario}
+          <tr>
+            <td>
+              <a n:href="Edit $scenario->id">{$scenario->name}</a>
+            </td>
+            <td>{$scenario->created_at|userDate}</td>
+            <td>{$scenario->deleted_at|userDate}</td>
+            <td style="white-space: nowrap">
+              <p class="text-nowrap">
+                <a n:href="Edit $scenario->id" class="btn btn-sm btn-info" title="{_system.show}">
+                  <i class="fa fa-eye"></i>
+                </a>
+
+                <a n:href="restore! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.restore'}">
+                  <i class="fas fa-trash-restore"></i>
+                </a>
+              </p>
+            </td>
+          </tr>
+        {/foreach}
+        </tbody>
+      </table>
+    {/if}
   </div>
 
 </div>

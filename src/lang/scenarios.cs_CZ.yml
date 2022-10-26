@@ -6,13 +6,18 @@ admin:
             title: Scénáře
             new: Nový scénář
             enabled: Zapnutý
-            disabled: Vypnutý
+            disabled: Zastaven
             enable: Zapnout
-            disable: Vypnout
+            disable: Zastavit
+            delete: Smazat
+            restore: Obnovit
+            deleted_scenarios: Smazané scénáře
         messages:
             scenario_not_found: Vybraný scénář neexistuje.
             scenario_enabled: "Scénář <em>%name%</em> byl zapnutý."
             scenario_disabled: "Scénář <em>%name%</em> byl vypnutý."
+            scenario_deleted: "Scénář <em>%name%</em> byl smazán."
+            scenario_restored: "Scénář <em>%name%</em> byl obnoven."
         edit:
             title: Editace scénáře
         new:
@@ -22,3 +27,4 @@ data:
         name: Jméno
         created_at: Vytvořen
         modified_at: Upraven
+        deleted_at: Smazán

@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Crm\SegmentModule\Repository\SegmentsRepository;
+use Exception;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;
 use Nette\Database\Explorer;
@@ -29,6 +30,8 @@ class ScenariosRepository extends Repository
 
     private $segmentsRepository;
 
+    private $jobsRepository;
+
     public function __construct(
         Explorer $database,
         AuditLogRepository $auditLogRepository,
@@ -38,7 +41,8 @@ class ScenariosRepository extends Repository
         ElementElementsRepository $elementElementsRepository,
         TriggersRepository $triggersRepository,
         TriggerElementsRepository $triggerElementsRepository,
-        SegmentsRepository $segmentsRepository
+        SegmentsRepository $segmentsRepository,
+        JobsRepository $jobsRepository,
     ) {
         parent::__construct($database, $cacheStorage);
 
@@ -49,11 +53,22 @@ class ScenariosRepository extends Repository
         $this->triggerElementsRepository = $triggerElementsRepository;
         $this->auditLogRepository = $auditLogRepository;
         $this->segmentsRepository = $segmentsRepository;
+        $this->jobsRepository = $jobsRepository;
     }
 
-    final public function all()
+    final public function all(?bool $deleted = null)
     {
-        return $this->getTable()->order('name ASC');
+        $query = $this->getTable()->order('name ASC');
+
+        if (isset($deleted)) {
+            if ($deleted) {
+                $query->where('deleted_at NOT', null);
+            } else {
+                $query->where('deleted_at', null);
+            }
+        }
+
+        return $query;
     }
 
     /**
@@ -80,6 +95,12 @@ class ScenariosRepository extends Repository
                 $this->connection->commit();
                 return false;
             }
+
+            // do not allow to edit deleted scenario
+            if ($scenario->deleted_at) {
+                throw new \Exception("Unable to save deleted scenario. Restore it first.");
+            }
+
             $this->update($scenario, $scenarioData);
         } else {
             $scenarioData['created_at'] = $scenarioData['modified_at'];
@@ -180,9 +201,33 @@ class ScenariosRepository extends Repository
 
     final public function setEnabled($scenario, $value = true)
     {
+        if (isset($scenario->deleted_at)) {
+            throw new Exception("Can't enable deleted scenario.");
+        }
+
         return $this->update($scenario, [
             'enabled' => $value,
             'modified_at' => new DateTime(),
+        ]);
+    }
+
+    final public function softDelete($scenario)
+    {
+        return $this->update($scenario, [
+            'enabled' => false,
+            'modified_at' => new DateTime(),
+            'deleted_at' => new DateTime(),
+            'restored_at' => null,
+        ]);
+    }
+
+    final public function restoreScenario($scenario)
+    {
+        return $this->update($scenario, [
+            'enabled' => false,
+            'modified_at' => new DateTime(),
+            'deleted_at' => null,
+            'restored_at' => new DateTime(),
         ]);
     }
 

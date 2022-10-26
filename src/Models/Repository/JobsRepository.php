@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Repository;
 
 use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Selection;
 use Nette\Caching\Storage;
 use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
@@ -96,6 +97,44 @@ class JobsRepository extends Repository
     {
         $data['updated_at'] = new DateTime();
         return parent::update($row, $data);
+    }
+
+    final public function getReadyToProcessJobs(): Selection
+    {
+        return $this->getTable()
+            ->where('state IN (?)', [
+                self::STATE_CREATED, self::STATE_FINISHED, self::STATE_FAILED
+            ]);
+    }
+
+    final public function getReadyToProcessJobsForEnabledScenarios(): Selection
+    {
+        return $this->getReadyToProcessJobs()
+            ->alias('trigger.scenario', 'triggerScenario')
+            ->alias('element.scenario', 'elementScenario')
+            ->whereOr([
+                'triggerScenario.enabled' => true,
+                'elementScenario.enabled' => true,
+            ])
+            ->whereOr([
+                '(scenarios_jobs.trigger_id NOT ? AND triggerScenario.restored_at ?)
+                OR scenarios_jobs.created_at > triggerScenario.restored_at' => [null, null],
+                '(scenarios_jobs.element_id NOT ? AND elementScenario.restored_at ?)
+                OR scenarios_jobs.created_at > elementScenario.restored_at' => [null, null],
+            ]);
+    }
+
+    final public function deleteUnprocessableJobsForScenarios(): int
+    {
+        $ids = $this->getReadyToProcessJobs()
+            ->alias('trigger.scenario', 'triggerScenario')
+            ->alias('element.scenario', 'elementScenario')
+            ->whereOr([
+                'triggerScenario.deleted_at NOT ? OR scenarios_jobs.created_at < triggerScenario.restored_at' => null,
+                'elementScenario.deleted_at NOT ? OR scenarios_jobs.created_at < elementScenario.restored_at' => null,
+            ])->fetchPairs(null, 'id');
+
+        return $this->getTable()->where('id', $ids)->delete();
     }
 
     final public function startJob(ActiveRow $row): ActiveRow

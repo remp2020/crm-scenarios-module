@@ -98,10 +98,7 @@ class Engine
                 // For fixed amount of iterations, always reload graph
                 $this->graphConfiguration->reload($times !== null ? 0 : $this->minGraphReloadDelay);
 
-                $jobs = $this->jobsRepository->getTable()
-                    ->where('state IN (?)', [
-                        JobsRepository::STATE_CREATED, JobsRepository::STATE_FINISHED, JobsRepository::STATE_FAILED
-                    ])
+                $jobs = $this->jobsRepository->getReadyToProcessJobsForEnabledScenarios()
                     ->order(
                         'FIELD(state, ?, ?, ?), updated_at',
                         JobsRepository::STATE_CREATED,
@@ -119,7 +116,14 @@ class Engine
                         $this->processFinishedJob($job);
                     } elseif ($job->state === JobsRepository::STATE_FAILED) {
                         $this->processFailedJob($job);
+                    } else {
+                        Debugger::log("Unexpected job state: [{$job->state}] selected for processing.", Debugger::WARNING);
                     }
+                }
+
+                $deletedCount = $this->jobsRepository->deleteUnprocessableJobsForScenarios();
+                if ($deletedCount) {
+                    $this->logger->log(LogLevel::INFO, "Deleted {$deletedCount} unprocessable jobs.");
                 }
 
                 // for fixed amount of iterations, do not sleep or wait for shutdown
