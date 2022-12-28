@@ -35,7 +35,6 @@ class ScenariosRepository extends Repository
     public function __construct(
         Explorer $database,
         AuditLogRepository $auditLogRepository,
-        Storage $cacheStorage = null,
         Connection $connection,
         ElementsRepository $elementsRepository,
         ElementElementsRepository $elementElementsRepository,
@@ -43,6 +42,7 @@ class ScenariosRepository extends Repository
         TriggerElementsRepository $triggerElementsRepository,
         SegmentsRepository $segmentsRepository,
         JobsRepository $jobsRepository,
+        Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
 

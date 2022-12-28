@@ -38,8 +38,8 @@ class JobsRepository extends Repository
 
     public function __construct(
         Explorer $database,
-        Storage $cacheStorage = null,
-        ElementStatsRepository $elementStatsRepository
+        ElementStatsRepository $elementStatsRepository,
+        Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
 
