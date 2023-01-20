@@ -9,6 +9,7 @@ use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
+use Tracy\Debugger;
 
 class JobsRepository extends Repository
 {
@@ -153,7 +154,11 @@ class JobsRepository extends Repository
             'finished_at' => new DateTime(),
         ]);
         if ($recordStats) {
-            $this->elementStatsRepository->add($row->element_id, ElementStatsRepository::STATE_FINISHED);
+            if (!isset($row->element_id)) {
+                Debugger::log("JobsRepository - trying to finish job with no associated element, row data: " . Json::encode($row->toArray()), Debugger::WARNING);
+            } else {
+                $this->elementStatsRepository->add($row->element_id, ElementStatsRepository::STATE_FINISHED);
+            }
         }
         return $row;
     }
