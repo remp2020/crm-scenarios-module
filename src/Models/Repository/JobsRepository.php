@@ -153,7 +153,7 @@ class JobsRepository extends Repository
             'state' => self::STATE_FINISHED,
             'finished_at' => new DateTime(),
         ]);
-        if ($recordStats) {
+        if ($row && $recordStats) {
             if (!isset($row->element_id)) {
                 Debugger::log("JobsRepository - trying to finish job with no associated element, row data: " . Json::encode($row->toArray()), Debugger::WARNING);
             } else {
