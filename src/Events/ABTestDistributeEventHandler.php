@@ -39,6 +39,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
     public function handle(MessageInterface $message): bool
     {
         $job = $this->getJob($message);
+        $elementId = $job->elementId;
 
         if ($job->state !== JobsRepository::STATE_SCHEDULED) {
             $this->jobError($job, "job in invalid state (expected '" . JobsRepository::STATE_SCHEDULED . "', given '{$job->state}'");
@@ -96,7 +97,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
             'finished_at' => new \DateTime(),
         ]);
 
-        $this->elementStatsRepository->add($job->element_id, $selectedVariantRow->variant_code);
+        $this->elementStatsRepository->add($elementId, $selectedVariantRow->variant_code);
 
         return true;
     }
