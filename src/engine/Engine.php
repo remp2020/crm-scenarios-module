@@ -32,45 +32,26 @@ class Engine
     public const MAX_RETRY_COUNT = 3;
 
     // 50000us = 50ms = 0.05s
-    private $minSleepTime = 50000; // in microseconds
+    private int $minSleepTime = 50000; // in microseconds
 
     // 1s
-    private $maxSleepTime = 1000000; // in microseconds
+    private int $maxSleepTime = 1000000; // in microseconds
 
-    private $minGraphReloadDelay = 60; // in seconds
+    private int $minGraphReloadDelay = 60; // in seconds
 
-    private $logger;
+    private ?ShutdownInterface $shutdown = null;
 
-    private $jobsRepository;
-
-    private $graphConfiguration;
-
-    private $elementsRepository;
-
-    private $hermesEmitter;
-
-    /** @var ShutdownInterface */
-    private $shutdown;
-
-    private $startTime;
-
-    private $triggerStatsRepository;
+    private DateTime $startTime;
 
     public function __construct(
-        LoggerInterface $logger,
-        Emitter $hermesEmitter,
-        JobsRepository $jobsRepository,
-        GraphConfiguration $graphConfiguration,
-        ElementsRepository $elementsRepository,
-        TriggerStatsRepository $triggerStatsRepository
+        private LoggerInterface $logger,
+        private Emitter $hermesEmitter,
+        private JobsRepository $jobsRepository,
+        private GraphConfiguration $graphConfiguration,
+        private ElementsRepository $elementsRepository,
+        private TriggerStatsRepository $triggerStatsRepository
     ) {
-        $this->logger = $logger;
-        $this->jobsRepository = $jobsRepository;
-        $this->graphConfiguration = $graphConfiguration;
-        $this->elementsRepository = $elementsRepository;
-        $this->hermesEmitter = $hermesEmitter;
         $this->startTime = new DateTime();
-        $this->triggerStatsRepository = $triggerStatsRepository;
     }
 
     public function setMinSleepTime(int $minSleepTime): void
@@ -98,6 +79,8 @@ class Engine
                 // For fixed amount of iterations, always reload graph
                 $this->graphConfiguration->reload($times !== null ? 0 : $this->minGraphReloadDelay);
 
+                // Single job processing
+
                 $jobs = $this->jobsRepository->getReadyToProcessJobsForEnabledScenarios()
                     ->order(
                         'FIELD(state, ?, ?, ?), updated_at',
@@ -121,10 +104,17 @@ class Engine
                     }
                 }
 
+                // Batch job processing
+
                 $deletedCount = $this->jobsRepository->deleteUnprocessableJobsForScenarios();
                 if ($deletedCount) {
                     $this->logger->log(LogLevel::INFO, "Deleted {$deletedCount} unprocessable jobs.");
                 }
+
+                // jobs are first soft-deleted and then deleted later (to let asynchronous Hermes worker(s) finish)
+                $this->jobsRepository->getDeletedJobs()
+                    ->where(['deleted_at <= ?' => DateTime::from('-1 minute')])
+                    ->delete();
 
                 // for fixed amount of iterations, do not sleep or wait for shutdown
                 if ($times !== null) {
@@ -148,7 +138,6 @@ class Engine
             Debugger::log($exception, Debugger::EXCEPTION);
         }
     }
-
 
     /**
      * Calculates exponential delay.
@@ -177,10 +166,10 @@ class Engine
 
         if (!$shouldRetry) {
             $this->logger->log(LogLevel::ERROR, 'Failed job found and retry is not allowed, cancelling', $this->jobLoggerContext($job));
-            $this->jobsRepository->delete($job);
+            $this->jobsRepository->softDelete($job);
         } elseif ($job->retry_count >= self::MAX_RETRY_COUNT) {
             $this->logger->log(LogLevel::ERROR, "Failed job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
-            $this->jobsRepository->delete($job);
+            $this->jobsRepository->softDelete($job);
         } else {
             $this->logger->log(LogLevel::WARNING, 'Failed job found (retry allowed), rescheduling', $this->jobLoggerContext($job));
             $this->jobsRepository->update($job, [
@@ -211,7 +200,7 @@ class Engine
             // This can happen if user updates running scenario
             $this->logger->log(LogLevel::WARNING, $e->getMessage(), $this->jobLoggerContext($job));
         } finally {
-            $this->jobsRepository->delete($job);
+            $this->jobsRepository->softDelete($job);
         }
     }
 
@@ -231,7 +220,7 @@ class Engine
             $this->processJobElement($job);
         } else {
             $this->logger->log(LogLevel::ERROR, 'Scenarios job without associated trigger or element', $this->jobLoggerContext($job));
-            $this->jobsRepository->delete($job);
+            $this->jobsRepository->softDelete($job);
         }
     }
 
@@ -287,7 +276,7 @@ class Engine
             }
         } catch (InvalidJobException $exception) {
             $this->logger->log(LogLevel::ERROR, $exception->getMessage(), $this->jobLoggerContext($job));
-            $this->jobsRepository->delete($job);
+            $this->jobsRepository->softDelete($job);
         }
     }
 
