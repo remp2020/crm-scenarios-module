@@ -9,6 +9,7 @@ use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Crm\UsersModule\Events\NotificationEvent;
+use Crm\UsersModule\Repository\AddressesRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\User\ReachChecker;
 use League\Event\Emitter;
@@ -18,41 +19,22 @@ use Tomaj\Hermes\MessageInterface;
 class SendEmailEventHandler extends ScenariosJobsHandler
 {
     use NotificationContextTrait;
+    use NotificationTemplateParamsTrait;
 
     public const HERMES_MESSAGE_CODE = 'scenarios-send-email';
 
-    private UsersRepository $usersRepository;
-
-    private Emitter $emitter;
-
-    private SubscriptionsRepository $subscriptionsRepository;
-
-    private PaymentsRepository $paymentsRepository;
-
-    private RecurrentPaymentsRepository $recurrentPaymentsRepository;
-
-    private RecurrentPaymentsResolver $recurrentPaymentsResolver;
-
-    private ReachChecker $reachChecker;
-
     public function __construct(
-        Emitter $emitter,
         JobsRepository $jobsRepository,
-        UsersRepository $usersRepository,
-        SubscriptionsRepository $subscriptionsRepository,
-        RecurrentPaymentsRepository $recurrentPaymentsRepository,
-        PaymentsRepository $paymentsRepository,
-        RecurrentPaymentsResolver $recurrentPaymentsResolver,
-        ReachChecker $reachChecker
+        private Emitter $emitter,
+        private UsersRepository $usersRepository,
+        private SubscriptionsRepository $subscriptionsRepository,
+        private RecurrentPaymentsRepository $recurrentPaymentsRepository,
+        private PaymentsRepository $paymentsRepository,
+        private RecurrentPaymentsResolver $recurrentPaymentsResolver,
+        private ReachChecker $reachChecker,
+        private AddressesRepository $addressesRepository,
     ) {
         parent::__construct($jobsRepository);
-        $this->usersRepository = $usersRepository;
-        $this->emitter = $emitter;
-        $this->subscriptionsRepository = $subscriptionsRepository;
-        $this->paymentsRepository = $paymentsRepository;
-        $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
-        $this->recurrentPaymentsResolver = $recurrentPaymentsResolver;
-        $this->reachChecker = $reachChecker;
     }
 
     public function handle(MessageInterface $message): bool
@@ -64,8 +46,8 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $parameters = $this->getJobParameters($job);
-        if (!isset($parameters->user_id)) {
+        $jobParams = $this->getJobParameters($job);
+        if (!isset($jobParams->user_id)) {
             $this->jobError($job, "missing 'user_id' in parameters");
             return true;
         }
@@ -82,7 +64,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             return true;
         }
 
-        $user = $this->usersRepository->find($parameters->user_id);
+        $user = $this->usersRepository->find($jobParams->user_id);
         if (!$user) {
             $this->jobError($job, 'no user with given user_id found');
             return true;
@@ -96,44 +78,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
         $job = $this->jobsRepository->startJob($job);
 
         $templateCode = $options->code;
-
-        // We automatically insert password/subscription/payment as email template parameters (if found)
-        $password = $parameters->password ?? null;
-        $subscription = isset($parameters->subscription_id) ? $this->subscriptionsRepository->find($parameters->subscription_id) : null;
-        $payment = isset($parameters->payment_id) ? $this->paymentsRepository->find($parameters->payment_id) : null;
-
-        $recurrentPayment = null;
-        if (isset($parameters->recurrent_payment_id)) {
-            $recurrentPayment = $this->recurrentPaymentsRepository->find($parameters->recurrent_payment_id);
-        } elseif ($payment !== null) {
-            $recurrentPayment = $this->recurrentPaymentsRepository->recurrent($payment) ?? null;
-        }
-
-        $subscriptionType = null;
-        if ($subscription !== null) {
-            $subscriptionType = $subscription->subscription_type;
-        } elseif ($payment !== null) {
-            $subscriptionType = $payment->subscription_type;
-        } elseif ($recurrentPayment !== null) {
-            $subscriptionType = $this->recurrentPaymentsResolver->resolveSubscriptionType($recurrentPayment);
-        }
-
-        $templateParams = ['email' => $user->email];
-        if ($password) {
-            $templateParams['password'] = $password;
-        }
-        if ($subscription) {
-            $templateParams['subscription'] = $subscription->toArray();
-        }
-        if ($subscriptionType) {
-            $templateParams['subscription_type'] = $subscriptionType->toArray();
-        }
-        if ($payment) {
-            $templateParams['payment'] = $payment->toArray();
-        }
-        if ($recurrentPayment) {
-            $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
-        }
+        $templateParams = $this->getNotificationTemplateParams($jobParams);
 
         $notificationEvent = new NotificationEvent(
             $this->emitter,
