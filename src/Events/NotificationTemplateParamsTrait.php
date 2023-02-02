@@ -35,7 +35,7 @@ trait NotificationTemplateParamsTrait
         $templateParams = [];
         if ($user) {
             $templateParams['user'] = $user->toArray();
-            $templateParams = ['email' => $user->email]; // shortcut
+            $templateParams['email'] = $user->email;
         }
 
         if ($password) {
