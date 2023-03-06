@@ -207,7 +207,7 @@ class ElementsRepository extends Repository
                 $elementOptions = [
                     'variants' => $element->ab_test->variants,
                 ];
-                $elementPairs[$element->id]['descendants'] = array_filter($element->ab_test->descendants) ?? [];
+                $elementPairs[$element->id]['descendants'] = array_filter($element->ab_test->descendants ?? []);
                 break;
             default:
                 throw new ScenarioInvalidDataException("Unknown element type [{$element->type}].");

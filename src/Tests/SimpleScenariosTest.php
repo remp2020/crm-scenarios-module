@@ -66,10 +66,11 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Handler to check if context is added to PreNotificationEvent
         $preNotificationEventHandler = new class extends AbstractListener {
+            public NotificationContext $notificationContext;
+
             /**
-             * @var NotificationContext
+             * @param PreNotificationEvent $event
              */
-            public $notificationContext;
             public function handle(EventInterface $event)
             {
                 $this->notificationContext = $event->getNotificationContext();

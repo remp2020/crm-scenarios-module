@@ -139,7 +139,7 @@ class ScenariosRepository extends Repository
                 foreach ($element['descendants'] as $descendantDef) {
                     $descendant = $this->elementsRepository->findBy('uuid', $descendantDef->uuid);
                     if (!$descendant) {
-                        throw new \Exception("Unable to find element with uuid [{$descendant->uuid}]");
+                        throw new \Exception("Unable to find element with uuid [{$descendantDef->uuid}]");
                     }
                     if ($descendant->id === $parent->id) {
                         throw new \Exception(

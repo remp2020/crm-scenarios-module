@@ -50,7 +50,6 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
             $dispatcher
         );
 
-        /** @var JobsRepository $scenariosJobsRepository */
         $this->scenariosJobsRepository = $this->getRepository(JobsRepository::class);
     }
 
