@@ -48,7 +48,7 @@ class ScenariosCreateApiHandler extends ApiHandler
 
         // check if Content Type header contains `application/json`
         $contentTypes = explode(';', $contentType);
-        if (!in_array('application/json', array_map('trim', $contentTypes))) {
+        if (!in_array('application/json', array_map('trim', $contentTypes), true)) {
             return new JsonApiResponse(
                 Response::S400_BAD_REQUEST,
                 ['status' => 'error', 'message' => "Incorrect Content-Type [{$contentType}]. Expected 'application/json'."]
