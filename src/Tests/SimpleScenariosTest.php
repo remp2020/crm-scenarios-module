@@ -363,6 +363,8 @@ class SimpleScenariosTest extends BaseTestCase
 
         // check email job has 'subscription_id' parameter
         $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
+
+        /** @var ?\stdClass $emailJobParameters */
         $emailJobParameters = Json::decode($emailJob->parameters);
         $this->assertNotEmpty($emailJobParameters->payment_id);
         $this->assertNotEmpty($emailJobParameters->recurrent_payment_id);

@@ -32,7 +32,7 @@ abstract class ScenariosJobsHandler implements HandlerInterface
         return $job;
     }
 
-    protected function getJobParameters(ActiveRow $job)
+    protected function getJobParameters(ActiveRow $job): ?\stdClass
     {
         return Json::decode($job->parameters);
     }

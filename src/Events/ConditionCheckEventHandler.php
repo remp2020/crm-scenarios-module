@@ -72,6 +72,7 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
             return true;
         }
 
+        /** @var ?\stdClass $options */
         $options = Json::decode($element->options);
         if (!isset($options->conditions)) {
             $this->jobError($job, 'missing conditions option in associated element');
@@ -106,13 +107,9 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
 
     /**
-     * @param $jobParameters
-     * @param $conditions
-     *
-     * @return bool
      * @throws ConditionCheckException
      */
-    private function checkConditions($jobParameters, $conditions): bool
+    private function checkConditions(?\stdClass $jobParameters, ?\stdClass $conditions): bool
     {
         if (!isset($conditions->event)) {
             throw new ConditionCheckException('Condition options is missing event specification');

@@ -82,7 +82,7 @@ class TriggersRepository extends Repository
         ])->fetch();
     }
 
-    final public function saveTriggerData(int $scenarioId, object $trigger): void
+    final public function saveTriggerData(int $scenarioId, \stdClass $trigger): void
     {
         if (!in_array($trigger->type, [self::TRIGGER_TYPE_EVENT, self::TRIGGER_TYPE_BEFORE_EVENT], true)) {
             throw new ScenarioInvalidDataException("Unknown trigger type [{$trigger->type}].");

@@ -87,7 +87,7 @@ class ElementsRepository extends Repository
         }
     }
 
-    final public function saveElementData(int $scenarioId, object $element, array &$elementPairs)
+    final public function saveElementData(int $scenarioId, \stdClass $element, array &$elementPairs): void
     {
         $elementData = [
             'scenario_id' => $scenarioId,
@@ -187,6 +187,11 @@ class ElementsRepository extends Repository
                     throw new ScenarioInvalidDataException("Missing 'variants' parameter for the AB test node.");
                 }
                 $segments = [];
+
+                /**
+                 * @var int $index
+                 * @var \stdClass $variant
+                 */
                 foreach ($element->ab_test->variants as $index => $variant) {
                     if (isset($variant->segment)) {
                         $segments[] = [
