@@ -4,7 +4,7 @@ use Phinx\Migration\AbstractMigration;
 
 class UpdateScenariosTriggerStats extends AbstractMigration
 {
-    public function change()
+    public function up()
     {
         $this->table('scenarios_trigger_stats')
             ->truncate();
@@ -15,6 +15,20 @@ class UpdateScenariosTriggerStats extends AbstractMigration
             ->addColumn('created_at', 'datetime', ['null' => false])
             ->removeIndexByName('trigger_id')
             ->addIndex(['trigger_id', 'state'])
+            ->update();
+    }
+
+    public function down()
+    {
+        $this->table('scenarios_trigger_stats')
+            ->truncate();
+
+        $this->table('scenarios_trigger_stats')
+            ->addColumn('updated_at', 'datetime', ['null' => false])
+            ->removeColumn('aggregated_minutes')
+            ->removeColumn('created_at')
+            ->removeIndex(['trigger_id', 'state'])
+            ->addIndex('trigger_id')
             ->update();
     }
 }

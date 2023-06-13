@@ -4,7 +4,7 @@ use Phinx\Migration\AbstractMigration;
 
 class UpdateScenariosElementStats extends AbstractMigration
 {
-    public function change()
+    public function up()
     {
         $this->table('scenarios_element_stats')
             ->truncate();
@@ -15,6 +15,20 @@ class UpdateScenariosElementStats extends AbstractMigration
             ->addColumn('created_at', 'datetime', ['null' => false])
             ->removeIndexByName('element_id')
             ->addIndex(['element_id', 'state'])
+            ->update();
+    }
+
+    public function down()
+    {
+        $this->table('scenarios_element_stats')
+            ->truncate();
+
+        $this->table('scenarios_element_stats')
+            ->addColumn('updated_at', 'datetime', ['null' => false])
+            ->removeColumn('aggregated_minutes')
+            ->removeColumn('created_at')
+            ->removeIndex(['element_id', 'state'])
+            ->addIndex('element_id')
             ->update();
     }
 }
