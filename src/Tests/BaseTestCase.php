@@ -32,6 +32,7 @@ use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SubscriptionsModule\Events\NewSubscriptionEvent;
 use Crm\SubscriptionsModule\Events\SubscriptionEndsEvent;
+use Crm\SubscriptionsModule\Events\SubscriptionStartsEvent;
 use Crm\SubscriptionsModule\Repository\ContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionExtensionMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionLengthMethodsRepository;
@@ -136,6 +137,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->eventsStorage->register('new_payment', NewPaymentEvent::class, true);
         $this->eventsStorage->register('payment_change_status', PaymentChangeStatusEvent::class, true);
         $this->eventsStorage->register('new_subscription', NewSubscriptionEvent::class, true);
+        $this->eventsStorage->register('subscription_starts', SubscriptionStartsEvent::class, true);
         $this->eventsStorage->register('subscription_ends', SubscriptionEndsEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_state_changed', RecurrentPaymentStateChangedEvent::class, true);

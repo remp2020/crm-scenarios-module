@@ -43,6 +43,7 @@ use Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionStartsHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler;
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
@@ -108,6 +109,7 @@ class ScenariosModule extends CrmModule
     {
         $dispatcher->registerHandler('user-registered', $this->getInstance(UserRegisteredHandler::class));
         $dispatcher->registerHandler('new-subscription', $this->getInstance(NewSubscriptionHandler::class));
+        $dispatcher->registerHandler('subscription-starts', $this->getInstance(SubscriptionStartsHandler::class));
         $dispatcher->registerHandler('subscription-ends', $this->getInstance(SubscriptionEndsHandler::class));
         $dispatcher->registerHandler('new-payment', $this->getInstance(NewPaymentHandler::class));
         $dispatcher->registerHandler('payment-status-change', $this->getInstance(PaymentStatusChangeHandler::class));

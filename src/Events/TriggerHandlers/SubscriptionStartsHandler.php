@@ -8,7 +8,7 @@ use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
-class SubscriptionEndsHandler implements HandlerInterface
+class SubscriptionStartsHandler implements HandlerInterface
 {
     public function __construct(
         private Dispatcher $dispatcher,
@@ -29,11 +29,12 @@ class SubscriptionEndsHandler implements HandlerInterface
             throw new \Exception("unable to handle event: subscription with ID=$subscriptionId does not exist");
         }
 
-        $this->dispatcher->dispatch('subscription_ends', $subscription->user_id, [
+        $this->dispatcher->dispatch('subscription_starts', $subscription->user_id, [
             'subscription_id' => $payload['subscription_id']
         ], [
             JobsRepository::CONTEXT_HERMES_MESSAGE_TYPE => $message->getType()
         ]);
+
         return true;
     }
 }

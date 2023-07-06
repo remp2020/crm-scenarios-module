@@ -51,6 +51,7 @@ services:
 
 	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionStartsHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler

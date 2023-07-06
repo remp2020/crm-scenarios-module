@@ -26,26 +26,19 @@ use Nette\Utils\Json;
 
 class SimpleScenariosTest extends BaseTestCase
 {
-    /** @var UserManager */
-    private $userManager;
+    private UserManager $userManager;
 
-    /** @var SubscriptionTypeBuilder */
-    private $subscriptionTypeBuilder;
+    private SubscriptionTypeBuilder $subscriptionTypeBuilder;
 
-    /** @var SubscriptionsGenerator */
-    private $subscriptionGenerator;
+    private SubscriptionsGenerator $subscriptionGenerator;
 
-    /** @var SubscriptionsRepository */
-    private $subscriptionRepository;
+    private SubscriptionsRepository $subscriptionRepository;
 
-    /** @var PaymentsRepository */
-    private $paymentsRepository;
+    private PaymentsRepository $paymentsRepository;
 
-    /** @var RecurrentPaymentsRepository */
-    private $recurrentPaymentsRepository;
+    private RecurrentPaymentsRepository $recurrentPaymentsRepository;
 
-    /** @var JobsRepository */
-    private $jobsRepository;
+    private JobsRepository $jobsRepository;
 
     public function setUp(): void
     {
@@ -304,6 +297,50 @@ class SimpleScenariosTest extends BaseTestCase
         $this->assertEquals($subscriptionTypeCode, $emailParams['subscription_type']['code']);
     }
 
+    public function testSubscriptionStartsEmailScenario()
+    {
+        $this->insertTriggerToEmailScenario('subscription_starts', 'empty_template_code');
+
+        // Create user
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        // Create actual subscription
+        $subscriptionType = $this->createSubscriptionType();
+
+        $subscriptions = $this->subscriptionGenerator->generate(new SubscriptionsParams(
+            $subscriptionType,
+            $user,
+            SubscriptionsRepository::TYPE_FREE,
+            new DateTime('now + 5 minutes'),
+            new DateTime('now + 30 minutes'),
+            false
+        ), 1);
+
+        // check scheduled jobs - should be still empty (subscription didn't start yet)
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3);
+        $job = $this->jobsRepository->getScheduledJobs()->fetch();
+        $this->assertNull($job);
+
+        // Move start of subscription to past (this triggers update of internal subscription status and scenario)
+        $subscription = $subscriptions[0];
+        $this->subscriptionRepository->update($subscription, ['start_time' => new DateTime('now - 5 minutes')]);
+
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3);
+
+        // check email job has 'subscription_id' parameter
+        $emailJob = $this->jobsRepository->getScheduledJobs()->fetch();
+        $emailJobParameters = Json::decode($emailJob->parameters);
+        $this->assertNotEmpty($emailJobParameters->subscription_id);
+
+        $this->dispatcher->handle(); // run email job in Hermes
+        $this->engine->run(1); // job should be deleted
+
+        // Check email was sent
+        $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+    }
+
     public function testSubscriptionEndsEmailScenario()
     {
         $this->insertTriggerToEmailScenario('subscription_ends', 'empty_template_code');
@@ -322,6 +359,12 @@ class SimpleScenariosTest extends BaseTestCase
             new DateTime('now + 5 minutes'),
             false
         ), 1);
+
+        // check scheduled jobs - should be still empty (subscription didn't end yet)
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3);
+        $job = $this->jobsRepository->getScheduledJobs()->fetch();
+        $this->assertNull($job);
 
         // Expire subscription (this triggers scenario)
         $subscription = $this->subscriptionRepository->actualUserSubscription($user->id);
