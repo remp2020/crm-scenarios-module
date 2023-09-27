@@ -48,7 +48,6 @@ use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler;
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
-use League\Event\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule
@@ -138,9 +137,9 @@ class ScenariosModule extends CrmModule
         $eventsStorage->registerEventGenerator(BeforeRecurrentPaymentChargeEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
     }
 
-    public function registerEventHandlers(Emitter $emitter)
+    public function registerLazyEventHandlers(\Crm\ApplicationModule\Event\LazyEventEmitter $emitter)
     {
-        $emitter->addListener(AbTestElementUpdatedEvent::class, $this->getInstance(ABTestElementUpdatedHandler::class));
+        $emitter->addListener(AbTestElementUpdatedEvent::class, ABTestElementUpdatedHandler::class);
     }
 
     public function registerAssets(AssetsManager $assetsManager)
