@@ -6,6 +6,7 @@ use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
+use Crm\InvoicesModule\Events\NewInvoiceEvent;
 use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
 use Crm\PaymentsModule\Events\BeforeRecurrentPaymentChargeEvent;
@@ -114,6 +115,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             PaymentGatewaysSeeder::class,
             CountriesSeeder::class,
             \Crm\PrintModule\Seeders\AddressTypesSeeder::class,
+            \Crm\InvoicesModule\Seeders\AddressTypesSeeder::class,
         ];
     }
 
@@ -142,6 +144,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_state_changed', RecurrentPaymentStateChangedEvent::class, true);
         $this->eventsStorage->register('before_recurrent_payment_charge', BeforeRecurrentPaymentChargeEvent::class, true);
+        $this->eventsStorage->register('new_invoice', NewInvoiceEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
 
         // Email notification is going to be handled by test handler

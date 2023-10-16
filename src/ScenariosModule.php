@@ -37,6 +37,7 @@ use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
 use Crm\ScenariosModule\Events\TriggerHandlers\AddressChangedHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler;
+use Crm\ScenariosModule\Events\TriggerHandlers\NewInvoiceHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler;
 use Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler;
@@ -117,6 +118,7 @@ class ScenariosModule extends CrmModule
         $dispatcher->registerHandler('recurrent-payment-renewed', $this->getInstance(RecurrentPaymentRenewedHandler::class));
         $dispatcher->registerHandler('recurrent-payment-state-changed', $this->getInstance(RecurrentPaymentStateChangedHandler::class));
         $dispatcher->registerHandler(TestUserHandler::HERMES_MESSAGE_CODE, $this->getInstance(TestUserHandler::class));
+        $dispatcher->registerHandler('new-invoice', $this->getInstance(NewInvoiceHandler::class));
 
         $dispatcher->registerHandler(SendEmailEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(SendEmailEventHandler::class));
         $dispatcher->registerHandler(ShowBannerEventHandler::HERMES_MESSAGE_CODE, $this->getInstance(ShowBannerEventHandler::class));

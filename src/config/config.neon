@@ -60,6 +60,7 @@ services:
 	- Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler
 	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler
+	- Crm\ScenariosModule\Events\TriggerHandlers\NewInvoiceHandler
 
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand

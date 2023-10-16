@@ -3,6 +3,9 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\InvoicesModule\Repository\InvoiceNumber;
+use Crm\InvoicesModule\Repository\InvoiceNumbersRepository;
+use Crm\InvoicesModule\Repository\InvoicesRepository;
 use Crm\PaymentsModule\Gateways\BankTransfer;
 use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
@@ -26,29 +29,23 @@ use Tomaj\Hermes\Emitter;
 
 class ScenarioTriggersTest extends BaseTestCase
 {
-    /** @var UserManager */
-    private $userManager;
+    private UserManager $userManager;
 
-    /** @var Emitter */
-    private $hermesEmitter;
+    private Emitter $hermesEmitter;
 
-    /** @var SubscriptionTypeBuilder */
-    private $subscriptionTypeBuilder;
+    private SubscriptionTypeBuilder $subscriptionTypeBuilder;
 
-    /** @var SubscriptionsGenerator */
-    private $subscriptionGenerator;
+    private SubscriptionsGenerator $subscriptionGenerator;
 
-    /** @var SubscriptionsRepository */
-    private $subscriptionRepository;
+    private SubscriptionsRepository $subscriptionRepository;
 
-    /** @var PaymentsRepository */
-    private $paymentsRepository;
+    private PaymentsRepository $paymentsRepository;
 
-    /** @var AddressesRepository */
-    private $addressesRepository;
+    private AddressesRepository $addressesRepository;
 
-    /** @var AddressChangeRequestsRepository */
-    private $addressChangeRequestRepository;
+    private AddressChangeRequestsRepository $addressChangeRequestRepository;
+
+    private InvoicesRepository $invoicesRepository;
 
     protected function requiredRepositories(): array
     {
@@ -56,6 +53,8 @@ class ScenarioTriggersTest extends BaseTestCase
             AddressChangeRequestsRepository::class,
             AddressesRepository::class,
             AddressTypesRepository::class,
+            InvoicesRepository::class,
+            InvoiceNumbersRepository::class,
         ]);
     }
 
@@ -70,6 +69,7 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
         $this->addressesRepository = $this->getRepository(AddressesRepository::class);
         $this->addressChangeRequestRepository = $this->getRepository(AddressChangeRequestsRepository::class);
+        $this->invoicesRepository = $this->getRepository(InvoicesRepository::class);
 
         $this->eventsStorage->register('new_address', NewAddressEvent::class, true);
         $this->eventsStorage->register('address_changed', AddressChangedEvent::class, true);
@@ -286,6 +286,56 @@ class ScenarioTriggersTest extends BaseTestCase
         /** @var JobsRepository $jobsRepository */
         $jobsRepository = $this->getRepository(JobsRepository::class);
         $this->addressChangeRequestRepository->acceptRequest($request);
+        $this->dispatcher->handle();
+        $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
+    }
+
+    public function testTriggerNewInvoiceHandler()
+    {
+        $this->addTestScenario('new_invoice');
+
+        $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
+
+        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
+        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
+        $paymentGatewayRow = $paymentGatewaysRepository->findBy('code', BankTransfer::GATEWAY_CODE);
+
+        $this->addressesRepository->add(
+            $user1,
+            'invoice',
+            'Jan',
+            'Novak',
+            'Rovná',
+            '123',
+            'Bratislava',
+            '123 12',
+            null,
+            null,
+            null,
+        );
+
+        $paymentRow = $this->paymentsRepository->add(
+            null,
+            $paymentGatewayRow,
+            $user1,
+            new PaymentItemContainer(),
+            null,
+            1
+        );
+        $paymentRow = $this->paymentsRepository->updateStatus($paymentRow, PaymentsRepository::STATUS_PAID);
+
+        $invoiceNumber = $this->inject(InvoiceNumber::class);
+        $this->paymentsRepository->update($paymentRow, [
+            'invoice_number_id' => $invoiceNumber->getNextInvoiceNumber($paymentRow)->id,
+        ]);
+
+        $this->dispatcher->handle();
+        $jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
+
+        // Trigger the scenario
+        $this->invoicesRepository->add($user1, $paymentRow);
+
         $this->dispatcher->handle();
         $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
     }
