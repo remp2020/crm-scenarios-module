@@ -23,6 +23,8 @@ trait NotificationTemplateParamsTrait
             $recurrentPayment = $this->recurrentPaymentsRepository->recurrent($payment);
         }
 
+        $recurrentParentPayment = $recurrentPayment?->parent_payment;
+
         $subscriptionType = null;
         if ($subscription !== null) {
             $subscriptionType = $subscription->subscription_type;
@@ -52,6 +54,9 @@ trait NotificationTemplateParamsTrait
         }
         if ($recurrentPayment) {
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();
+        }
+        if ($recurrentParentPayment) {
+            $templateParams['recurrent_parent_payment'] = $recurrentParentPayment->toArray();
         }
         if ($address) {
             $templateParams['address'] = $address->toArray();
