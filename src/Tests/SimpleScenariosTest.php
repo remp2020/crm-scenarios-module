@@ -69,7 +69,7 @@ class SimpleScenariosTest extends BaseTestCase
                 $this->notificationContext = $event->getNotificationContext();
             }
         };
-        $this->emitter->addListener(PreNotificationEvent::class, $preNotificationEventHandler);
+        $this->lazyEventEmitter->addListener(PreNotificationEvent::class, $preNotificationEventHandler);
 
         // Add user, which triggers scenario
         $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
@@ -102,7 +102,7 @@ class SimpleScenariosTest extends BaseTestCase
         $this->assertEquals('user-registered', $preNotificationEventHandler->notificationContext->getContextValue(NotificationContext::HERMES_MESSAGE_TYPE));
 
         // cleanup
-        $this->emitter->removeListener(PreNotificationEvent::class, $preNotificationEventHandler);
+        $this->lazyEventEmitter->removeAllListeners(PreNotificationEvent::class);
     }
 
     public function testUserRegisteredWaitScenario()

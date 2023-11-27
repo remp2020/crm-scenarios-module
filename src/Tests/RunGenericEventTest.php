@@ -65,7 +65,7 @@ class RunGenericEventTest extends BaseTestCase
             ]
         ]);
 
-        $this->emitter->addListener(TriggerGenericActionEvent::class, $this->triggerGenericActionEventHandler);
+        $this->lazyEventEmitter->addListener(TriggerGenericActionEvent::class, $this->triggerGenericActionEventHandler);
 
         $this->inject(UserManager::class)->addNewUser('user1@email.com', false, 'unknown', null, false);
 
@@ -76,6 +76,6 @@ class RunGenericEventTest extends BaseTestCase
         $this->assertTrue($this->triggerGenericActionEventHandler->eventWasTriggered);
 
         // cleanup
-        $this->emitter->removeListener(TriggerGenericActionEvent::class, $this->triggerGenericActionEventHandler);
+        $this->lazyEventEmitter->removeAllListeners(TriggerGenericActionEvent::class);
     }
 }

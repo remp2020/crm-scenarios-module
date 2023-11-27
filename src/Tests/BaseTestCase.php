@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Tests;
 
 use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ApplicationModule\Event\LazyEventEmitter;
 use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\InvoicesModule\Events\NewInvoiceEvent;
@@ -47,7 +48,6 @@ use Crm\UsersModule\Events\NotificationEvent;
 use Crm\UsersModule\Events\UserRegisteredEvent;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\Tests\TestNotificationHandler;
-use League\Event\Emitter;
 use Tomaj\Hermes\Dispatcher;
 
 abstract class BaseTestCase extends DatabaseTestCase
@@ -58,8 +58,8 @@ abstract class BaseTestCase extends DatabaseTestCase
     /** @var Dispatcher */
     protected $dispatcher;
 
-    /** @var Emitter */
-    protected $emitter;
+    /** @var LazyEventEmitter */
+    protected $lazyEventEmitter;
 
     /** @var Engine */
     protected $engine;
@@ -129,7 +129,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $translator = $this->inject(Translator::class);
         $this->scenariosModule = new ScenariosModule($this->container, $translator);
         $this->dispatcher = $this->inject(Dispatcher::class);
-        $this->emitter = $this->inject(Emitter::class);
+        $this->lazyEventEmitter = $this->inject(LazyEventEmitter::class);
 
         $this->testNotificationHandler = new TestNotificationHandler();
 
@@ -148,9 +148,16 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
 
         // Email notification is going to be handled by test handler
-        $this->emitter->addListener(NotificationEvent::class, $this->testNotificationHandler);
+        $this->lazyEventEmitter->addListener(NotificationEvent::class, $this->testNotificationHandler);
 
         $this->engine = $this->inject(Engine::class);
+    }
+
+    protected function tearDown(): void
+    {
+        $this->lazyEventEmitter->removeAllListeners(NotificationEvent::class);
+
+        parent::tearDown();
     }
 
     protected function elementId($uuid)
