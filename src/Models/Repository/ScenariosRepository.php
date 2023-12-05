@@ -9,6 +9,7 @@ use Crm\SegmentModule\Repository\SegmentsRepository;
 use Exception;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;
+use Nette\Database\DriverException;
 use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
@@ -79,7 +80,13 @@ class ScenariosRepository extends Repository
      */
     final public function createOrUpdate(array $data)
     {
-        $this->connection->beginTransaction();
+        $inTransaction = false;
+        try {
+            $this->connection->beginTransaction();
+            $inTransaction = true;
+        } catch (DriverException $e) {
+            // transaction already in progress, ignore exception
+        }
 
         $scenarioData['name'] = $data['name'];
         $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
@@ -160,11 +167,15 @@ class ScenariosRepository extends Repository
             // Delete old triggers
             $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
         } catch (\Exception $exception) {
-            $this->connection->rollBack();
+            if ($inTransaction) {
+                $this->connection->rollBack();
+            }
             throw $exception;
         }
 
-        $this->connection->commit();
+        if ($inTransaction) {
+            $this->connection->commit();
+        }
         return $scenario;
     }
 
