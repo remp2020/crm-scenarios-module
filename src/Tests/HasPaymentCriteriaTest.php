@@ -3,13 +3,12 @@
 namespace Crm\Scenarios\Test;
 
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HasPaymentCriteriaTest extends TestCase
 {
-    /**
-     * @dataProvider hasPaymentDataProvider
-     */
+    #[DataProvider('hasPaymentDataProvider')]
     public function testHasPaymentWithoutPayment(array $parameters, bool $selectedValue, bool $expectedResult): void
     {
         $hasPaymentCriteria = new HasPaymentCriteria();
@@ -20,7 +19,7 @@ class HasPaymentCriteriaTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    public function hasPaymentDataProvider(): array
+    public static function hasPaymentDataProvider(): array
     {
         return [
             [['payment_id' => null], true, false],
