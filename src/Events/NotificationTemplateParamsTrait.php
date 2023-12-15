@@ -15,6 +15,9 @@ trait NotificationTemplateParamsTrait
         if ($payment && !$subscription && isset($payment->subscription)) {
             $subscription = $payment->subscription;
         }
+        if (!$payment && $subscription) {
+            $payment = $this->paymentsRepository->subscriptionPayment($subscription);
+        }
 
         $recurrentPayment = null;
         if (isset($scenarioJobParams->recurrent_payment_id)) {
