@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Api;
 
-use Crm\ApiModule\Api\ApiHandler;
-use Crm\ApiModule\Api\JsonValidationTrait;
+use Crm\ApiModule\Models\Api\ApiHandler;
+use Crm\ApiModule\Models\Api\JsonValidationTrait;
 use Crm\ScenariosModule\Repository\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Nette\Http\Request;

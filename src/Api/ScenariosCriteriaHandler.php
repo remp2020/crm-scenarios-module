@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Api;
 
-use Crm\ApiModule\Api\ApiHandler;
+use Crm\ApiModule\Models\Api\ApiHandler;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\Scenarios\ScenarioCriteriaParamInterface;
 use Nette\Http\Response;
