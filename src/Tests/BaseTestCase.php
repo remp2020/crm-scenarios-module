@@ -38,6 +38,7 @@ use Crm\SubscriptionsModule\Events\SubscriptionStartsEvent;
 use Crm\SubscriptionsModule\Repository\ContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionExtensionMethodsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionLengthMethodsRepository;
+use Crm\SubscriptionsModule\Repository\SubscriptionMetaRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionTypeContentAccessRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionTypesRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
@@ -76,6 +77,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             UsersRepository::class,
             // To work with subscriptions, we need all these tables
             SubscriptionsRepository::class,
+            SubscriptionMetaRepository::class,
             SubscriptionTypesRepository::class,
             SubscriptionExtensionMethodsRepository::class,
             SubscriptionLengthMethodsRepository::class,

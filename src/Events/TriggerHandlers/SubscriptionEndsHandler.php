@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Subscription\SubscriptionEndsSuppressionManager;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
@@ -13,6 +14,7 @@ class SubscriptionEndsHandler implements HandlerInterface
     public function __construct(
         private Dispatcher $dispatcher,
         private SubscriptionsRepository $subscriptionsRepository,
+        private SubscriptionEndsSuppressionManager $subscriptionEndsSuppressionManager,
     ) {
     }
 
@@ -27,6 +29,10 @@ class SubscriptionEndsHandler implements HandlerInterface
 
         if (!$subscription) {
             throw new \Exception("unable to handle event: subscription with ID=$subscriptionId does not exist");
+        }
+
+        if ($this->subscriptionEndsSuppressionManager->hasSuppressedNotifications($subscription)) {
+            return true;
         }
 
         $this->dispatcher->dispatch('subscription_ends', $subscription->user_id, [

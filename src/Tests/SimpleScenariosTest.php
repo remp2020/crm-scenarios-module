@@ -16,6 +16,7 @@ use Crm\SubscriptionsModule\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Subscription\SubscriptionEndsSuppressionManager;
 use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\Events\NotificationContext;
 use Crm\UsersModule\Events\PreNotificationEvent;
@@ -40,6 +41,8 @@ class SimpleScenariosTest extends BaseTestCase
 
     private JobsRepository $jobsRepository;
 
+    private SubscriptionEndsSuppressionManager $subscriptionEndsSuppressionManager;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -51,6 +54,7 @@ class SimpleScenariosTest extends BaseTestCase
         $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $this->jobsRepository = $this->getRepository(JobsRepository::class);
+        $this->subscriptionEndsSuppressionManager = $this->inject(SubscriptionEndsSuppressionManager::class);
     }
 
     public function testUserRegisteredEmailScenario()
@@ -383,6 +387,43 @@ class SimpleScenariosTest extends BaseTestCase
 
         // Check email was sent
         $this->assertCount(1, $this->mailsSentTo('test@email.com'));
+    }
+
+    public function testSubscriptionEndsNotificationStoppedEmailScenario()
+    {
+        $this->insertTriggerToEmailScenario('subscription_ends', 'empty_template_code');
+
+        // Create user
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        // Create actual subscription
+        $subscriptionType = $this->createSubscriptionType();
+
+        $this->subscriptionGenerator->generate(new SubscriptionsParams(
+            $subscriptionType,
+            $user,
+            SubscriptionsRepository::TYPE_FREE,
+            new DateTime('now - 15 minutes'),
+            new DateTime('now + 5 minutes'),
+            false
+        ), 1);
+
+        // check scheduled jobs - should be still empty (subscription didn't end yet)
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3);
+        $job = $this->jobsRepository->getScheduledJobs()->fetch();
+        $this->assertNull($job);
+
+        // Expire subscription (this triggers scenario)
+        $subscription = $this->subscriptionRepository->actualUserSubscription($user->id);
+        $this->subscriptionRepository->update($subscription, ['end_time' => new DateTime('now - 5 minutes')]);
+        $this->subscriptionEndsSuppressionManager->suppressNotifications($subscription);
+
+        // check scheduled jobs - should be still empty (subscription with no notifications meta)
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3);
+        $job = $this->jobsRepository->getScheduledJobs()->fetch();
+        $this->assertNull($job);
     }
 
     public function testRecurrentPayentRenewedEmailScenario()

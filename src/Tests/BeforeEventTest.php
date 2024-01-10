@@ -12,6 +12,7 @@ use Crm\ScenariosModule\Repository\ScenariosRepository;
 use Crm\ScenariosModule\Repository\TriggersRepository;
 use Crm\SubscriptionsModule\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Subscription\SubscriptionEndsSuppressionManager;
 use Crm\UsersModule\Auth\UserManager;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
@@ -20,6 +21,8 @@ class BeforeEventTest extends BaseTestCase
 {
     /** @var BeforeEventGenerator */
     protected $beforeEventGenerator;
+
+    private SubscriptionEndsSuppressionManager $subscriptionEndsSuppressionManager;
 
     public function setUp(): void
     {
@@ -36,8 +39,13 @@ class BeforeEventTest extends BaseTestCase
 
         /** @var SubscriptionsRepository $subscriptionsRepository */
         $subscriptionsRepository = $this->getRepository(SubscriptionsRepository::class);
+        $this->subscriptionEndsSuppressionManager = $this->inject(SubscriptionEndsSuppressionManager::class);
 
-        $subscriptionEndsEventGenerator = new SubscriptionEndsEventGenerator($subscriptionsRepository);
+        $subscriptionEndsEventGenerator = new SubscriptionEndsEventGenerator(
+            $subscriptionsRepository,
+            $this->subscriptionEndsSuppressionManager
+        );
+
         $this->eventsStorage->registerEventGenerator('subscription_ends', $subscriptionEndsEventGenerator);
 
         $this->beforeEventGenerator = new BeforeEventGenerator(
@@ -94,6 +102,43 @@ class BeforeEventTest extends BaseTestCase
 
         $this->assertEquals(1, $scenariosJobsRepository->getAllJobs()->count('*'));
         $this->assertEquals(1, $scenariosJobsRepository->getUnprocessedJobs()->count('*'));
+    }
+
+    public function testSubscriptionEndsBeforeEventSingleEventNotificationStopped(): void
+    {
+        $minutes = 1000;
+
+        /** @var ScenariosRepository $scenariosRepository */
+        $scenariosRepository = $this->getRepository(ScenariosRepository::class);
+        $scenarioRow = $scenariosRepository->createOrUpdate(['name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'subscription_ends'],
+                    'options' => self::obj(["minutes" => $minutes]),
+                ])
+            ]
+        ]);
+
+        /** @var UserManager $userManager */
+        $userManager = $this->inject(UserManager::class);
+        $userRow = $userManager->addNewUser('test@test.sk');
+
+        $subscriptionRow = $this->prepareSubscription($userRow, $minutes);
+        $this->subscriptionEndsSuppressionManager->suppressNotifications($subscriptionRow);
+
+        $result = $this->beforeEventGenerator->generate();
+
+        $this->assertEmpty($result);
+
+        /** @var JobsRepository $scenariosJobsRepository */
+        $scenariosJobsRepository = $this->getRepository(JobsRepository::class);
+
+        $this->assertEquals(0, $scenariosJobsRepository->getAllJobs()->count('*'));
+        $this->assertEquals(0, $scenariosJobsRepository->getUnprocessedJobs()->count('*'));
     }
 
     public function testSubscriptionEndsBeforeEventMultipleTriggers(): void
@@ -170,6 +215,9 @@ class BeforeEventTest extends BaseTestCase
         $this->prepareSubscription($userRow, $minutes);
         $this->prepareSubscription($userRow, $minutes + 1000);
         $this->prepareSubscription($userRow, $minutes - 2);
+
+        $stoppedNotificationsSubscription = $this->prepareSubscription($userRow, $minutes);
+        $this->subscriptionEndsSuppressionManager->suppressNotifications($stoppedNotificationsSubscription);
 
         $result = $this->beforeEventGenerator->generate();
 
