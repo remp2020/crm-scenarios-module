@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
-use Crm\InvoicesModule\Repository\InvoicesRepository;
+use Crm\InvoicesModule\Repositories\InvoicesRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Repository\JobsRepository;

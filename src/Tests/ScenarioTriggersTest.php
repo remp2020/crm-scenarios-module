@@ -3,9 +3,9 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\InvoicesModule\Repository\InvoiceNumber;
-use Crm\InvoicesModule\Repository\InvoiceNumbersRepository;
-use Crm\InvoicesModule\Repository\InvoicesRepository;
+use Crm\InvoicesModule\Models\InvoiceNumber\InvoiceNumber;
+use Crm\InvoicesModule\Repositories\InvoiceNumbersRepository;
+use Crm\InvoicesModule\Repositories\InvoicesRepository;
 use Crm\PaymentsModule\Gateways\BankTransfer;
 use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
