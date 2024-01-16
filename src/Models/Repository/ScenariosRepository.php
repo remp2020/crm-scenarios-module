@@ -14,6 +14,7 @@ use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 
 class ScenariosRepository extends Repository
 {
@@ -190,7 +191,7 @@ class ScenariosRepository extends Repository
      * @param int $scenarioID
      *
      * @return array|false if scenario was not found
-     * @throws \Nette\Utils\JsonException
+     * @throws JsonException
      */
     final public function getScenario(int $scenarioID)
     {

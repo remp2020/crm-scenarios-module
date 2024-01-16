@@ -284,7 +284,7 @@ class Engine
      * @param ActiveRow $job
      *
      * @throws NodeDeletedException
-     * @throws \Nette\Utils\JsonException
+     * @throws JsonException
      */
     private function scheduleNextAfterTrigger(ActiveRow $job)
     {
@@ -302,7 +302,7 @@ class Engine
      *
      * @throws InvalidJobException
      * @throws NodeDeletedException
-     * @throws \Nette\Utils\JsonException
+     * @throws JsonException
      */
     private function scheduleNextAfterElement(ActiveRow $job)
     {

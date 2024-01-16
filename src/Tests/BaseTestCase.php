@@ -20,6 +20,7 @@ use Crm\PaymentsModule\Repository\PaymentItemsRepository;
 use Crm\PaymentsModule\Repository\PaymentsRepository;
 use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
 use Crm\PaymentsModule\Seeders\PaymentGatewaysSeeder;
+use Crm\PrintModule\Seeders\AddressTypesSeeder;
 use Crm\ScenariosModule\Engine\Engine;
 use Crm\ScenariosModule\Repository\ElementElementsRepository;
 use Crm\ScenariosModule\Repository\ElementStatsRepository;
@@ -116,7 +117,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             SubscriptionTypeNamesSeeder::class,
             PaymentGatewaysSeeder::class,
             CountriesSeeder::class,
-            \Crm\PrintModule\Seeders\AddressTypesSeeder::class,
+            AddressTypesSeeder::class,
             \Crm\InvoicesModule\Seeders\AddressTypesSeeder::class,
         ];
     }

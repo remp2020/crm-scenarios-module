@@ -9,6 +9,7 @@ use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
+use Nette\Utils\JsonException;
 use Tracy\Debugger;
 
 class JobsRepository extends Repository
@@ -50,7 +51,7 @@ class JobsRepository extends Repository
      * @param array|null $context application context
      *
      * @return bool|int|ActiveRow
-     * @throws \Nette\Utils\JsonException
+     * @throws JsonException
      */
     final public function addTrigger($triggerId, array $parameters, ?array $context = null)
     {

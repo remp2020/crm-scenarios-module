@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule;
 
 use Crm\ApiModule\Api\ApiRoutersContainerInterface;
+use Crm\ApiModule\Authorization\BearerTokenAuthorization;
 use Crm\ApiModule\Router\ApiIdentifier;
 use Crm\ApiModule\Router\ApiRoute;
 use Crm\ApplicationModule\AssetsManager;
@@ -10,11 +11,15 @@ use Crm\ApplicationModule\Commands\CommandsContainerInterface;
 use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ApplicationModule\Event\LazyEventEmitter;
 use Crm\ApplicationModule\Menu\MenuContainerInterface;
 use Crm\ApplicationModule\Menu\MenuItem;
 use Crm\ApplicationModule\SeederManager;
+use Crm\ScenariosModule\Api\ScenariosCreateApiHandler;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
+use Crm\ScenariosModule\Api\ScenariosInfoApiHandler;
 use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
+use Crm\ScenariosModule\Api\ScenariosStatsApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
 use Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand;
 use Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand;
@@ -69,29 +74,29 @@ class ScenariosModule extends CrmModule
     {
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'info'),
-            \Crm\ScenariosModule\Api\ScenariosInfoApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+            ScenariosInfoApiHandler::class,
+            BearerTokenAuthorization::class
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'create'),
-            \Crm\ScenariosModule\Api\ScenariosCreateApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+            ScenariosCreateApiHandler::class,
+            BearerTokenAuthorization::class
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),
             ScenariosCriteriaHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+            BearerTokenAuthorization::class
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'generics'),
             ScenariosListGenericsApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+            BearerTokenAuthorization::class
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'stats'),
-            \Crm\ScenariosModule\Api\ScenariosStatsApiHandler::class,
-            \Crm\ApiModule\Authorization\BearerTokenAuthorization::class
+            ScenariosStatsApiHandler::class,
+            BearerTokenAuthorization::class
         ));
     }
 
@@ -139,7 +144,7 @@ class ScenariosModule extends CrmModule
         $eventsStorage->registerEventGenerator(BeforeRecurrentPaymentChargeEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
     }
 
-    public function registerLazyEventHandlers(\Crm\ApplicationModule\Event\LazyEventEmitter $emitter)
+    public function registerLazyEventHandlers(LazyEventEmitter $emitter)
     {
         $emitter->addListener(AbTestElementUpdatedEvent::class, ABTestElementUpdatedHandler::class);
     }
