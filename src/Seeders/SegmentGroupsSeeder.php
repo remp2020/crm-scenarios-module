@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Seeders;
 
 use Crm\ApplicationModule\Seeders\ISeeder;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
+use Crm\SegmentModule\Repository\SegmentsRepository;
 use Crm\SegmentModule\Seeders\SegmentsTrait;
 use Nette\Database\Table\ActiveRow;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,10 +15,10 @@ class SegmentGroupsSeeder implements ISeeder
 
     public const AB_TEST_SEGMENT_GROUP_CODE = 'scenarios-ab-test';
 
-    private $segmentGroupsRepository;
-
-    public function __construct(SegmentGroupsRepository $segmentGroupsRepository)
-    {
+    public function __construct(
+        private SegmentGroupsRepository $segmentGroupsRepository,
+        private SegmentsRepository $segmentsRepository,
+    ) {
         $this->segmentGroupsRepository = $segmentGroupsRepository;
     }
 
