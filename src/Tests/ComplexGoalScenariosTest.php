@@ -3,8 +3,8 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Hermes\DummyDriver;
-use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
-use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
+use Crm\OnboardingModule\Repositories\OnboardingGoalsRepository;
+use Crm\OnboardingModule\Repositories\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
 use Crm\ScenariosModule\Repository\ElementsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;

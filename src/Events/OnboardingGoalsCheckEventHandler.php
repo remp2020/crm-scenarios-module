@@ -3,8 +3,8 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\OnboardingModule\Repository\OnboardingGoalsRepository;
-use Crm\OnboardingModule\Repository\UserOnboardingGoalsRepository;
+use Crm\OnboardingModule\Repositories\OnboardingGoalsRepository;
+use Crm\OnboardingModule\Repositories\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Repository\ElementStatsRepository;
 use Crm\ScenariosModule\Repository\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
