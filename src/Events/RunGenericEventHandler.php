@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use League\Event\Emitter;
 use League\Event\EventInterface;

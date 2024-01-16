@@ -2,10 +2,10 @@
 
 namespace Crm\ScenariosModule\Engine;
 
-use Crm\ScenariosModule\Repository\ElementElementsRepository;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\TriggerElementsRepository;
-use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repositories\ElementElementsRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\TriggerElementsRepository;
+use Crm\ScenariosModule\Repositories\TriggersRepository;
 
 class GraphConfiguration
 {

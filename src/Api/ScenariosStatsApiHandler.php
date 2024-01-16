@@ -4,11 +4,11 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Models\Api\ApiHandler;
 use Crm\ApiModule\Models\Params\InputParam;
-use Crm\ScenariosModule\Repository\ElementStatsRepository;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Crm\ScenariosModule\Repository\TriggerStatsRepository;
+use Crm\ScenariosModule\Repositories\ElementStatsRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
 use Nette\Database\Table\ActiveRow;
 use Nette\Http\Response;
 use Nette\Utils\DateTime;

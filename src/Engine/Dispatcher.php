@@ -2,9 +2,9 @@
 
 namespace Crm\ScenariosModule\Engine;
 
-use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Nette\Database\Table\ActiveRow;
 
 class Dispatcher

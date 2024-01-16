@@ -4,10 +4,10 @@ namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\ScenariosModule\Events\ABTestDistributeEventHandler;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Crm\ScenariosModule\Repository\SelectedVariantsRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\SelectedVariantsRepository;
 use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Database\Table\ActiveRow;

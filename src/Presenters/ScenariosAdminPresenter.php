@@ -6,7 +6,7 @@ use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ApiModule\Models\Token\InternalToken;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
-use Crm\ScenariosModule\Repository\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Application\BadRequestException;
 
 class ScenariosAdminPresenter extends AdminPresenter

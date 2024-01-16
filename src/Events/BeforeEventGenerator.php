@@ -5,9 +5,9 @@ namespace Crm\ScenariosModule\Events;
 use Crm\ApplicationModule\Event\EventGeneratorInterface;
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ScenariosModule\Engine\Dispatcher;
-use Crm\ScenariosModule\Repository\GeneratedEventsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repositories\GeneratedEventsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\TriggersRepository;
 use DateInterval;
 use Nette\Utils\Json;
 

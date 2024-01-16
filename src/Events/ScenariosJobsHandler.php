@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\Json;
 use Tomaj\Hermes\Handler\HandlerInterface;

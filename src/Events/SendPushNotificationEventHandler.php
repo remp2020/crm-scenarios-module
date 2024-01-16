@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
-use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Crm\UsersModule\User\ReachChecker;
 use League\Event\Emitter;

@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
-use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 

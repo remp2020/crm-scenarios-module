@@ -4,9 +4,9 @@ namespace Crm\ScenariosModule\Tests;
 
 use Crm\ScenariosModule\Events\ScenarioGenericEventInterface;
 use Crm\ScenariosModule\Events\ScenariosGenericEventsManager;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\ScenariosRepository;
-use Crm\ScenariosModule\Repository\TriggersRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\UsersModule\Auth\UserManager;
 
 class RunGenericEventTest extends BaseTestCase

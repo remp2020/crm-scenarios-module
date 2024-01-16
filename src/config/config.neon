@@ -16,19 +16,19 @@ services:
 
 	scenariosGenericEventsManager: Crm\ScenariosModule\Events\ScenariosGenericEventsManager
 
-	elementsRepository: Crm\ScenariosModule\Repository\ElementsRepository
-	jobsRepository: Crm\ScenariosModule\Repository\JobsRepository
-	elementStatsRepository: Crm\ScenariosModule\Repository\ElementStatsRepository
-	elementElementsRepository: Crm\ScenariosModule\Repository\ElementElementsRepository
-	scenariosRepository: Crm\ScenariosModule\Repository\ScenariosRepository
-	triggersRepository: Crm\ScenariosModule\Repository\TriggersRepository
-	triggerStatsRepository: Crm\ScenariosModule\Repository\TriggerStatsRepository
-	triggerElementsRepository: Crm\ScenariosModule\Repository\TriggerElementsRepository
-	scenariosSelectedVariants: Crm\ScenariosModule\Repository\SelectedVariantsRepository
+	elementsRepository: Crm\ScenariosModule\Repositories\ElementsRepository
+	jobsRepository: Crm\ScenariosModule\Repositories\JobsRepository
+	elementStatsRepository: Crm\ScenariosModule\Repositories\ElementStatsRepository
+	elementElementsRepository: Crm\ScenariosModule\Repositories\ElementElementsRepository
+	scenariosRepository: Crm\ScenariosModule\Repositories\ScenariosRepository
+	triggersRepository: Crm\ScenariosModule\Repositories\TriggersRepository
+	triggerStatsRepository: Crm\ScenariosModule\Repositories\TriggerStatsRepository
+	triggerElementsRepository: Crm\ScenariosModule\Repositories\TriggerElementsRepository
+	scenariosSelectedVariants: Crm\ScenariosModule\Repositories\SelectedVariantsRepository
 	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
 	beforeEventGenerator: Crm\ScenariosModule\Events\BeforeEventGenerator
 	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
-	generatedEventsRepository: Crm\ScenariosModule\Repository\GeneratedEventsRepository
+	generatedEventsRepository: Crm\ScenariosModule\Repositories\GeneratedEventsRepository
 	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator
 	beforeRecurrentPaymentChargeEventGenerator: Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator
 

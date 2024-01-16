@@ -3,9 +3,9 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
-use Crm\ScenariosModule\Repository\ElementStatsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
-use Crm\ScenariosModule\Repository\SelectedVariantsRepository;
+use Crm\ScenariosModule\Repositories\ElementStatsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\SelectedVariantsRepository;
 use Crm\UsersModule\Repository\UsersRepository;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;

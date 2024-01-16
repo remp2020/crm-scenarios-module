@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Commands;
 
-use Crm\ScenariosModule\Repository\ElementStatsRepository;
-use Crm\ScenariosModule\Repository\TriggerStatsRepository;
+use Crm\ScenariosModule\Repositories\ElementStatsRepository;
+use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
 use Nette\Utils\DateTime;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

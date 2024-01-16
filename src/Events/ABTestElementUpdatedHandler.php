@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ScenariosModule\Repository\ElementsRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Crm\SegmentModule\Repository\SegmentGroupsRepository;
 use Crm\SegmentModule\Repository\SegmentsRepository;

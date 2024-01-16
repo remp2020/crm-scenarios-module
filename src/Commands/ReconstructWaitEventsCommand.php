@@ -4,8 +4,8 @@ namespace Crm\ScenariosModule\Commands;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
-use Crm\ScenariosModule\Repository\ElementsRepository;
-use Crm\ScenariosModule\Repository\JobsRepository;
+use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\JobsRepository;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Symfony\Component\Console\Command\Command;
