@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\ScenariosModule\Repository;
+namespace Crm\ScenariosModule\Repositories;
 
 use Crm\ApplicationModule\Event\EventsStorage;
 use Crm\ApplicationModule\Repository;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\ScenariosModule\Repository;
+namespace Crm\ScenariosModule\Repositories;
 
 class ScenarioInvalidDataException extends \Exception
 {

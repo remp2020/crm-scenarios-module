@@ -1,6 +1,6 @@
 <?php
 
-namespace Crm\Scenarios\Test;
+namespace Crm\ScenariosModule\Tests;
 
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use PHPUnit\Framework\Attributes\DataProvider;
