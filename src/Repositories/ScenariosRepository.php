@@ -5,7 +5,7 @@ namespace Crm\ScenariosModule\Repositories;
 use Crm\ApplicationModule\Repository;
 use Crm\ApplicationModule\Repository\AuditLogRepository;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
-use Crm\SegmentModule\Repository\SegmentsRepository;
+use Crm\SegmentModule\Repositories\SegmentsRepository;
 use Exception;
 use Nette\Caching\Storage;
 use Nette\Database\Connection;

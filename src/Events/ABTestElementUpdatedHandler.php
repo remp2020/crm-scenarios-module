@@ -4,8 +4,8 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
-use Crm\SegmentModule\Repository\SegmentGroupsRepository;
-use Crm\SegmentModule\Repository\SegmentsRepository;
+use Crm\SegmentModule\Repositories\SegmentGroupsRepository;
+use Crm\SegmentModule\Repositories\SegmentsRepository;
 use League\Event\AbstractListener;
 use League\Event\EventInterface;
 use Nette\Database\Table\ActiveRow;
