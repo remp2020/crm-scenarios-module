@@ -4,8 +4,8 @@ namespace Crm\ScenariosModule\Events\EventGenerators;
 
 use Crm\ApplicationModule\Event\BeforeEvent;
 use Crm\ApplicationModule\Event\EventGeneratorInterface;
-use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
-use Crm\SubscriptionsModule\Subscription\SubscriptionEndsSuppressionManager;
+use Crm\SubscriptionsModule\Models\Subscription\SubscriptionEndsSuppressionManager;
+use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
 use DateInterval;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;

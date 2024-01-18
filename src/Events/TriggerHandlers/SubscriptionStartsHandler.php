@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Events\TriggerHandlers;
 
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Repositories\JobsRepository;
-use Crm\SubscriptionsModule\Repository\SubscriptionsRepository;
+use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
 use Tomaj\Hermes\Handler\HandlerInterface;
 use Tomaj\Hermes\MessageInterface;
 
