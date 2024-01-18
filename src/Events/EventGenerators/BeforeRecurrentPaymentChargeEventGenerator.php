@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Events\EventGenerators;
 
 use Crm\ApplicationModule\Event\BeforeEvent;
 use Crm\ApplicationModule\Event\EventGeneratorInterface;
-use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
+use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use DateInterval;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;

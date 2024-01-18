@@ -4,7 +4,7 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ApplicationModule\Repository;
-use Crm\PaymentsModule\Repository\PaymentsRepository;
+use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\SegmentModule\Models\SegmentFactoryInterface;

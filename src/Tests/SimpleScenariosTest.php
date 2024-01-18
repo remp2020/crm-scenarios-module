@@ -2,10 +2,10 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\PaymentsModule\PaymentItem\PaymentItemContainer;
-use Crm\PaymentsModule\Repository\PaymentGatewaysRepository;
-use Crm\PaymentsModule\Repository\PaymentsRepository;
-use Crm\PaymentsModule\Repository\RecurrentPaymentsRepository;
+use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repositories\PaymentsRepository;
+use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
