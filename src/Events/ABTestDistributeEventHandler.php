@@ -6,7 +6,7 @@ use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\SelectedVariantsRepository;
-use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Repositories\UsersRepository;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
 

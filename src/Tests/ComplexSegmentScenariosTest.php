@@ -10,7 +10,7 @@ use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\SegmentModule\Repositories\SegmentGroupsRepository;
 use Crm\SegmentModule\Repositories\SegmentsRepository;
-use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Models\Auth\UserManager;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 

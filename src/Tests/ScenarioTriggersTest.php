@@ -18,12 +18,12 @@ use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Models\Generator\SubscriptionsGenerator;
 use Crm\SubscriptionsModule\Models\Generator\SubscriptionsParams;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
-use Crm\UsersModule\Auth\UserManager;
 use Crm\UsersModule\Events\AddressChangedEvent;
 use Crm\UsersModule\Events\NewAddressEvent;
-use Crm\UsersModule\Repository\AddressChangeRequestsRepository;
-use Crm\UsersModule\Repository\AddressTypesRepository;
-use Crm\UsersModule\Repository\AddressesRepository;
+use Crm\UsersModule\Models\Auth\UserManager;
+use Crm\UsersModule\Repositories\AddressChangeRequestsRepository;
+use Crm\UsersModule\Repositories\AddressTypesRepository;
+use Crm\UsersModule\Repositories\AddressesRepository;
 use Nette\Utils\DateTime;
 use Tomaj\Hermes\Emitter;
 

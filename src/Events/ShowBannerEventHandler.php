@@ -4,8 +4,8 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ScenariosModule\Repositories\JobsRepository;
-use Crm\UsersModule\Repository\UsersRepository;
-use Crm\UsersModule\User\ReachChecker;
+use Crm\UsersModule\Models\User\ReachChecker;
+use Crm\UsersModule\Repositories\UsersRepository;
 use League\Event\Emitter;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;

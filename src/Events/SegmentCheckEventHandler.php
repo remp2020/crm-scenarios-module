@@ -10,7 +10,7 @@ use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\SegmentModule\Models\SegmentFactoryInterface;
 use Crm\SegmentModule\Repositories\SegmentsRepository;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
-use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Repositories\UsersRepository;
 use Nette\UnexpectedValueException;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;

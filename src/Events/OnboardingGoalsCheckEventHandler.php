@@ -7,7 +7,7 @@ use Crm\OnboardingModule\Repositories\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repositories\UserOnboardingGoalsRepository;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
-use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Repositories\UsersRepository;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;

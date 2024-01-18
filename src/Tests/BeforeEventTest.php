@@ -13,7 +13,7 @@ use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Models\Subscription\SubscriptionEndsSuppressionManager;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
-use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Models\Auth\UserManager;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 

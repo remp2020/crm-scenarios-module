@@ -10,7 +10,7 @@ use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Scenarios\ScenariosTriggerCriteriaInterface;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
-use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Repositories\UsersRepository;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;

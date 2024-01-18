@@ -16,7 +16,7 @@ use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
-use Crm\UsersModule\Repository\UsersRepository;
+use Crm\UsersModule\Repositories\UsersRepository;
 use DateTime;
 
 class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase

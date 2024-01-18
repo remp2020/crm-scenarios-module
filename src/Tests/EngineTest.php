@@ -8,7 +8,7 @@ use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
-use Crm\UsersModule\Auth\UserManager;
+use Crm\UsersModule\Models\Auth\UserManager;
 use DateTime;
 
 class EngineTest extends BaseTestCase
