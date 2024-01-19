@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Events\EventGenerators;
 
-use Crm\ApplicationModule\Event\BeforeEvent;
-use Crm\ApplicationModule\Event\EventGeneratorInterface;
+use Crm\ApplicationModule\Models\Event\BeforeEvent;
+use Crm\ApplicationModule\Models\Event\EventGeneratorInterface;
 use Crm\SubscriptionsModule\Models\Subscription\SubscriptionEndsSuppressionManager;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
 use DateInterval;

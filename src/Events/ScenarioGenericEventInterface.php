@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ApplicationModule\Scenarios\ScenarioCriteriaParamInterface;
+use Crm\ApplicationModule\Models\Criteria\ScenarioCriteriaParamInterface;
 use League\Event\EventInterface;
 
 interface ScenarioGenericEventInterface

@@ -3,8 +3,8 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Contributte\Translation\Translator;
-use Crm\ApplicationModule\Event\EventsStorage;
-use Crm\ApplicationModule\Event\LazyEventEmitter;
+use Crm\ApplicationModule\Models\Event\EventsStorage;
+use Crm\ApplicationModule\Models\Event\LazyEventEmitter;
 use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\InvoicesModule\Events\NewInvoiceEvent;

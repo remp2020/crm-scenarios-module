@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Repositories;
 
-use Crm\ApplicationModule\Repository;
-use Crm\ApplicationModule\Repository\AuditLogRepository;
+use Crm\ApplicationModule\Models\Database\Repository;
+use Crm\ApplicationModule\Repositories\AuditLogRepository;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use League\Event\Emitter;
 use Nette\Caching\Storage;

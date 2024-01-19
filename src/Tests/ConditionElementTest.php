@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Contributte\Translation\Translator;
-use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
+use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
 use Crm\PaymentsModule\Models\Gateways\Paypal;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;

@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;

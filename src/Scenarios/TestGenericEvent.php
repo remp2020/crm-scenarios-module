@@ -2,9 +2,9 @@
 
 namespace Crm\ScenariosModule\Scenarios;
 
-use Crm\ApplicationModule\Criteria\ScenarioParams\BooleanParam;
-use Crm\ApplicationModule\Criteria\ScenarioParams\NumberParam;
-use Crm\ApplicationModule\Criteria\ScenarioParams\StringLabeledArrayParam;
+use Crm\ApplicationModule\Models\Criteria\ScenarioParams\BooleanParam;
+use Crm\ApplicationModule\Models\Criteria\ScenarioParams\NumberParam;
+use Crm\ApplicationModule\Models\Criteria\ScenarioParams\StringLabeledArrayParam;
 use Crm\ScenariosModule\Events\ScenarioGenericEventInterface;
 use League\Event\AbstractEvent;
 

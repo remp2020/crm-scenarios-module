@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Tests;
 
-use Crm\ApplicationModule\Event\BeforeEvent;
+use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;

@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Repositories;
 
-use Crm\ApplicationModule\Repository;
-use Crm\ApplicationModule\Selection;
+use Crm\ApplicationModule\Models\Database\Repository;
+use Crm\ApplicationModule\Models\Database\Selection;
 use Nette\Utils\DateTime;
 
 class TriggerStatsRepository extends Repository

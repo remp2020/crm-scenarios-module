@@ -3,8 +3,8 @@
 namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Models\Api\ApiHandler;
-use Crm\ApplicationModule\Criteria\ScenariosCriteriaStorage;
-use Crm\ApplicationModule\Scenarios\ScenarioCriteriaParamInterface;
+use Crm\ApplicationModule\Models\Criteria\ScenarioCriteriaParamInterface;
+use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
 use Nette\Http\Response;
 use Tomaj\NetteApi\Response\JsonApiResponse;
 use Tomaj\NetteApi\Response\ResponseInterface;

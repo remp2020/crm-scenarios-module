@@ -2,7 +2,7 @@
 
 namespace Crm\ScenariosModule\Repositories;
 
-use Crm\ApplicationModule\Repository;
+use Crm\ApplicationModule\Models\Database\Repository;
 use Nette\Database\Table\ActiveRow;
 
 class SelectedVariantsRepository extends Repository

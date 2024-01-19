@@ -2,8 +2,8 @@
 
 namespace Crm\ScenariosModule\Events;
 
-use Crm\ApplicationModule\Event\EventGeneratorInterface;
-use Crm\ApplicationModule\Event\EventsStorage;
+use Crm\ApplicationModule\Models\Event\EventGeneratorInterface;
+use Crm\ApplicationModule\Models\Event\EventsStorage;
 use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Repositories\GeneratedEventsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
