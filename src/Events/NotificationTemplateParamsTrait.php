@@ -10,6 +10,8 @@ trait NotificationTemplateParamsTrait
         $password = $scenarioJobParams->password ?? null;
         $subscription = isset($scenarioJobParams->subscription_id) ? $this->subscriptionsRepository->find($scenarioJobParams->subscription_id) : null;
         $payment = isset($scenarioJobParams->payment_id) ? $this->paymentsRepository->find($scenarioJobParams->payment_id) : null;
+        // this is here to allow `Crm\PaymentsModule\Events\CreateNewPaymentEventHandler` add `renewal_payment` job parameter remp/novydenik#1147
+        $renewalPayment = isset($scenarioJobParams->renewal_payment_id) ? $this->paymentsRepository->find($scenarioJobParams->renewal_payment_id) : null;
         $address = isset($scenarioJobParams->address_id) ? $this->addressesRepository->find($scenarioJobParams->address_id) : null;
 
         if ($payment && !$subscription && isset($payment->subscription)) {
@@ -54,6 +56,9 @@ trait NotificationTemplateParamsTrait
         }
         if ($payment) {
             $templateParams['payment'] = $payment->toArray();
+        }
+        if ($renewalPayment) {
+            $templateParams['renewal_payment'] = $renewalPayment->toArray();
         }
         if ($recurrentPayment) {
             $templateParams['recurrent_payment'] = $recurrentPayment->toArray();

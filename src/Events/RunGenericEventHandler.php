@@ -9,6 +9,8 @@ use League\Event\Emitter;
 use League\Event\EventInterface;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
+use Tracy\Debugger;
+use Tracy\ILogger;
 
 class RunGenericEventHandler extends ScenariosJobsHandler
 {
@@ -85,6 +87,22 @@ class RunGenericEventHandler extends ScenariosJobsHandler
                     );
                 }
                 $this->emitter->emit($event);
+
+                // handle generic event additional params
+                if ($event instanceof ScenarioGenericEventAdditionalParamsInterface) {
+                    $additionalJobParameters = $event->getAdditionalJobParameters();
+                    foreach ($additionalJobParameters as $addParamKey => $addParamVal) {
+                        if (isset($parameters->{$addParamKey})) {
+                            Debugger::log("Trying to add already existing job parameter: `{$addParamKey}`", ILogger::WARNING);
+                            continue;
+                        }
+
+                        $parameters->{$addParamKey} = $addParamVal;
+                    }
+                    $this->jobsRepository->update($job, [
+                        'parameters' => Json::encode($parameters)
+                    ]);
+                }
             }
         } catch (\Exception $e) {
             $this->jobError($job, $e->getMessage());
