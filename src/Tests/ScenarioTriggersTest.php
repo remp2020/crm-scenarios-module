@@ -216,7 +216,7 @@ class ScenarioTriggersTest extends BaseTestCase
 
     public function testTriggerNewAddressHandler()
     {
-        $this->addTestScenario('address_changed');
+        $this->addTestScenario('new_address');
 
         $user1 = $this->userManager->addNewUser('user1@email.com', false, 'unknown', null, false);
 

@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Tests;
 use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Models\Event\EventsStorage;
 use Crm\ApplicationModule\Models\Event\LazyEventEmitter;
+use Crm\ApplicationModule\Models\Scenario\TriggerManager;
 use Crm\ApplicationModule\Seeders\CountriesSeeder;
 use Crm\ApplicationModule\Tests\DatabaseTestCase;
 use Crm\InvoicesModule\Events\NewInvoiceEvent;
@@ -149,6 +150,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->eventsStorage->register('before_recurrent_payment_charge', BeforeRecurrentPaymentChargeEvent::class, true);
         $this->eventsStorage->register('new_invoice', NewInvoiceEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
+        $this->scenariosModule->registerScenariosTriggers($this->inject(TriggerManager::class));
 
         // Email notification is going to be handled by test handler
         $this->lazyEventEmitter->addListener(NotificationEvent::class, $this->testNotificationHandler);

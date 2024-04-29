@@ -2,7 +2,8 @@
 
 namespace Crm\ScenariosModule\Commands;
 
-use Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler;
+use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ScenariosModule\Scenarios\TriggerHandlers\TestUserTriggerHandler;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -37,7 +38,9 @@ class TestUserCommand extends Command
         if (!$userId) {
             throw new \InvalidArgumentException('Missing --user_id option');
         }
-        $this->hermesEmitter->emit(TestUserHandler::createHermesMessage($userId));
+        $this->hermesEmitter->emit(new HermesMessage(TestUserTriggerHandler::EVENT_TYPE, [
+            'user_id' => $userId
+        ]));
 
         $output->writeln("<info>Event 'scenarios-test-user' with UserID={$userId} fired</info>");
         return Command::SUCCESS;

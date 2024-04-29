@@ -37,6 +37,7 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosCriteriaHandler
 	- Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler
 	- Crm\ScenariosModule\Api\ScenariosStatsApiHandler
+	- Crm\ScenariosModule\Api\ScenariosListTriggersApiHandler
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler
@@ -49,29 +50,34 @@ services:
 	- Crm\ScenariosModule\Events\ABTestDistributeEventHandler
 	- Crm\ScenariosModule\Events\ABTestElementUpdatedHandler
 
-	- Crm\ScenariosModule\Events\TriggerHandlers\TestUserHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\NewSubscriptionHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionStartsHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\SubscriptionEndsHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentRenewedHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\UserRegisteredHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\NewPaymentHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\AddressChangedHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\NewAddressHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\PaymentStatusChangeHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\RecurrentPaymentStateChangedHandler
-	- Crm\ScenariosModule\Events\TriggerHandlers\NewInvoiceHandler
-
 	- Crm\ScenariosModule\Commands\ScenariosWorkerCommand
 	- Crm\ScenariosModule\Commands\TestUserCommand
 	- Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand
 	- Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand
 	- Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand
+	- Crm\ScenariosModule\Commands\ListScenariosToReviewCommand
 
-	- Crm\ScenariosModule\Engine\Dispatcher
+	scenariosJobDispatcher:
+	    factory: Crm\ScenariosModule\Engine\Dispatcher
 
 	- Crm\ScenariosModule\Presenters\ScenariosAdminPresenter
 
 	- Crm\ScenariosModule\Scenarios\HasPaymentCriteria
 
 	- Crm\ScenariosModule\Seeders\SegmentGroupsSeeder
+
+	triggerManager:
+	    factory: Crm\ApplicationModule\Models\Scenario\TriggerManager(@hermesDispatcher, @scenariosJobDispatcher)
+
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\UserRegisteredTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\TestUserTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewSubscriptionTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionStartsTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionEndsTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewPaymentTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\PaymentStatusChangeTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\AddressChangedTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentRenewedTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentStateChangedTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewInvoiceTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewAddressTriggerHandler
