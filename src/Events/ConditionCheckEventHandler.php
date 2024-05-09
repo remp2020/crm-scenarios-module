@@ -120,32 +120,6 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
         // Currently only given (trigger) event checks are supported
         switch ($conditions->event) {
-            case 'user':
-                // user_id is guaranteed to always be there
-                $itemQuery = $this->usersRepository->getTable()->where(['users.id' => $jobParameters->user_id]);
-                $itemRow = $this->usersRepository->find($jobParameters->user_id);
-                break;
-            case 'payment':
-                if (!isset($jobParameters->payment_id)) {
-                    throw new ConditionCheckException("Job does not have 'payment_id' parameter required by specified condition check");
-                }
-                $itemQuery = $this->paymentsRepository->getTable()->where(['payments.id' => $jobParameters->payment_id]);
-                $itemRow = $this->paymentsRepository->find($jobParameters->payment_id);
-                break;
-            case 'subscription':
-                if (!isset($jobParameters->subscription_id)) {
-                    throw new ConditionCheckException("Job does not have 'subscription_id' parameter required by specified condition check");
-                }
-                $itemQuery = $this->subscriptionsRepository->getTable()->where(['subscriptions.id' => $jobParameters->subscription_id]);
-                $itemRow = $this->subscriptionsRepository->find($jobParameters->subscription_id);
-                break;
-            case 'recurrent_payment':
-                if (!isset($jobParameters->recurrent_payment_id)) {
-                    throw new ConditionCheckException("Job does not have 'recurrent_payment_id' parameter required by specified condition check");
-                }
-                $itemQuery = $this->recurrentPaymentsRepository->getTable()->where(['recurrent_payments.id' => $jobParameters->recurrent_payment_id]);
-                $itemRow = $this->recurrentPaymentsRepository->find($jobParameters->recurrent_payment_id);
-                break;
             case 'trigger':
                 foreach ($conditions->nodes as $node) {
                     $criterion = $this->scenariosCriteriaStorage->getEventCriterion($conditions->event, $node->key);
