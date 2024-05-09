@@ -81,3 +81,6 @@ services:
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentStateChangedTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewInvoiceTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewAddressTriggerHandler
+	- Crm\ScenariosModule\Engine\Validator\ScenarioConditionValidator
+	- Crm\ScenariosModule\Engine\Validator\TriggerOutputParamsRetriever
+	- Crm\ScenariosModule\Engine\Validator\ScenarioValidator

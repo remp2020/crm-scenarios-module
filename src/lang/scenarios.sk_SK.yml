@@ -22,6 +22,9 @@ admin:
             title: Editácia scenára
         new:
             title: Nový scenár
+        validation_errors:
+            element_validation_error: "Bola nájdená chyba v elemente '%elementName%' (%elementType%) v rámci spúšťaču '%triggerName%' (%triggerKey%): %errorMessage%"
+            incompatible_criteria_with_trigger: "Podmienka nemôže byť použitá s týmto spúšťačom."
 data:
     fields:
         name: Meno

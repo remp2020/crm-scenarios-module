@@ -7,7 +7,7 @@ use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaInterface;
 use Nette\Database\Table\ActiveRow;
 use Nette\Database\Table\Selection;
 
-class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTriggerCriteriaInterface
+class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTriggerCriteriaInterface, ScenariosTriggerCriteriaRequirementsInterface
 {
     public const KEY = 'has_payment';
 
@@ -21,6 +21,11 @@ class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTrigger
     public function addConditions(Selection $selection, array $paramValues, ActiveRow $criterionItemRow): bool
     {
         return true;
+    }
+
+    public function getInputParams(): array
+    {
+        return ['payment_id'];
     }
 
     public function evaluate($jobParameters, array $paramValues): bool

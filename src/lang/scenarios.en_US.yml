@@ -18,6 +18,9 @@ admin:
             scenario_disabled: "Scenario <em>%name%</em> was disabled."
             scenario_deleted: "Scenario <em>%name%</em> was deleted."
             scenario_restored: "Scenario <em>%name%</em> was restored."
+        validation_errors:
+            element_validation_error: "An issue with element '%elementName%' (%elementType%) within a trigger '%triggerName%' (%triggerKey%) found: %errorMessage%"
+            incompatible_criteria_with_trigger: "The trigger criteria can't be used with the trigger."
         edit:
             title: Edit scenario
         new:

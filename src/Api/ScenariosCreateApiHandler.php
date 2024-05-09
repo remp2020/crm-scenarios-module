@@ -4,10 +4,12 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Models\Api\ApiHandler;
 use Crm\ApiModule\Models\Api\JsonValidationTrait;
+use Crm\ScenariosModule\Engine\Validator\ScenarioValidationException;
+use Crm\ScenariosModule\Engine\Validator\ScenarioValidator;
 use Crm\ScenariosModule\Repositories\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Nette\Http\IResponse;
 use Nette\Http\Request;
-use Nette\Http\Response;
 use Tomaj\NetteApi\Response\JsonApiResponse;
 use Tomaj\NetteApi\Response\ResponseInterface;
 use Tracy\Debugger;
@@ -16,16 +18,11 @@ class ScenariosCreateApiHandler extends ApiHandler
 {
     use JsonValidationTrait;
 
-    private $request;
-
-    private $scenariosRepository;
-
     public function __construct(
-        Request $request,
-        ScenariosRepository $scenariosRepository
+        private readonly Request $request,
+        private readonly ScenariosRepository $scenariosRepository,
+        private readonly ScenarioValidator $scenarioValidator,
     ) {
-        $this->request = $request;
-        $this->scenariosRepository = $scenariosRepository;
     }
 
     public function params(): array
@@ -39,8 +36,12 @@ class ScenariosCreateApiHandler extends ApiHandler
         $data = $authorization->getAuthorizedData();
         if (!isset($data['token'])) {
             return new JsonApiResponse(
-                Response::S403_FORBIDDEN,
-                ['status' => 'error', 'message' => 'Cannot authorize user']
+                IResponse::S403_Forbidden,
+                [
+                    'status' => 'error',
+                    'message' => 'Cannot authorize user',
+                    'code' => 'unauthorized_user',
+                ]
             );
         }
 
@@ -50,8 +51,12 @@ class ScenariosCreateApiHandler extends ApiHandler
         $contentTypes = explode(';', $contentType);
         if (!in_array('application/json', array_map('trim', $contentTypes), true)) {
             return new JsonApiResponse(
-                Response::S400_BAD_REQUEST,
-                ['status' => 'error', 'message' => "Incorrect Content-Type [{$contentType}]. Expected 'application/json'."]
+                IResponse::S400_BadRequest,
+                [
+                    'status' => 'error',
+                    'message' => "Incorrect Content-Type [{$contentType}]. Expected 'application/json'.",
+                    'code' => 'invalid_content_type',
+                ]
             );
         }
 
@@ -64,27 +69,53 @@ class ScenariosCreateApiHandler extends ApiHandler
             return $requestValidationResult->getErrorResponse();
         }
 
-        $data = (array)$requestValidationResult->getParsedObject();
+        try {
+            $this->scenarioValidator->validate($requestValidationResult->getParsedObjectAsArray());
+        } catch (ScenarioValidationException $exception) {
+            return new JsonApiResponse(
+                IResponse::S422_UnprocessableEntity,
+                [
+                    'status' => 'error',
+                    'message' => $exception->getMessage(),
+                    'code' => 'validation_error',
+                    'affected_trigger_id' => $exception->triggerId,
+                    'affected_element_id' => $exception->elementId,
+                ]
+            );
+        }
 
+        $data = (array)$requestValidationResult->getParsedObject();
         try {
             $scenario = $this->scenariosRepository->createOrUpdate($data);
         } catch (ScenarioInvalidDataException $exception) {
             return new JsonApiResponse(
-                Response::S409_CONFLICT,
-                ['status' => 'error', 'message' => $exception->getMessage()]
+                IResponse::S409_Conflict,
+                [
+                    'status' => 'error',
+                    'message' => $exception->getMessage(),
+                    'code' => 'invalid_data',
+                ]
             );
         } catch (\Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
             return new JsonApiResponse(
-                Response::S500_INTERNAL_SERVER_ERROR,
-                ['status' => 'error', 'message' => $exception->getMessage()]
+                IResponse::S500_InternalServerError,
+                [
+                    'status' => 'error',
+                    'message' => $exception->getMessage(),
+                    'code' => 'unknown_error',
+                ]
             );
         }
 
         if (!$scenario) {
             return new JsonApiResponse(
-                Response::S404_NOT_FOUND,
-                ['status' => 'error', 'message' => "Scenario with provided ID [{$data['id']}] not found."]
+                IResponse::S404_NotFound,
+                [
+                    'status' => 'error',
+                    'message' => "Scenario with provided ID [{$data['id']}] not found.",
+                    'code' => 'not_found',
+                ]
             );
         }
 
@@ -94,11 +125,15 @@ class ScenariosCreateApiHandler extends ApiHandler
             $message = "Unable to load scenario with ID [{$scenario->id}]";
             Debugger::log($message, Debugger::EXCEPTION);
             return new JsonApiResponse(
-                Response::S500_INTERNAL_SERVER_ERROR,
-                ['status' => 'error', 'message' => $message]
+                IResponse::S500_InternalServerError,
+                [
+                    'status' => 'error',
+                    'message' => $message,
+                    'code' => 'not_found',
+                ]
             );
         }
 
-        return new JsonApiResponse(Response::S201_CREATED, $result);
+        return new JsonApiResponse(IResponse::S201_Created, $result);
     }
 }

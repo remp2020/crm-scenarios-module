@@ -22,6 +22,9 @@ admin:
             title: Editace scénáře
         new:
             title: Nový scénář
+        validation_errors:
+            element_validation_error: "Byla nalezena chyba v elementu '%elementName%' (%elementType%) v rámci spouštěče '%triggerName%' (%triggerKey%): %errorMessage%"
+            incompatible_criteria_with_trigger: "Podmínka nemůže být použita s tímto spouštěčem."
 data:
     fields:
         name: Jméno
