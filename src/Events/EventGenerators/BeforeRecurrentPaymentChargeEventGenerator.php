@@ -4,21 +4,24 @@ namespace Crm\ScenariosModule\Events\EventGenerators;
 
 use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\ApplicationModule\Models\Event\EventGeneratorInterface;
+use Crm\ApplicationModule\Models\Event\EventGeneratorOutputProviderInterface;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use DateInterval;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 
-class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterface
+class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterface, EventGeneratorOutputProviderInterface
 {
     public const BEFORE_EVENT_CODE = 'before_recurrent_payment_charge';
 
-    private RecurrentPaymentsRepository $recurrentPaymentsRepository;
-
     public function __construct(
-        RecurrentPaymentsRepository $recurrentPaymentsRepository
+        private readonly RecurrentPaymentsRepository $recurrentPaymentsRepository,
     ) {
-        $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
+    }
+
+    public function getOutputParams(): array
+    {
+        return ['user_id', 'recurrent_payment_id', 'subscription_type_id', 'subscription_id'];
     }
 
     public function generate(DateInterval $timeOffset): array
@@ -29,6 +32,7 @@ class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterf
         $endTimeFrom = $endTimeTo->modifyClone("-30 minutes");
 
         return array_map(function (ActiveRow $recurrentPaymentRow) {
+            $parameters['user_id'] = $recurrentPaymentRow->user_id;
             $parameters['recurrent_payment_id'] = $recurrentPaymentRow->id;
             $parameters['subscription_type_id'] = $recurrentPaymentRow->subscription_type_id;
             $parameters['subscription_id'] = $recurrentPaymentRow->parent_payment->subscription_id ?? null;
