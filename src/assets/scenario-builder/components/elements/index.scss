@@ -1,0 +1,43 @@
+/*---  Colors  ---*/
+$red: #db2828;
+$orange: #f2711c;
+$yellow: #fbbd08;
+$olive: #b5cc18;
+$green: #21ba45;
+$teal: #00b5ad;
+$blue: #2185d0;
+$violet: #6435c9;
+$purple: #a333c8;
+$pink: #e03997;
+$brown: #a5673f;
+$grey: #767676;
+$black: #1b1c1d;
+
+/*---  Light Colors  ---*/
+$lightRed: #ff695e;
+$lightOrange: #ff851b;
+$lightYellow: #ffe21f;
+$lightOlive: #d9e778;
+$lightGreen: #2ecc40;
+$lightTeal: #6dffff;
+$lightBlue: #54c8ff;
+$lightViolet: #a291fb;
+$lightPurple: #dc73ff;
+$lightPink: #ff8edf;
+$lightBrown: #d67c1c;
+$lightGrey: #dcddde;
+$lightBlack: #54545418;
+
+@import './defaultElementsStyle';
+@import './Email/sass/style';
+@import './Generic/sass/style';
+@import './Segment/sass/style';
+@import './Trigger/sass/style';
+@import './BeforeTrigger/sass/style';
+@import './Wait/sass/style';
+@import './Link/sass/style';
+@import './Goal/sass/style';
+@import './Banner/sass/style';
+@import './Condition/sass/style';
+@import './PushNotification/sass/style';
+@import './ABTest/sass/style';

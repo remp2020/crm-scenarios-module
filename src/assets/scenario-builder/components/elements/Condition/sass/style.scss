@@ -1,0 +1,31 @@
+$nodeColor: $orange;
+
+.srd-node--selected {
+  .diamond-node.condition-node .node-container {
+    box-shadow: 0 0 10px $nodeColor;
+  }
+}
+
+.condition-node {
+  .node-container {
+    border: solid 2px $nodeColor;
+    color: $nodeColor;
+  }
+
+  &__title {
+    color: $nodeColor;
+  }
+
+  &__left,
+  &__right,
+  &__bottom {
+    .port {
+      box-shadow: 0 0 10px $nodeColor;
+
+      &:hover,
+      &.selected {
+        background: $nodeColor;
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+$nodeColor: $lightOrange;
+
+.srd-node--selected {
+  .round-node.wait-node .node-container {
+    box-shadow: 0 0 10px $nodeColor;
+  }
+}
+
+.wait-node {
+  .node-container {
+    border: solid 2px $nodeColor;
+    color: $nodeColor;
+  }
+
+  &__title {
+    color: $nodeColor;
+  }
+
+  &__left,
+  &__right {
+    .port {
+      box-shadow: 0 0 10px $nodeColor;
+
+      &:hover,
+      &.selected {
+        background: $nodeColor;
+      }
+    }
+  }
+}

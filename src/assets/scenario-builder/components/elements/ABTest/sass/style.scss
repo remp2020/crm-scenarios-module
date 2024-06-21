@@ -1,0 +1,43 @@
+$nodeColor: $grey;
+
+.srd-node--selected {
+  .diamond-node .abtest-node .node-container {
+    box-shadow: 0 0 10px $nodeColor;
+  }
+}
+
+.abtest-node {
+  .node-container {
+    border: solid 2px $nodeColor;
+    color: $nodeColor;
+    height: auto;
+  }
+
+  &__title {
+    color: $nodeColor;
+  }
+
+  &__ports {
+    width: 50%;
+    height: 100%;
+    flex-direction: column;
+  }
+
+  &__right {
+    margin-top: 10px;
+    height: 20px;
+  }
+
+  &__description {
+    display: flex;
+    position: absolute;
+    left: 40px;
+    top: -2px;
+    font-size: 0.8rem;
+    color: $black;
+  }
+
+  .port {
+    box-shadow: 0 0 10px $nodeColor;
+  }
+}

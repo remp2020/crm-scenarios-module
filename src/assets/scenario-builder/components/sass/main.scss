@@ -1,0 +1,159 @@
+@import '~@projectstorm/react-diagrams/dist/style.min.css';
+@import '../elements/index';
+
+.srd-demo-workspace {
+  background: black;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 5px;
+  overflow: hidden;
+
+  &__toolbar {
+    padding: 5px;
+    display: flex;
+    flex-shrink: 0;
+
+    button {
+      background: rgb(60, 60, 60);
+      font-size: 14px;
+      padding: 5px 10px;
+      border: none;
+      color: white;
+      outline: none;
+      cursor: pointer;
+      margin: 2px;
+      border-radius: 3px;
+
+      &:hover {
+        background: rgb(0, 192, 255);
+      }
+    }
+  }
+
+  &__content {
+    flex-grow: 1;
+    height: 100%;
+  }
+}
+
+.docs-preview-wrapper {
+  background: rgb(60, 60, 60);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.srd-demo-canvas {
+  height: 100vh;
+  min-height: 300px;
+
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  $color: rgba(0, 0, 0, 0.06);
+  background-size: 50px 50px;
+
+  .pointui {
+    fill: rgba(white, 0.5);
+  }
+}
+
+.diagram-layer {
+  position: relative;
+  top: 64px;
+}
+
+.body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+
+  .tray-item {
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+  }
+
+  .tray-item:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+  }
+}
+
+.scenario-name {
+  &:hover {
+    cursor: pointer;
+  }
+  width: 100%;
+  display: inline-block;
+}
+.changing-name-input {
+  font-size: 20px;
+  width: 100%;
+  border: 0;
+  padding: 2px 5px;
+}
+
+.circular-loading {
+  margin-right: 15px;
+  position: relative;
+  top: 7px;
+}
+
+.toast-success {
+  background-color: #5d9d52 !important;
+}
+
+.toast-error {
+  background-color: #c33e37 !important;
+}
+
+.toast-info {
+  background-color: #3477cb !important;
+}
+
+.toast-warning {
+  background-color: #f3a33a !important;
+}
+
+.toast__icon {
+  font-size: 20px;
+}
+
+.toast__icon-variant {
+  opacity: 0.9;
+  margin-right: 10px;
+}
+
+.toast__message {
+  display: flex;
+  align-items: center;
+}
+
+.node-tooltip-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.statistic-badge-container-bottom {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.statistic-badge-right {
+  position: absolute;
+  top: 15px;
+  left: 60px;
+}
+
+.statistic-badge-bottom {
+  position: absolute;
+  top: 25px;
+}

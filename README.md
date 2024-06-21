@@ -130,6 +130,27 @@ php bin/command.php api:generate_access
 php bin/command.php application:seed
 ```
 
+### Building assets
+
+Install dependencies inside module folder `yarn install`
+Be sure to have scenario config filled in a global scope. It should look like this:
+
+```js
+window.Scenario = {
+  config: {
+    AUTH_TOKEN: '',
+    CRM_HOST: '',
+    CANCEL_PATH: '',
+    SEGMENT_ID: null
+  }
+};
+```
+
+Run `yarn build-prod` if you want to build whole application for the deployment. Then, at the root of the project, copy assets using:
+```shell
+php bin/command.php application:install_assets
+```
+
 ### Engine
 
 Scenarios module requires Scenario engine worker to run separately in a background to process graph execution flows. 

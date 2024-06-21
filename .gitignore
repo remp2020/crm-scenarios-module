@@ -1,0 +1,14 @@
+.DS_Store
+node_modules
+/src/assets/scenario-builder/dist
+/build
+
+# local env files
+.env.local
+.env.*.local
+/src/env.js
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
