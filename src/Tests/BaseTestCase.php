@@ -12,6 +12,7 @@ use Crm\InvoicesModule\Events\NewInvoiceEvent;
 use Crm\OnboardingModule\Repositories\OnboardingGoalsRepository;
 use Crm\OnboardingModule\Repositories\UserOnboardingGoalsRepository;
 use Crm\PaymentsModule\Events\BeforeRecurrentPaymentChargeEvent;
+use Crm\PaymentsModule\Events\BeforeRecurrentPaymentExpiresEvent;
 use Crm\PaymentsModule\Events\NewPaymentEvent;
 use Crm\PaymentsModule\Events\PaymentChangeStatusEvent;
 use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
@@ -148,6 +149,7 @@ abstract class BaseTestCase extends DatabaseTestCase
         $this->eventsStorage->register('recurrent_payment_renewed', RecurrentPaymentRenewedEvent::class, true);
         $this->eventsStorage->register('recurrent_payment_state_changed', RecurrentPaymentStateChangedEvent::class, true);
         $this->eventsStorage->register('before_recurrent_payment_charge', BeforeRecurrentPaymentChargeEvent::class, true);
+        $this->eventsStorage->register('before_recurrent_payment_expires', BeforeRecurrentPaymentExpiresEvent::class, true);
         $this->eventsStorage->register('new_invoice', NewInvoiceEvent::class, true);
         $this->scenariosModule->registerHermesHandlers($this->dispatcher);
         $this->scenariosModule->registerScenariosTriggers($this->inject(TriggerManager::class));

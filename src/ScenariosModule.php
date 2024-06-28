@@ -34,6 +34,7 @@ use Crm\ScenariosModule\Events\ABTestElementUpdatedHandler;
 use Crm\ScenariosModule\Events\AbTestElementUpdatedEvent;
 use Crm\ScenariosModule\Events\ConditionCheckEventHandler;
 use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator;
+use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentExpiresEventGenerator;
 use Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator;
 use Crm\ScenariosModule\Events\FinishWaitEventHandler;
 use Crm\ScenariosModule\Events\OnboardingGoalsCheckEventHandler;
@@ -155,6 +156,7 @@ class ScenariosModule extends CrmModule
 
         $eventsStorage->registerEventGenerator(SubscriptionEndsEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(SubscriptionEndsEventGenerator::class));
         $eventsStorage->registerEventGenerator(BeforeRecurrentPaymentChargeEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(BeforeRecurrentPaymentChargeEventGenerator::class));
+        $eventsStorage->registerEventGenerator(BeforeRecurrentPaymentExpiresEventGenerator::BEFORE_EVENT_CODE, $this->getInstance(BeforeRecurrentPaymentExpiresEventGenerator::class));
     }
 
     public function registerLazyEventHandlers(LazyEventEmitter $emitter)

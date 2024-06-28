@@ -41,6 +41,8 @@ Before Event requires two parameters - an event and a time interval. Time interv
 Currently it supports event types:
 
 - Subscription ends
+- Recurrent payment charge
+- Recurrent payment expires
 
 ### Conditions
 
