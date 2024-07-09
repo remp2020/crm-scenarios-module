@@ -1,6 +1,5 @@
 .DS_Store
 node_modules
-/src/assets/scenario-builder/dist
 /build
 
 # local env files
