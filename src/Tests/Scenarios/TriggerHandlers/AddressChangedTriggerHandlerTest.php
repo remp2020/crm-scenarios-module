@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace Crm\ScenariosModule\Tests\Scenarios\TriggerHandlers;
 
-use Crm\DenniknModule\Seeders\AddressTypesSeeder;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\AddressChangedTriggerHandler;
 use Crm\ScenariosModule\Tests\BaseTestCase;
+use Crm\UsersModule\Repositories\AddressTypesRepository;
 use Crm\UsersModule\Repositories\AddressesRepository;
 use Crm\UsersModule\Repositories\UsersRepository;
+use Crm\UsersModule\Seeders\AddressTypesTestSeeder;
 use Exception;
 
 class AddressChangedTriggerHandlerTest extends BaseTestCase
@@ -17,6 +18,7 @@ class AddressChangedTriggerHandlerTest extends BaseTestCase
         return [
             ...parent::requiredRepositories(),
             AddressesRepository::class,
+            AddressTypesRepository::class,
         ];
     }
 
@@ -24,7 +26,7 @@ class AddressChangedTriggerHandlerTest extends BaseTestCase
     {
         return [
             ...parent::requiredSeeders(),
-            AddressTypesSeeder::class,
+            AddressTypesTestSeeder::class,
         ];
     }
 
@@ -52,7 +54,7 @@ class AddressChangedTriggerHandlerTest extends BaseTestCase
         $addressesRepository = $this->getRepository(AddressesRepository::class);
         $address = $addressesRepository->add(
             $user,
-            AddressTypesSeeder::CROWDFUNDING_SOCIAL_NETWORKS,
+            AddressTypesTestSeeder::ADDRESS_TYPE,
             firstName: null,
             lastName: null,
             address: null,
