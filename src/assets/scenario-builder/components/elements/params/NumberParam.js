@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormLabel from '@material-ui/core/FormLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import FormLabel from '@mui/material/FormLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import { makeStyles } from '@mui/styles';
 import { actionSetParamValues, actionUpdateParamValues } from './actions';
 
 const useStyles = makeStyles((theme) => ({
@@ -46,9 +46,9 @@ export default function NumberParam(props) {
       selection: event.target.value
     }));
   };
-  
+
   return (
-    <React.Fragment>
+    <Fragment>
       {!props.hideLabel &&
       <FormLabel className={classes.formLabel}>
         {props.blueprint.label}
@@ -56,29 +56,32 @@ export default function NumberParam(props) {
       }
 
       {props.blueprint.operators && props.blueprint.operators.length &&
-      <FormControl className={classes.formControl} disabled={props.blueprint.operators.length === 1}>
-          <InputLabel>Operator</InputLabel>
-          <Select
-            autoWidth
-            value={props.values.operator ?? ''}
-            onChange={handleOperatorChange}
-          >
-            {props.blueprint.operators.map(op => (
-              <MenuItem key={op} value={op}>{op}</MenuItem>
-            ))}
-          </Select>
+      <FormControl className={classes.formControl} disabled={props.blueprint.operators.length === 1} variant='standard'>
+        <InputLabel>Operator</InputLabel>
+        <Select
+          variant="standard"
+          autoWidth
+          value={props.values.operator ?? ''}
+          onChange={handleOperatorChange}
+        >
+          {props.blueprint.operators.map(op => (
+            <MenuItem key={op} value={op}>{op}</MenuItem>
+          ))}
+        </Select>
       </FormControl>
       }
 
-      <TextField className={classes.numberInput}
-          label={props.blueprint.unit}
-          type="number"
-          onChange={handleInputChange}
-          value={props.values.selection ?? ''}
-          // attributes passed down to <input> HTML tag
-          inputProps={props.blueprint.numberInputAttributes ?? {}}
-        />
-    </React.Fragment>
+      <TextField
+        className={classes.numberInput}
+        label={props.blueprint.unit}
+        type="number"
+        variant='standard'
+        onChange={handleInputChange}
+        value={props.values.selection ?? ''}
+        // attributes passed down to <input> HTML tag
+        inputProps={props.blueprint.numberInputAttributes ?? {}}
+      />
+    </Fragment>
   );
 }
 

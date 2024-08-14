@@ -1,29 +1,21 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
+import { store } from '../store';
+import { setAvailableMails } from '../store/mailsSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-import { MAILS_CHANGED } from './types';
-
-export function updateMails(mails) {
-  return {
-    type: MAILS_CHANGED,
-    payload: mails
-  };
-}
+const { dispatch } = store;
 
 export function fetchMails() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(`${config.URL_MAILS_INDEX}`)
+  return actionWithLoading(() =>
+    WidgetsApiService.getMails()
       .then(response => {
-        dispatch(updateMails(response.data.mail_templates));
+        dispatch(setAvailableMails(response.data.mail_templates));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -31,6 +23,6 @@ export function fetchMails() {
             text: 'Mails fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

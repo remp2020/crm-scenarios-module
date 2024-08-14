@@ -1,29 +1,29 @@
-$nodeColor: $lightPurple;
+@import '../../variables';
 
-.srd-node--selected {
+.react-flow__node.selected {
   .square-node.push-notification-node .node-container {
-    box-shadow: 0 0 10px $nodeColor;
+    box-shadow: 0 0 10px $lightPurple;
   }
 }
 
 .push-notification-node {
   .node-container {
-    border: solid 2px $nodeColor;
-    color: $nodeColor;
+    border: solid 2px $lightPurple;
+    color: $lightPurple;
   }
 
   &__title {
-    color: $nodeColor;
+    color: $lightPurple;
   }
 
   &__left,
   &__right {
     .port {
-      box-shadow: 0 0 10px $nodeColor;
+      box-shadow: 0 0 10px $lightPurple;
 
       &:hover,
       &.selected {
-        background: $nodeColor;
+        background: $lightPurple;
       }
     }
   }

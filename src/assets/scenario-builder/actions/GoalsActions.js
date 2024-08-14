@@ -1,28 +1,21 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
-import { GOALS_CHANGED } from './types';
+import { store } from '../store';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setAvailableGoals } from '../store/goalsSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-export function updateGoals(goals) {
-  return {
-    type: GOALS_CHANGED,
-    payload: goals
-  };
-}
+const { dispatch } = store;
 
 export function fetchGoals() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(config.URL_GOALS_INDEX)
+  return actionWithLoading(() =>
+    WidgetsApiService.getGoals()
       .then(response => {
-        dispatch(updateGoals(response.data.goals));
+        dispatch(setAvailableGoals(response.data.goals));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -30,6 +23,6 @@ export function fetchGoals() {
             text: 'Goals fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

@@ -1,29 +1,29 @@
-$nodeColor: $lightOrange;
+@import '../../variables';
 
-.srd-node--selected {
+.react-flow__node.selected {
   .round-node.wait-node .node-container {
-    box-shadow: 0 0 10px $nodeColor;
+    box-shadow: 0 0 10px $lightOrange;
   }
 }
 
 .wait-node {
   .node-container {
-    border: solid 2px $nodeColor;
-    color: $nodeColor;
+    border: solid 2px $lightOrange;
+    color: $lightOrange;
   }
 
   &__title {
-    color: $nodeColor;
+    color: $lightOrange;
   }
 
   &__left,
   &__right {
     .port {
-      box-shadow: 0 0 10px $nodeColor;
+      box-shadow: 0 0 10px $lightOrange;
 
       &:hover,
       &.selected {
-        background: $nodeColor;
+        background: $lightOrange;
       }
     }
   }

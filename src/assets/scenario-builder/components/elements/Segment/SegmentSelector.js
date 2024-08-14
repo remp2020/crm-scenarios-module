@@ -1,8 +1,8 @@
 import React from 'react';
-import Grid from '@material-ui/core/Grid';
-import ButtonGroup from "@material-ui/core/ButtonGroup";
-import {makeStyles} from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
+import Grid from '@mui/material/Grid';
+import ButtonGroup from "@mui/material/ButtonGroup";
+import {makeStyles} from "@mui/styles";
+import Button from "@mui/material/Button";
 import {useSelector} from "react-redux";
 import SegmentFormSelect from "./SegmentFormSelect";
 
@@ -31,7 +31,7 @@ function getSourceTable(selectedSegmentSourceTable, selectedSegment, items) {
 
 export default function SegmentSelector(props) {
     const classes = useCriteriaBuilderStyles();
-    const items = useSelector(state => state.segments.avalaibleSegments);
+    const items = useSelector(state => state.segments.availableSegments);
     const sourceTable = getSourceTable(props.selectedSegmentSourceTable, props.selectedSegment, items);
 
     return (

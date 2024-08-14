@@ -1,26 +1,17 @@
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
-import * as React from 'react';
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'round-node',
+    className: 'wait-node',
+    name: data?.name,
+    waitingTime: data?.waitingTime !== undefined ? data?.waitingTime : 10,
+    waitingUnit: data?.waitingUnit !== undefined ? data?.waitingUnit : 'minutes'
+  };
 
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('wait');
-  }
-
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='round-node'
-        className='wait-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
-  }
-}
+  return {
+    id: data?.id || uuid(),
+    type: 'wait',
+    data: {node: nodeData}
+  };
+};

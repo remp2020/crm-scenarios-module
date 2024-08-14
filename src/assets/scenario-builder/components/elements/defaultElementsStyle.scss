@@ -69,6 +69,10 @@
       &.selected {
         background: #a291fb;
       }
+      &.react-flow__handle-bottom {
+        left: auto;
+        transform: none;
+      }
     }
   }
 

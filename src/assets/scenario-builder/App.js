@@ -1,28 +1,29 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import BodyWidget from './components/widgets/BodyWidget';
 import { Application } from './components/Application';
 import * as config from './config';
 import {
-  fetchSegments,
-  fetchGoals,
   fetchBanners,
-  fetchTriggers,
   fetchBeforeTriggers,
   fetchCriteria,
-  fetchScenario,
-  setScenarioName,
-  fetchMails,
   fetchGenerics,
+  fetchGoals,
+  fetchMails,
   fetchPushNotifications,
-  fetchStatistics
+  fetchScenario,
+  fetchSegments,
+  fetchStatistics,
+  fetchTriggers
 } from './actions';
+import { setScenarioName } from './store/scenarioSlice';
 
-class App extends Component {
-  componentDidMount() {
-    const { dispatch } = this.props;
+const App = () => {
+  const [app, setApp] = useState();
+  const dispatch = useDispatch();
+  const scenarioPayload = useSelector(state => state.scenario.payload);
 
+  useEffect(() => {
     dispatch(fetchSegments());
     dispatch(fetchCriteria());
     dispatch(fetchGoals());
@@ -45,19 +46,17 @@ class App extends Component {
     } else {
       dispatch(setScenarioName('Unnamed scenario'));
     }
+  }, []);
+
+  useEffect(() => {
+    app.renderPayload(scenarioPayload);
+  }, [scenarioPayload]);
+
+  if (!app) {
+    setApp(new Application());
   }
 
-  render() {
-    var app = new Application(this.props.scenarioPayload);
+  return <BodyWidget app={app}/>;
+};
 
-    return <BodyWidget app={app} />;
-  }
-}
-
-function mapStateToProps(state) {
-  return {
-    scenarioPayload: state.scenario.payload
-  };
-}
-
-export default connect(mapStateToProps)(App);
+export default App;

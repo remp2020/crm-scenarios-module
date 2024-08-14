@@ -1,26 +1,20 @@
-import * as React from 'react';
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'diamond-node',
+    className: 'goal-node',
+    name: data?.name,
+    selectedGoals: data?.selectedGoals,
+    timeoutTime: data?.timeoutTime,
+    timeoutUnit: data?.timeoutUnit,
+    recheckPeriodTime: data?.recheckPeriodTime,
+    recheckPeriodUnit: data?.recheckPeriodUnit
+  };
 
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('goal');
-  }
-
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='diamond-node'
-        className='goal-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
-  }
-}
+  return {
+    id: data?.id || uuid(),
+    type: 'goal',
+    data: {node: nodeData}
+  };
+};

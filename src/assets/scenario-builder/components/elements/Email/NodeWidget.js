@@ -1,263 +1,255 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import ActionIcon from '@material-ui/icons/Mail';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import {styled} from '@material-ui/core/styles';
-import { PortWidget } from '../../widgets/PortWidget';
-import { setCanvasZoomingAndPanning } from '../../../actions';
-import StatisticBadge from "../../StatisticBadge";
-import StatisticsTooltip from "../../StatisticTooltip";
-import {Autocomplete} from "@material-ui/lab";
-import {withStyles} from "@material-ui/core";
-import {createFilterOptions} from "@material-ui/lab/Autocomplete";
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import ActionIcon from '@mui/icons-material/Mail';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { styled } from '@mui/material/styles';
+import StatisticBadge from '../../StatisticBadge';
+import StatisticsTooltip from '../../StatisticTooltip';
+import { Autocomplete } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { Handle, Position } from 'reactflow';
+import { store } from '../../../store';
+import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import { bemClassName } from '../../../utils/bem';
 
 const PreviewEmailButton = styled(Button)({
   marginRight: 'auto'
 });
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   autocomplete: {
     margin: theme.spacing(1)
   },
   subtitle: {
     paddingLeft: '6px',
     color: theme.palette.grey[600]
-  },
-});
-
-class NodeWidget extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      nodeFormName: this.props.node.name,
-      selectedMail: this.props.node.selectedMail,
-      dialogOpened: false,
-      anchorElementForTooltip: null
-    };
   }
+}));
 
-  bem(selector) {
-    return (
-      this.props.classBaseName +
-      selector +
-      ' ' +
-      this.props.className +
-      selector +
-      ' '
-    );
-  }
+const NodeWidget = (props) => {
+  const classes = useStyles();
+  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
+  const [selectedMail, setSelectedMail] = useState(props.data.node.selectedMail);
+  const [dialogOpened, setDialogOpened] = useState(false);
+  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
+  const mails = useSelector(state => state.mails.availableMails);
 
-  getClassName() {
-    return this.props.classBaseName + ' ' + this.props.className;
-  }
 
-  openDialog = () => {
-    this.setState({
-      dialogOpened: true,
-      nodeFormName: this.props.node.name,
-      selectedMail: this.props.node.selectedMail,
-      anchorElementForTooltip: null
-    });
-    this.props.dispatch(setCanvasZoomingAndPanning(false));
+  const bem = (selector) => bemClassName(
+    selector,
+    props.data.node.classBaseName,
+    props.data.node.className
+  )
+
+  const getClassName = () => {
+    return props.data.node.classBaseName + ' ' + props.data.node.className;
   };
 
-  closeDialog = () => {
-    this.setState({ dialogOpened: false });
-    this.props.dispatch(setCanvasZoomingAndPanning(true));
+  const openDialog = () => {
+    if (dialogOpened) {
+      return
+    }
+
+    setDialogOpened(true);
+    setNodeFormName(props.data.node.name);
+    setSelectedMail(props.data.node.selectedMail);
+    setAnchorElementForTooltip(null);
+    store.dispatch(setCanvasZoomingAndPanning(false));
   };
 
-  handleNodeMouseEnter = event => {
-    if (!this.state.dialogOpened) {
-      this.setState({ anchorElementForTooltip: event.currentTarget });
+  const closeDialog = () => {
+    setDialogOpened(false);
+    store.dispatch(setCanvasZoomingAndPanning(true));
+  };
+
+  const handleNodeMouseEnter = event => {
+    if (!dialogOpened) {
+      setAnchorElementForTooltip(event.currentTarget);
     }
   };
 
-  handleNodeMouseLeave = () => {
-    this.setState({ anchorElementForTooltip: null });
+  const handleNodeMouseLeave = () => {
+    setAnchorElementForTooltip(null);
   };
 
-  getSelectedMail = () => {
-    const selected = this.props.mails.find(
-      mail => mail.code === this.state.selectedMail
+  const getSelectedMail = () => {
+    const selected = mails.find(
+      mail => mail.code === selectedMail
     );
 
     return selected ? selected : null;
   };
 
-  getSelectedMailValue = () => {
-    const selected = this.props.mails.find(
-      mail => mail.code === this.props.node.selectedMail
+  const getSelectedMailValue = () => {
+    const selected = mails.find(
+      mail => mail.code === props.data.node.selectedMail
     );
 
     return selected ? ` - ${selected.name}` : '';
   };
 
-  filterOptions = () => createFilterOptions({
+  const filterOptions = () => createFilterOptions({
     matchFrom: 'any',
     trim: true,
     ignoreAccents: true,
     ignoreCase: true,
     stringify: option => {
-      return option.name + " " + option.code;
-    },
+      return option.name + ' ' + option.code;
+    }
   });
 
-  render() {
-    const {classes} = this.props;
-
-    return (
-      <div
-        className={this.getClassName()}
-        style={{ background: this.props.node.color }}
-        onDoubleClick={() => {
-          this.openDialog();
-        }}
-        onMouseEnter={this.handleNodeMouseEnter}
-        onMouseLeave={this.handleNodeMouseLeave}
-      >
-        <div className='node-container'>
-          <div className={this.bem('__icon')}>
-            <ActionIcon />
-          </div>
-
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__left')}>
-              <PortWidget name='left' node={this.props.node} />
-            </div>
-            <div className={this.bem('__right')}>
-              <PortWidget name='right' node={this.props.node} />
-              <StatisticBadge elementId={this.props.node.id} color="#a291fb" position="right" />
-            </div>
-          </div>
-        </div>
-        <div className={this.bem('__title')}>
-          <div className={this.bem('__name')}>
-            {this.props.node.name
-              ? this.props.node.name
-              : `Mail ${this.getSelectedMailValue()}`}
-          </div>
+  return (
+    <div
+      className={getClassName()}
+      style={{background: props.data.node.color}}
+      onDoubleClick={() => {
+        openDialog();
+      }}
+      onMouseEnter={handleNodeMouseEnter}
+      onMouseLeave={handleNodeMouseLeave}
+    >
+      <div className="node-container">
+        <div className={bem('__icon')}>
+          <ActionIcon/>
         </div>
 
-        <StatisticsTooltip
-          id={this.props.node.id}
-          anchorElement={this.state.anchorElementForTooltip}
-        />
-
-        <Dialog
-          open={this.state.dialogOpened}
-          onClose={this.closeDialog}
-          aria-labelledby='form-dialog-title'
-          onKeyUp={event => {
-            if (event.keyCode === 46 || event.keyCode === 8) {
-              event.preventDefault();
-              event.stopPropagation();
-              return false;
-            }
-          }}
-          fullWidth
-        >
-          <DialogTitle id='form-dialog-title'>Email node</DialogTitle>
-
-          <DialogContent>
-            <DialogContentText>Sends an email to user.</DialogContentText>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                  margin='normal'
-                  id='action-name'
-                  label='Node name'
-                  fullWidth
-                  value={this.state.nodeFormName}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormName: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container alignItems='center' alignContent='space-between'>
-              <Grid item xs={12}>
-                <Autocomplete
-                  value={this.getSelectedMail()}
-                  options={this.props.mails}
-                  getOptionLabel={(option) => option.name}
-                  disableClearable={true}
-                  filterOptions={this.filterOptions()}
-                  groupBy={(option) => option.mail_type.code}
-                  onChange={(event, selectedOption) => {
-                    if (selectedOption !== null) {
-                      this.setState({
-                        selectedMail: selectedOption.code
-                      })
-                    }
-                  }}
-                  renderInput={params => (
-                    <TextField {...params} variant="standard" label="Selected Mail" fullWidth />
-                  )}
-                  renderOption={(option, { selected }) => (
-                    <div>
-                      <span className={classes.title}>{option.name}</span>
-                      <small className={classes.subtitle}>({option.code})</small>
-                    </div>
-                  )}
-                />
-              </Grid>
-            </Grid>
-          </DialogContent>
-
-          <DialogActions>
-            {this.props.mails.filter(mail => mail.link && mail.code === this.state.selectedMail).map(item => 
-              <PreviewEmailButton color='primary' href={item.link} target="_blank">
-                <ActionIcon style={{ marginRight: '5px' }}/>Preview
-              </PreviewEmailButton>
-            )}
-            
-            <Button
-              color='secondary'
-              onClick={() => {
-                this.closeDialog();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              color='primary'
-              onClick={() => {
-                // https://github.com/projectstorm/react-diagrams/issues/50 huh
-
-                this.props.node.name = this.state.nodeFormName;
-                this.props.node.selectedMail = this.state.selectedMail;
-
-                this.props.diagramEngine.repaintCanvas();
-                this.closeDialog();
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <div className={bem('__ports')}>
+          <div className={bem('__left')}>
+            <Handle
+              type="target"
+              id="left"
+              position={Position.Left}
+              onConnect={(params) => console.log('handle onConnect', params)}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+          </div>
+          <div className={bem('__right')}>
+            <Handle
+              type="source"
+              id="right"
+              position={Position.Right}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+            <StatisticBadge elementId={props.id} color="#a291fb" position="right"/>
+          </div>
+        </div>
       </div>
-    );
-  }
-}
+      <div className={bem('__title')}>
+        <div className={bem('__name')}>
+          {props.data.node.name
+            ? props.data.node.name
+            : `Mail ${getSelectedMailValue()}`}
+        </div>
+      </div>
 
-function mapStateToProps(state) {
-  return {
-    mails: state.mails.availableMails
-  };
-}
+      <StatisticsTooltip
+        id={props.id}
+        anchorElement={anchorElementForTooltip}
+      />
 
-export default connect(mapStateToProps)(
-  withStyles(styles)(NodeWidget)
-);
+      <Dialog
+        open={dialogOpened}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+        onKeyUp={event => {
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }}
+        fullWidth
+      >
+        <DialogTitle id="form-dialog-title">Email node</DialogTitle>
+
+        <DialogContent>
+          <DialogContentText>Sends an email to user.</DialogContentText>
+
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                margin="normal"
+                id="action-name"
+                label="Node name"
+                variant="standard"
+                fullWidth
+                value={nodeFormName}
+                onChange={event => {
+                  setNodeFormName(event.target.value);
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container alignItems="center" alignContent="space-between">
+            <Grid item xs={12}>
+              <Autocomplete
+                value={getSelectedMail()}
+                options={mails}
+                getOptionLabel={(option) => option.name}
+                disableClearable={true}
+                filterOptions={filterOptions()}
+                groupBy={(option) => option.mail_type.code}
+                onChange={(event, selectedOption) => {
+                  if (selectedOption !== null) {
+                    setSelectedMail(selectedOption.code);
+                  }
+                }}
+                renderInput={params => (
+                  <TextField {...params} variant="standard" label="Selected Mail" fullWidth/>
+                )}
+                renderOption={(props, option) => (
+                  <div {...props}>
+                    <span className={classes.title}>{option.name}</span>
+                    <small className={classes.subtitle}>({option.code})</small>
+                  </div>
+                )}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions>
+          {mails.filter(mail => mail.link && mail.code === selectedMail).map(item =>
+            <PreviewEmailButton color="primary" href={item.link} target="_blank" key={item.code}>
+              <ActionIcon style={{marginRight: '5px'}}/>Preview
+            </PreviewEmailButton>
+          )}
+
+          <Button
+            color="secondary"
+            onClick={() => {
+              closeDialog();
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="primary"
+            onClick={() => {
+              props.data.node.name = nodeFormName;
+              props.data.node.selectedMail = selectedMail;
+
+              closeDialog();
+            }}
+          >
+            Save changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export default NodeWidget;

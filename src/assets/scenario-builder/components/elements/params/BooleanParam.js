@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { actionSetParamValues } from './actions';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(theme => ({
   formControl: {
@@ -12,31 +12,33 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function BooleanParam(props) {
-    const classes = useStyles();
+  const classes = useStyles();
 
+  useEffect(() => {
     // if not selected yet, set selection to True
     if (props.values.selection === undefined) {
       props.dispatch(actionSetParamValues(props.name, {
         selection: true
       }));
     }
+  }, [props.values.selection, props.dispatch, props.name]);
 
-    const handleChange = (event) => {
-      props.dispatch(actionSetParamValues(props.name, {
-        selection: event.target.checked
-      }));
-    };
-  
-    return (
-      <FormControlLabel
-          onChange={handleChange}
-          control={<Switch />}
-          checked={props.values.selection !== undefined && props.values.selection}
-          label={props.blueprint.label}
-          className={classes.formControl}
-        />
-    );
-  }
+  const handleChange = (event) => {
+    props.dispatch(actionSetParamValues(props.name, {
+      selection: event.target.checked
+    }));
+  };
+
+  return (
+    <FormControlLabel
+        onChange={handleChange}
+        control={<Switch />}
+        checked={props.values.selection !== undefined && props.values.selection}
+        label={props.blueprint.label}
+        className={classes.formControl}
+      />
+  );
+}
 
 BooleanParam.propTypes = {
   // name identifying input (same function as in HTML <input>), used in dispatch

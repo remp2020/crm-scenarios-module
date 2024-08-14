@@ -1,65 +1,50 @@
-import * as React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import { connect } from 'react-redux';
-import compose from 'recompose/compose';
-import { DiagramWidget, NodeModel } from '@projectstorm/react-diagrams';
-import Button from '@material-ui/core/Button';
-import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import ListSubheader from '@material-ui/core/ListSubheader';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import { withStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import EmailIcon from '@material-ui/icons/Mail';
-import ExtensionIcon from '@material-ui/icons/Extension';
-import BannerIcon from '@material-ui/icons/Adjust';
-import TriggerIcon from '@material-ui/icons/Notifications';
-import WaitIcon from '@material-ui/icons/AccessAlarmsOutlined';
-import SegmentIcon from '@material-ui/icons/SubdirectoryArrowRight';
-import ConditionIcon from '@material-ui/icons/CallSplit';
-import GoalIcon from '@material-ui/icons/CheckBox';
-import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
-import PushNotificationIcon from '@material-ui/icons/PhonelinkRing';
-import ABTestIcon from '@material-ui/icons/SwapVert';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { makeStyles } from '@mui/styles';
+import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
+import AppBar from '@mui/material/AppBar';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import ListSubheader from '@mui/material/ListSubheader';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
+import EmailIcon from '@mui/icons-material/Mail';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import BannerIcon from '@mui/icons-material/Adjust';
+import TriggerIcon from '@mui/icons-material/Notifications';
+import WaitIcon from '@mui/icons-material/AccessAlarmsOutlined';
+import SegmentIcon from '@mui/icons-material/SubdirectoryArrowRight';
+import ConditionIcon from '@mui/icons-material/CallSplit';
+import GoalIcon from '@mui/icons-material/CheckBox';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import PushNotificationIcon from '@mui/icons-material/PhonelinkRing';
+import ABTestIcon from '@mui/icons-material/SwapVert';
 import * as config from './../../config';
 import { TrayItemWidget } from './TrayItemWidget';
-import { ExportService } from '../../services/ExportService';
+import { ExportService } from '../../services';
 import Notification from '../Notification';
-import {
-  Email,
-  Generic,
-  Segment,
-  Trigger,
-  BeforeTrigger,
-  Wait,
-  Goal,
-  Banner,
-  Condition,
-  PushNotification,
-  ABTest
-} from './../elements';
-import {
-  setScenarioId,
-  setScenarioName,
-  setCanvasNotification,
-  setScenarioLoading
-} from '../../actions';
-import {ZoomIn, ZoomOut, ZoomOutMap} from "@material-ui/icons";
-import {Divider} from "@material-ui/core";
+import { ZoomIn, ZoomOut, ZoomOutMap } from '@mui/icons-material';
+import { Divider } from '@mui/material';
+import FlowWidget from './FlowWidget';
+import { ReactFlowProvider } from 'reactflow';
+import { setScenarioId, setScenarioLoading, setScenarioName } from '../../store/scenarioSlice';
+import { setCanvasNotification } from '../../store/canvasSlice';
+import { v1 } from '../../api_routes';
+import { store } from '../../store';
 
+const {dispatch} = store;
 const drawerWidth = 240;
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex'
   },
   appBar: {
-    zIndex: theme.zIndex.drawer + 1
+    zIndex: theme.zIndex.drawer + 1,
   },
   drawer: {
     width: drawerWidth,
@@ -72,107 +57,23 @@ const styles = theme => ({
     flexGrow: 1,
     padding: 0
   },
-  toolbar: theme.mixins.toolbar
-});
-
-const ctrlKey = 17,
-    cmdKey = 91,
-    vKey = 86,
-    cKey = 67;
-
-class BodyWidget extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      editingName: false,
-      editedName: ''
-    };
-
-    this.ctrlDown = false;
-    this.nodesToCopy = [];
-
-    // Required to bind 'this' inside callback methods
-    this.keydownHandler = this.keydownHandler.bind(this);
-    this.keyupHandler = this.keyupHandler.bind(this);
-    this.copyNode = this.copyNode.bind(this);
+  toolbar: theme.mixins.toolbar,
+  divider: {
+    marginLeft: '16px',
+    marginRight: '16px'
   }
+}));
 
-  copyNode(nodeId) {
-    let offset = { x: 75, y: 75 };
-    let model = this.props.app.getDiagramEngine().getDiagramModel();
-    let nodes = model.getNodes();
+const BodyWidget = ({ app }) => {
+  const classes = useStyles();
+  const canvas = useSelector(state => state.canvas);
+  const scenario = useSelector(state => state.scenario);
 
-    if (nodes[nodeId] !== undefined) {
-      let newNode = nodes[nodeId].clone({});
-      newNode.setPosition(newNode.x + offset.x, newNode.y + offset.y);
-      newNode.selected = false;
-      model.addNode(newNode);
-      this.forceUpdate();
-    } else {
-      console.warn("Unable to copy node with ID " + nodeId);
-    }
-  }
+  const [editingName, setEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
 
-  keydownHandler(e) {
-    if (e.keyCode === ctrlKey || e.keyCode === cmdKey) {
-      this.ctrlDown = true;
-    }
-
-    // CTRL/CMD + C
-    if (this.ctrlDown && (e.keyCode === cKey)) {
-      let model = this.props.app.getDiagramEngine().getDiagramModel();
-      this.nodesToCopy = [];
-      for (const node of model.getSelectedItems()) {
-        // currently do not allow to copy links
-        if (node.selected && node instanceof NodeModel) {
-          this.nodesToCopy.push(node.id);
-        }
-      }
-    }
-
-    // CTRL/CMD + V
-    if (this.ctrlDown && (e.keyCode === vKey)) {
-      for (const nodeId of this.nodesToCopy) {
-        this.copyNode(nodeId);
-      }
-      this.nodesToCopy = [];
-    }
-  }
-
-  keyupHandler(e) {
-    if (e.keyCode === ctrlKey || e.keyCode === cmdKey) {
-      this.ctrlDown = false;
-    }
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.keydownHandler);
-    document.addEventListener('keyup', this.keyupHandler);
-  }
-  
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.keydownHandler);
-    document.removeEventListener('keyup', this.keyupHandler);
-  }
-
-  componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    if (this.props.app.isCorruptedPayload() === true && prevProps.app.isCorruptedPayload() === false) {
-      this.props.dispatch(
-        setCanvasNotification({
-          open: true,
-          variant: 'error',
-          text: 'Unable to load corrupted scenario.'
-        })
-      );
-    }
-  }
-
-  saveChanges = () => {
-    const { dispatch } = this.props;
-
-    // Check for corruption to prevent override
-    if (this.props.app.isCorruptedPayload()) {
+  const saveChanges = useCallback(() => {
+    if (app.isCorruptedPayload()) {
       dispatch(
         setCanvasNotification({
           open: true,
@@ -181,18 +82,16 @@ class BodyWidget extends React.Component {
         })
       );
       return;
-    };
+    }
 
-    const exportService = new ExportService(
-      this.props.app.getDiagramEngine().getDiagramModel()
-    );
+    const exportService = new ExportService(app.getDiagramService());
 
     const payload = {
-      name: this.props.scenario.name,
+      name: scenario.name,
       ...exportService.exportPayload()
     };
 
-    const scenarioId = this.props.scenario.id;
+    const scenarioId = scenario.id;
     if (scenarioId) {
       payload.id = scenarioId;
     }
@@ -200,7 +99,7 @@ class BodyWidget extends React.Component {
     dispatch(setScenarioLoading(true));
 
     axios
-      .post(`${config.URL_SCENARIO_CREATE}`, payload)
+      .post(`${v1.scenario.create}`, payload)
       .then(response => {
         dispatch(setScenarioId(response.data.id));
         dispatch(setScenarioLoading(false));
@@ -227,346 +126,252 @@ class BodyWidget extends React.Component {
             text: errorMessage
           })
         );
-        console.log(error);
       });
+  }, [app, dispatch, scenario]);
+
+  const startEditingName = () => {
+    setEditedName(scenario.name);
+    setEditingName(true);
   };
 
-  startEditingName = () => {
-    this.setState({
-      editedName: this.props.scenario.name,
-      editingName: true
-    });
+  const cancelEditingName = () => {
+    setEditedName('');
+    setEditingName(false);
   };
 
-  cancelEditingName = () => {
-    this.setState({
-      editedName: '',
-      editingName: false
-    });
-  };
-
-  submitEditingName = () => {
-    if (this.state.editedName.trim().length === 0) {
-      this.cancelEditingName();
+  const submitEditingName = () => {
+    if (editedName.trim().length === 0) {
+      cancelEditingName();
       return;
     }
 
-    this.props.dispatch(setScenarioName(this.state.editedName));
-    this.setState({
-      editedName: '',
-      editingName: false
-    });
+    dispatch(setScenarioName(editedName));
+    setEditedName('');
+    setEditingName(false);
   };
 
-  handleCloseAndSaveDuringChangingName = event => {
-    if (event.keyCode === 27) {
-      this.cancelEditingName();
-    } else if (event.keyCode === 13) {
-      this.submitEditingName();
+  const handleCloseAndSaveDuringChangingName = (event) => {
+    if (event.key === 'Escape') {
+      cancelEditingName();
+    } else if (event.key === 'Enter') {
+      submitEditingName();
     }
   };
 
-  handleNameTyping = event => {
-    this.setState({
-      editedName: event.target.value
-    });
+  const handleNameTyping = (event) => {
+    setEditedName(event.target.value);
   };
 
-  closeNotification = () => {
-    this.props.dispatch(setCanvasNotification({ open: false }));
+  const closeNotification = () => {
+    dispatch(setCanvasNotification({ open: false }));
   };
 
-  zoomOut = () => {
-    let zoomLevel = this.props.app.diagramEngine.getDiagramModel().getZoomLevel();
-    this.props.app.diagramEngine.getDiagramModel().setZoomLevel(zoomLevel - 5);
-    this.props.app.diagramEngine.repaintCanvas();
+  const zoomOut = () => {
+    app.diagramService.getDiagram().zoomOut();
   };
 
-  zoomIn = () => {
-    let zoomLevel = this.props.app.diagramEngine.getDiagramModel().getZoomLevel();
-    this.props.app.diagramEngine.getDiagramModel().setZoomLevel(zoomLevel + 5);
-    this.props.app.diagramEngine.repaintCanvas();
+  const zoomIn = () => {
+    app.diagramService.getDiagram().zoomIn();
   };
 
-  zoomToFit = () => {
-    this.props.app.diagramEngine.zoomToFit();
+  const zoomToFit = () => {
+    app.diagramService.getDiagram().fitView();
   };
 
-  render() {
-    const { classes, canvas } = this.props;
-
-    const diagramProps = {
-      className: 'srd-demo-canvas',
-      diagramEngine: this.props.app.getDiagramEngine(),
-      maxNumberPointsPerLink: 0,
-      allowLooseLinks: false,
-      allowCanvasTranslation: canvas.pannable,
-      allowCanvasZoom: canvas.zoomable
-    }; // as DiagramProps;
-
-    return (
-      <div className='body'>
-        <div className={classes.root}>
-          <CssBaseline />
-          <AppBar position='fixed' className={classes.appBar}>
-            <Toolbar>
-              <Grid container>
-                <Grid item xs={4}>
-                  <Typography variant='h6' color='inherit' noWrap>
-                    {this.state.editingName ? (
-                      <input
-                        autoFocus
-                        type='text'
-                        value={this.state.editedName}
-                        onChange={this.handleNameTyping}
-                        onKeyDown={this.handleCloseAndSaveDuringChangingName}
-                        onBlur={this.submitEditingName}
-                        className='changing-name-input'
-                      />
-                    ) : (
-                      <span
-                        onClick={this.startEditingName}
-                        className='scenario-name'
-                      >
-                        {this.props.scenario.name}
-                      </span>
-                    )}
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={8}>
-                  <Grid container direction='row' justify='flex-end'>
-                    {!!this.props.scenario.loading && (
-                      <CircularProgress
-                        className='circular-loading'
-                        size={19}
-                        color='inherit'
-                      />
-                    )}
-                      <Button
-                        title="Zoom in"
-                        size='small'
-                        variant='contained'
-                        color='primary'
-                        onClick={() => this.zoomIn()}
-                      >
-                        <ZoomIn />
-                      </Button>
-                      <Button
-                        title="Zoom out"
-                        size='small'
-                        variant='contained'
-                        color='primary'
-                        onClick={() => this.zoomOut()}
-                      >
-                        <ZoomOut titleAccess="Test" />
-                      </Button>
-                      <Button
-                        title="Zoom to fit"
-                        size='small'
-                        variant='contained'
-                        color='primary'
-                        onClick={() => this.zoomToFit()}
-                      >
-                        <ZoomOutMap />
-                      </Button>
-                    <Divider orientation="vertical" variant="middle" flexItem />
-                    <Button
-                      size='small'
-                      variant='contained'
-                      color='secondary'
-                      onClick={() => this.saveChanges()}
+  return (
+    <div className='body'>
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position='fixed' className={classes.appBar}>
+          <Toolbar>
+            <Grid container>
+              <Grid item xs={4}>
+                <Typography variant='h6' color='inherit' noWrap>
+                  {editingName ? (
+                    <input
+                      autoFocus
+                      type='text'
+                      value={editedName}
+                      onChange={handleNameTyping}
+                      onKeyDown={handleCloseAndSaveDuringChangingName}
+                      onBlur={submitEditingName}
+                      className='changing-name-input'
+                    />
+                  ) : (
+                    <span
+                      onClick={startEditingName}
+                      className='scenario-name'
                     >
-                      {this.props.scenario.id ? 'Update' : 'Save'}
-                    </Button>
-                  </Grid>
+                      {scenario.name}
+                    </span>
+                  )}
+                </Typography>
+              </Grid>
+
+              <Grid item xs={8}>
+                <Grid container direction='row' justifyContent='flex-end'>
+                  {!!scenario.loading && (
+                    <CircularProgress
+                      className='circular-loading'
+                      size={19}
+                      color='inherit'
+                    />
+                  )}
+                  <Button
+                    title="Zoom in"
+                    size='small'
+                    variant='contained'
+                    color='primary'
+                    onClick={zoomIn}
+                  >
+                    <ZoomIn />
+                  </Button>
+                  <Button
+                    title="Zoom out"
+                    size='small'
+                    variant='contained'
+                    color='primary'
+                    onClick={zoomOut}
+                  >
+                    <ZoomOut titleAccess="Test" />
+                  </Button>
+                  <Button
+                    title="Zoom to fit"
+                    size='small'
+                    variant='contained'
+                    color='primary'
+                    onClick={zoomToFit}
+                  >
+                    <ZoomOutMap />
+                  </Button>
+                  <Divider orientation="vertical" variant="middle" flexItem className={classes.divider} />
+                  <Button
+                    size='small'
+                    variant='contained'
+                    color='secondary'
+                    onClick={saveChanges}
+                  >
+                    {scenario.id ? 'Update' : 'Save'}
+                  </Button>
                 </Grid>
               </Grid>
-            </Toolbar>
-          </AppBar>
-          <Drawer
-            className={classes.drawer}
-            variant='permanent'
-            classes={{
-              paper: classes.drawerPaper
-            }}
+            </Grid>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          className={classes.drawer}
+          variant='permanent'
+          classes={{
+            paper: classes.drawerPaper
+          }}
+        >
+          <div className={classes.toolbar} />
+          <List
+            component='nav'
+            subheader={
+              <ListSubheader component='div'>Triggers</ListSubheader>
+            }
           >
-            <div className={classes.toolbar} />
-            <List
-              component='nav'
-              subheader={
-                <ListSubheader component='div'>Triggers</ListSubheader>
-              }
-            >
+            <TrayItemWidget
+              model={{ type: 'trigger', shape: 'square' }}
+              name='Event'
+              icon={<TriggerIcon />}
+            />
+
+            <TrayItemWidget
+              model={{ type: 'before_trigger', shape: 'square' }}
+              name='Before Event'
+              icon={<NotificationsActiveIcon />}
+            />
+          </List>
+
+          <List
+            component='nav'
+            subheader={<ListSubheader component='div'>Actions</ListSubheader>}
+          >
+            <TrayItemWidget
+              model={{ type: 'email', shape: 'square' }}
+              name='Send email'
+              icon={<EmailIcon />}
+            />
+
+            <TrayItemWidget
+              model={{ type: 'generic', shape: 'square' }}
+              name='Run generic action'
+              icon={<ExtensionIcon />}
+            />
+
+            {config.BANNER_ENABLED &&
               <TrayItemWidget
-                model={{ type: 'trigger' }}
-                name='Event'
-                icon={<TriggerIcon />}
+                model={{ type: 'banner', shape: 'square' }}
+                name='Show banner'
+                icon={<BannerIcon />}
               />
+            }
 
+            {config.PUSH_NOTIFICATION_ENABLED &&
               <TrayItemWidget
-                  model={{ type: 'before_trigger' }}
-                  name='Before Event'
-                  icon={<NotificationsActiveIcon />}
+                model={{ type: 'push_notification', shape: 'square' }}
+                name='Send notification'
+                icon={<PushNotificationIcon />}
               />
-            </List>
+            }
+          </List>
 
-            <List
-              component='nav'
-              subheader={<ListSubheader component='div'>Actions</ListSubheader>}
-            >
-              <TrayItemWidget
-                model={{ type: 'email' }}
-                name='Send email'
-                icon={<EmailIcon />}
-              />
+          <List
+            component='nav'
+            subheader={
+              <ListSubheader component='div'>Operations</ListSubheader>
+            }
+          >
+            <TrayItemWidget
+              model={{ type: 'segment', shape: 'diamond' }}
+              name='Segment'
+              icon={<SegmentIcon />}
+            />
 
-              <TrayItemWidget
-                model={{ type: 'generic' }}
-                name='Run generic action'
-                icon={<ExtensionIcon />}
-              />
+            <TrayItemWidget
+              model={{ type: 'condition', shape: 'diamond' }}
+              name='Condition'
+              icon={<ConditionIcon />}
+            />
 
-              {config.BANNER_ENABLED &&
-                <TrayItemWidget
-                  model={{ type: 'banner' }}
-                  name='Show banner'
-                  icon={<BannerIcon />}
-                />
-              }
+            <TrayItemWidget
+              model={{ type: 'wait', shape: 'round' }}
+              name='Wait'
+              icon={<WaitIcon />}
+            />
 
-              {config.PUSH_NOTIFICATION_ENABLED &&
-                <TrayItemWidget
-                  model={{ type: 'push_notification' }}
-                  name='Send notification'
-                  icon={<PushNotificationIcon />}
-                />
-              }
+            <TrayItemWidget
+              model={{ type: 'goal', shape: 'diamond' }}
+              name='Goal'
+              icon={<GoalIcon />}
+            />
 
-            </List>
+            <TrayItemWidget
+              model={{ type: 'ab_test', shape: 'diamond' }}
+              name='AB Test'
+              icon={<ABTestIcon />}
+            />
+          </List>
+        </Drawer>
+        <Notification
+          variant={canvas.notification.variant}
+          text={canvas.notification.text}
+          open={canvas.notification.open}
+          handleClose={closeNotification}
+        />
 
-            <List
-              component='nav'
-              subheader={
-                <ListSubheader component='div'>Operations</ListSubheader>
-              }
-            >
-              <TrayItemWidget
-                model={{ type: 'segment' }}
-                name='Segment'
-                icon={<SegmentIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'condition' }}
-                name='Condition'
-                icon={<ConditionIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'wait' }}
-                name='Wait'
-                icon={<WaitIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'goal' }}
-                name='Goal'
-                icon={<GoalIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'ab_test' }}
-                name='AB Test'
-                icon={<ABTestIcon />}
-              />
-            </List>
-          </Drawer>
-          <Notification
-            variant={this.props.canvas.notification.variant}
-            text={this.props.canvas.notification.text}
-            open={this.props.canvas.notification.open}
-            handleClose={this.closeNotification}
-          />
-
-          <main className={classes.content}>
-            <div
-              className='diagram-layer'
-              onDrop={event => {
-                const stormDiagramNode = event.dataTransfer.getData(
-                  'storm-diagram-node'
-                );
-                if (!stormDiagramNode) return;
-                var data = JSON.parse(stormDiagramNode);
-
-                var node = null;
-                if (data.type === 'email') {
-                  node = new Email.NodeModel({});
-                } else if (data.type === 'generic') {
-                  node = new Generic.NodeModel({});
-                } else if (data.type === 'banner') {
-                  node = new Banner.NodeModel({
-                    expiresInUnit: 'days',
-                    expiresInTime: 1,
-                  });
-                } else if (data.type === 'push_notification') {
-                  node = new PushNotification.NodeModel({});
-                } else if (data.type === 'segment') {
-                  node = new Segment.NodeModel({});
-                } else if (data.type === 'condition') {
-                  node = new Condition.NodeModel({});
-                } else if (data.type === 'trigger') {
-                  node = new Trigger.NodeModel({});
-                } else if (data.type === 'before_trigger') {
-                  node = new BeforeTrigger.NodeModel({});
-                } else if (data.type === 'wait') {
-                  node = new Wait.NodeModel({});
-                } else if (data.type === 'goal') {
-                  node = new Goal.NodeModel({
-                    recheckPeriodUnit: 'hours',
-                    recheckPeriodTime: 1,
-                  });
-                } else if (data.type === 'ab_test') {
-                  node = new ABTest.NodeModel({
-                    name: "AB Test",
-                    scenarioName: this.props.scenario.name
-                  });
-                }
-                var points = this.props.app
-                  .getDiagramEngine()
-                  .getRelativeMousePoint(event);
-                node.x = points.x;
-                node.y = points.y;
-                this.props.app
-                  .getDiagramEngine()
-                  .getDiagramModel()
-                  .addNode(node);
-                this.forceUpdate();
-              }}
-              onDragOver={event => {
-                event.preventDefault();
-              }}
-            >
-              <DiagramWidget {...diagramProps} />
-            </div>
-          </main>
-        </div>
+        <main className={classes.content}>
+          <div className='diagram-layer'>
+            <ReactFlowProvider>
+              <FlowWidget app={app} scenario={scenario} />
+            </ReactFlowProvider>
+          </div>
+        </main>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
-function mapStateToProps(state) {
-  return {
-    canvas: state.canvas,
-    scenario: state.scenario
-  };
-}
-
-export default compose(
-  withStyles(styles, { name: 'BodyWidget' }),
-  connect(
-    mapStateToProps,
-    null
-  )
-)(BodyWidget);
+export default BodyWidget;

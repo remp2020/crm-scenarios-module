@@ -1,7 +1,11 @@
-import RenderService from "./RenderService";
-import ExportService from ".ExportService";
+import { ExportService } from './ExportService';
+import { DiagramService } from './DiagramService';
+import { ScenarioApiService } from './ScenarioApiService';
+import { WidgetsApiService } from './WidgetsApiService';
 
 export {
-    RenderService,
-    ExportService
+  ExportService,
+  DiagramService,
+  ScenarioApiService,
+  WidgetsApiService
 };

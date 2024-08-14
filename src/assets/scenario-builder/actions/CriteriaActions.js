@@ -1,27 +1,20 @@
-import axios from 'axios';
-import * as config from '../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
-import { CRITERIA_CHANGED } from './types';
+import { store } from '../store';
+import { setCriteria } from '../store/criteriaSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-export function updateCriteria(criteria) {
-  return {
-    type: CRITERIA_CHANGED,
-    payload: criteria
-  };
-}
+const {dispatch} = store;
 
 export function fetchCriteria() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(config.URL_SCENARIO_CRITERIA)
+  return actionWithLoading(() =>
+    WidgetsApiService.getCriteria()
       .then(response => {
-        dispatch(updateCriteria(response.data.blueprint));
+        dispatch(setCriteria(response.data.blueprint));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
-        console.log(error);
+      .catch(() => {
         dispatch(setScenarioLoading(false));
         dispatch(
           setCanvasNotification({
@@ -30,6 +23,6 @@ export function fetchCriteria() {
             text: 'Criteria fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

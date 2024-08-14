@@ -1,7 +1,7 @@
 import React from "react";
 import {useSelector} from 'react-redux';
-import Chip from "@material-ui/core/Chip";
-import {CircularProgress} from "@material-ui/core";
+import Chip from "@mui/material/Chip";
+import {CircularProgress} from "@mui/material";
 
 function StatisticBadge(props) {
 
@@ -73,6 +73,5 @@ function StatisticBadge(props) {
     </div>
   );
 }
-
 
 export default StatisticBadge;

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { createFilterOptions } from '@material-ui/lab/Autocomplete';
-import { TextField } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import Autocomplete from '@mui/material/Autocomplete';
+import { createFilterOptions } from '@mui/material/Autocomplete';
+import { Box, TextField } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import { actionSetParamValues } from './actions';
 
 const elementStyles = makeStyles(theme => ({
@@ -72,7 +72,6 @@ function optionGroup(option) {
   }
 }
 
-// https://material-ui.com/components/autocomplete/#createfilteroptions-config-filteroptions
 // Defines what values are searched within option
 const filterOptions = createFilterOptions({
   matchFrom: 'any',
@@ -120,18 +119,18 @@ export default function StringLabeledArrayParam(props) {
         renderInput={params => (
           <TextField
             {...params}
-            variant="standard"
+            variant='standard'
             label={props.blueprint.label}
             placeholder=""
             className={classes.autocomplete}
             fullWidth
           />
         )}
-        renderOption={(option, { selected }) => (
-          <React.Fragment>
-            {optionLabel(option)} 
+        renderOption={(props, option, { selected }) => (
+          <Box component="li" {...props}>
+            {optionLabel(option)}
             <small className={classes.subtitle}>{optionSubtitle(option)}</small>
-          </React.Fragment>
+          </Box>
         )}
       />
   );

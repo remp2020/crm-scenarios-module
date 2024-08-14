@@ -1,20 +1,20 @@
-$nodeColor: $grey;
+@import '../../variables';
 
-.srd-node--selected {
-  .diamond-node .abtest-node .node-container {
-    box-shadow: 0 0 10px $nodeColor;
+.react-flow__node.selected {
+  .diamond-node.abtest-node .node-container {
+    box-shadow: 0 0 10px $grey;
   }
 }
 
 .abtest-node {
   .node-container {
-    border: solid 2px $nodeColor;
-    color: $nodeColor;
+    border: solid 2px $grey;
+    color: $grey;
     height: auto;
   }
 
   &__title {
-    color: $nodeColor;
+    color: $grey;
   }
 
   &__ports {
@@ -38,6 +38,6 @@ $nodeColor: $grey;
   }
 
   .port {
-    box-shadow: 0 0 10px $nodeColor;
+    box-shadow: 0 0 10px $grey;
   }
 }

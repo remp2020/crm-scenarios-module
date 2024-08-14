@@ -1,26 +1,18 @@
-import * as React from 'react';
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'square-node',
+    className: 'before-trigger-node',
+    name: data?.name,
+    selectedTrigger: data?.selectedTrigger,
+    time: data?.time !== undefined ? data.time : 10,
+    timeUnit: data?.timeUnit !== undefined ? data.timeUnit : 'hours'
+  };
 
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('before_trigger');
-  }
-
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='square-node'
-        className='before-trigger-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
-  }
-}
+  return {
+    id: data?.id || uuid(),
+    type: 'before_trigger',
+    data: {node: nodeData}
+  };
+};

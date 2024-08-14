@@ -1,26 +1,16 @@
-import * as React from 'react';
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
-
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('segment');
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'diamond-node',
+    className: 'segment-node',
+    name: data?.name,
+    selectedSegment: data?.selectedSegment,
   }
 
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='diamond-node'
-        className='segment-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
+  return {
+    id: data?.id || uuid(),
+    type: 'segment',
+    data: { node: nodeData }
   }
 }

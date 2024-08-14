@@ -1,13 +1,13 @@
-import React, {forwardRef, useContext, useImperativeHandle, useReducer} from "react";
+import React, {forwardRef, useContext, useImperativeHandle, useReducer, createContext} from "react";
 import {createOption, reducer, actionDeleteOption, actionCreateOption} from "./optionsReducer";
-import Card from "@material-ui/core/Card";
-import {CardContent} from "@material-ui/core";
-import {makeStyles} from "@material-ui/core/styles";
+import Card from "@mui/material/Card";
+import {CardContent} from "@mui/material";
+import {makeStyles} from "@mui/styles";
 import BooleanParam from "../params/BooleanParam";
 import NumberParam from "../params/NumberParam";
 import StringLabeledArrayParam from "../params/StringLabeledArrayParam";
 
-const OptionsFormDispatch = React.createContext(null);
+const OptionsFormDispatch = createContext(null);
 
 function Option(props) {
   const dispatch = useContext(OptionsFormDispatch);
@@ -78,9 +78,8 @@ function OptionsForm(props, ref) {
             {props.blueprints.map((blueprint) => {
               let option = state.options.find(option => option.key === blueprint.key) ?? createOption(blueprint.key, null);
               return (
-                <div className={classes.option}>
+                <div className={classes.option} key={blueprint.key}>
                   <Option
-                    key={blueprint.key}
                     option={option}
                     blueprint={blueprint.blueprint}
                   />

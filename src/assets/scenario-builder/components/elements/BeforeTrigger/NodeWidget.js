@@ -1,81 +1,75 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { PortWidget } from '../../widgets/PortWidget';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Autocomplete from '@mui/material/Autocomplete';
 import StatisticsTooltip from '../../StatisticTooltip';
-import { setCanvasZoomingAndPanning } from '../../../actions';
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import StatisticBadge from "../../StatisticBadge";
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import StatisticBadge from '../../StatisticBadge';
+import { Handle, Position } from 'reactflow';
+import { store } from '../../../store';
+import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import { bemClassName } from '../../../utils/bem';
 
-class NodeWidget extends React.Component {
-  constructor(props) {
-    super(props);
+const NodeWidget = (props) => {
+  const beforeTriggers = useSelector(state => state.beforeTriggers.availableBeforeTriggers);
+  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
+  const [selectedTrigger, setSelectedTrigger] = useState(props.data.node.selectedTrigger);
+  const [nodeFormBeforeTime, setNodeFormBeforeTime] = useState(props.data.node.time);
+  const [timeUnit, setTimeUnit] = useState(props.data.node.timeUnit);
+  const [dialogOpened, setDialogOpened] = useState(false);
+  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
 
-    this.state = {
-      nodeFormName: this.props.node.name,
-      selectedTrigger: this.props.node.selectedTrigger,
-      nodeFormBeforeTime: this.props.node.time,
-      timeUnit: this.props.node.timeUnit,
-      dialogOpened: false,
-      anchorElementForTooltip: null
-    };
-  }
+  const bem = (selector) => bemClassName(
+    selector,
+    props.data.node.classBaseName,
+    props.data.node.className
+  )
 
-  bem(selector) {
-    return (
-      this.props.classBaseName +
-      selector +
-      ' ' +
-      this.props.className +
-      selector +
-      ' '
-    );
-  }
-
-  getClassName() {
-    return this.props.classBaseName + ' ' + this.props.className;
-  }
-
-  openDialog = () => {
-    this.setState({
-      dialogOpened: true,
-      nodeFormName: this.props.node.name,
-      nodeFormBeforeTime: this.props.node.time,
-      timeUnit: this.props.node.timeUnit,
-      anchorElementForTooltip: null
-    });
-    this.props.dispatch(setCanvasZoomingAndPanning(false));
+  const getClassName = () => {
+    return props.data.node.classBaseName + ' ' + props.data.node.className;
   };
 
-  closeDialog = () => {
-    this.setState({ dialogOpened: false });
-    this.props.dispatch(setCanvasZoomingAndPanning(true));
+  const openDialog = () => {
+    if (dialogOpened) {
+      return
+    }
+
+    setDialogOpened(true);
+    setNodeFormName(props.data.node.name);
+    setNodeFormBeforeTime(props.data.node.time);
+    setTimeUnit(props.data.node.timeUnit);
+    setAnchorElementForTooltip(null);
+    store.dispatch(setCanvasZoomingAndPanning(false));
   };
 
-  handleNodeMouseEnter = event => {
-    if (!this.state.dialogOpened) {
-      this.setState({ anchorElementForTooltip: event.currentTarget });
+  const closeDialog = () => {
+    setDialogOpened(false);
+    store.dispatch(setCanvasZoomingAndPanning(true));
+  };
+
+  const handleNodeMouseEnter = event => {
+    if (!dialogOpened) {
+      setAnchorElementForTooltip(event.currentTarget);
     }
   };
 
-  handleNodeMouseLeave = () => {
-    this.setState({ anchorElementForTooltip: null });
+  const handleNodeMouseLeave = () => {
+    setAnchorElementForTooltip(null);
   };
 
-  getTriggersInSelectableFormat = () => {
-    return this.props.beforeTriggers.map(trigger => {
+  const getTriggersInSelectableFormat = () => {
+    return beforeTriggers.map(trigger => {
       return {
         value: trigger.code,
         label: trigger.name
@@ -83,189 +77,178 @@ class NodeWidget extends React.Component {
     });
   };
 
-  getSelectedTriggerValue = () => {
-    const selected = this.getTriggersInSelectableFormat().find(
-      trigger => trigger.value === this.props.node.selectedTrigger
+  const getSelectedTriggerValue = () => {
+    const selected = getTriggersInSelectableFormat().find(
+      trigger => trigger.value === props.data.node.selectedTrigger
     );
 
-    return selected ? `${this.props.node.time} ${this.props.node.timeUnit} before - ${selected.label} event` : 'Before Event';
+    return selected ? `${props.data.node.time} ${props.data.node.timeUnit} before - ${selected.label} event` : 'Before Event';
   };
 
-  render() {
-    return (
-      <div
-        className={this.getClassName()}
-        style={{ background: this.props.node.color }}
-        onDoubleClick={() => {
-          this.openDialog();
-        }}
-        onMouseEnter={this.handleNodeMouseEnter}
-        onMouseLeave={this.handleNodeMouseLeave}
-      >
-        <div className='node-container'>
-          <div className={this.bem('__icon')}>
-            <NotificationsActiveIcon />
-          </div>
-
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__right')}>
-              <PortWidget name='right' node={this.props.node} />
-              <StatisticBadge elementId={this.props.node.id} color="#00b5ad" position="right" />
-            </div>
-          </div>
+  return (
+    <div
+      className={getClassName()}
+      style={{background: props.data.node.color}}
+      onDoubleClick={() => {
+        openDialog();
+      }}
+      onMouseEnter={handleNodeMouseEnter}
+      onMouseLeave={handleNodeMouseLeave}
+    >
+      <div className="node-container">
+        <div className={bem('__icon')}>
+          <NotificationsActiveIcon/>
         </div>
 
-        <div className={this.bem('__title')}>
-          <div className={this.bem('__name')}>
-            {this.props.node.name
-              ? this.props.node.name
-              : this.getSelectedTriggerValue()}
+        <div className={bem('__ports')}>
+          <div className={bem('__right')}>
+            <Handle
+              type="source"
+              id="right"
+              position={Position.Right}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+            <StatisticBadge elementId={props.id} color="#00b5ad" position="right"/>
           </div>
         </div>
-
-        <StatisticsTooltip
-          id={this.props.node.id}
-          isTrigger={true}
-          anchorElement={this.state.anchorElementForTooltip}
-        />
-
-        <Dialog
-          open={this.state.dialogOpened}
-          onClose={this.closeDialog}
-          aria-labelledby='form-dialog-title'
-          onKeyUp={event => {
-            if (event.keyCode === 46 || event.keyCode === 8) {
-              event.preventDefault();
-              event.stopPropagation();
-              return false;
-            }
-          }}
-        >
-          <DialogTitle id='form-dialog-title'>Before event node</DialogTitle>
-
-          <DialogContent>
-            <DialogContentText>
-              Events are emitted in advanced of trigger according to selected time period.
-            </DialogContentText>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                  margin='normal'
-                  id='trigger-name'
-                  label='Node name'
-                  fullWidth
-                  value={this.state.nodeFormName}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormName: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid item xs={12}>
-                <Autocomplete
-                    value={this.getTriggersInSelectableFormat().find(
-                      option => option.value === this.state.selectedTrigger
-                    )}
-                    options={this.getTriggersInSelectableFormat()}
-                    getOptionLabel={(option) => option.label}
-                    style={{ marginBottom: 16 }}
-                    onChange={(event, selectedOption) => {
-                      if (selectedOption !== null) {
-                        this.setState({
-                          selectedTrigger: selectedOption.value
-                        });
-                      }
-                    }}
-                    renderInput={params => (
-                        <TextField {...params} variant="standard" label="Trigger" fullWidth />
-                    )}
-                  />
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                    id='waiting-time'
-                    label='Before time'
-                    type='number'
-                    fullWidth
-                    value={this.state.nodeFormBeforeTime}
-                    onChange={event => {
-                      this.setState({
-                        nodeFormBeforeTime: event.target.value
-                      });
-                    }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor='time-unit'>Time unit</InputLabel>
-                  <Select
-                      value={this.state.timeUnit}
-                      onChange={event => {
-                        this.setState({
-                          timeUnit: event.target.value
-                        });
-                      }}
-                      inputProps={{
-                        name: 'time-unit',
-                        id: 'time-unit'
-                      }}
-                  >
-                    <MenuItem value='minutes'>Minutes</MenuItem>
-                    <MenuItem value='hours'>Hours</MenuItem>
-                    <MenuItem value='days'>Days</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </DialogContent>
-
-          <DialogActions>
-            <Button
-              color='secondary'
-              onClick={() => {
-                this.closeDialog();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              color='primary'
-              onClick={() => {
-                // https://github.com/projectstorm/react-diagrams/issues/50 huh
-
-                this.props.node.name = this.state.nodeFormName;
-                this.props.node.selectedTrigger = this.state.selectedTrigger;
-                this.props.node.time = this.state.nodeFormBeforeTime;
-                this.props.node.timeUnit = this.state.timeUnit;
-
-                this.props.diagramEngine.repaintCanvas();
-                this.closeDialog();
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
-    );
-  }
-}
 
-function mapStateToProps(state) {
-  const { beforeTriggers } = state;
+      <div className={bem('__title')}>
+        <div className={bem('__name')}>
+          {props.data.node.name
+            ? props.data.node.name
+            : getSelectedTriggerValue()}
+        </div>
+      </div>
 
-  return {
-    beforeTriggers: beforeTriggers.availableBeforeTriggers
-  };
-}
+      <StatisticsTooltip
+        id={props.id}
+        isTrigger={true}
+        anchorElement={anchorElementForTooltip}
+      />
 
-export default connect(mapStateToProps)(NodeWidget);
+      <Dialog
+        open={dialogOpened}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+        onKeyUp={event => {
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }}
+      >
+        <DialogTitle id="form-dialog-title">Before event node</DialogTitle>
+
+        <DialogContent>
+          <DialogContentText>
+            Events are emitted in advanced of trigger according to selected time period.
+          </DialogContentText>
+
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                margin="normal"
+                id="trigger-name"
+                label="Node name"
+                variant="standard"
+                fullWidth
+                value={nodeFormName}
+                onChange={event => {
+                  setNodeFormName(event.target.value);
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item xs={12}>
+              <Autocomplete
+                value={getTriggersInSelectableFormat().find(
+                  option => option.value === selectedTrigger
+                )}
+                options={getTriggersInSelectableFormat()}
+                isOptionEqualToValue={(option, value) => option.value === value.value}
+                getOptionLabel={(option) => option.label}
+                style={{marginBottom: 16}}
+                onChange={(event, selectedOption) => {
+                  if (selectedOption !== null) {
+                    setSelectedTrigger(selectedOption.value);
+                  }
+                }}
+                renderInput={params => (
+                  <TextField {...params} variant="standard" label="Trigger" fullWidth/>
+                )}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                id="waiting-time"
+                label="Before time"
+                type="number"
+                variant="standard"
+                fullWidth
+                value={nodeFormBeforeTime}
+                onChange={event => {
+                  setNodeFormBeforeTime(event.target.value);
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth variant="standard">
+                <InputLabel htmlFor="time-unit">Time unit</InputLabel>
+                <Select
+                  variant="standard"
+                  value={timeUnit}
+                  onChange={event => {
+                    setTimeUnit(event.target.value);
+                  }}
+                  inputProps={{
+                    name: 'time-unit',
+                    id: 'time-unit'
+                  }}
+                >
+                  <MenuItem value="minutes">Minutes</MenuItem>
+                  <MenuItem value="hours">Hours</MenuItem>
+                  <MenuItem value="days">Days</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            color="secondary"
+            onClick={() => {
+              closeDialog();
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="primary"
+            onClick={() => {
+              props.data.node.name = nodeFormName;
+              props.data.node.selectedTrigger = selectedTrigger;
+              props.data.node.time = nodeFormBeforeTime;
+              props.data.node.timeUnit = timeUnit;
+
+              closeDialog();
+            }}
+          >
+            Save changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export default NodeWidget;

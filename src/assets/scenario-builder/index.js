@@ -1,28 +1,36 @@
 import React from 'react';
-import { render } from 'react-dom';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunkMiddleware from 'redux-thunk';
 import axios from 'axios';
-
-import rootReducer from './reducers';
 import App from './App';
 import * as config from './config';
+import { createRoot } from 'react-dom/client';
+import { createTheme, StyledEngineProvider, ThemeProvider } from '@mui/material';
+import { store } from './store';
 
 window.__MUI_USE_NEXT_TYPOGRAPHY_VARIANTS__ = true;
+window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+
 axios.defaults.headers.common['Authorization'] = config.AUTH_TOKEN;
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const domNode = document.getElementById('root')
 
-const store = createStore(
-  rootReducer,
-  {},
-  composeEnhancers(applyMiddleware(thunkMiddleware))
-);
-
-render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root')
-);
+const root = createRoot(domNode);
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#3f51b5',
+    },
+    secondary: {
+      main: '#f50057'
+    }
+  }
+})
+root.render(
+  <ThemeProvider theme={theme}>
+    <Provider store={store}>
+      <StyledEngineProvider injectFirst>
+        <App />
+      </StyledEngineProvider>
+    </Provider>
+  </ThemeProvider>
+)

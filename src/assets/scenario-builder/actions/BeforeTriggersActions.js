@@ -1,29 +1,21 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
+import { store } from '../store';
+import { setAvailableBeforeTriggers } from '../store/beforeTriggersSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-import { BEFORE_TRIGGERS_CHANGED } from './types';
-
-export function updateBeforeTriggers(beforeTriggers) {
-  return {
-    type: BEFORE_TRIGGERS_CHANGED,
-    payload: beforeTriggers
-  };
-}
+const {dispatch} = store;
 
 export function fetchBeforeTriggers() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(`${config.URL_BEFORE_TRIGGERS_INDEX}`)
+  return actionWithLoading(() =>
+    WidgetsApiService.getBeforeTriggers()
       .then(response => {
-        dispatch(updateBeforeTriggers(response.data.events));
+        dispatch(setAvailableBeforeTriggers(response.data.events));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -31,6 +23,6 @@ export function fetchBeforeTriggers() {
             text: 'Triggers fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

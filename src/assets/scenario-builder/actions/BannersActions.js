@@ -1,28 +1,21 @@
-import axios from 'axios';
-import * as config from '../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
-import { BANNERS_CHANGED } from './types';
+import { store } from '../store';
+import { setAvailableBanners } from '../store/bannersSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-export function updateBanners(banners) {
-  return {
-    type: BANNERS_CHANGED,
-    payload: banners
-  };
-}
+const {dispatch} = store;
 
 export function fetchBanners() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(config.URL_BANNERS_INDEX)
+  return actionWithLoading(() =>
+    WidgetsApiService.getBanners()
       .then(response => {
-        dispatch(updateBanners(response.data.banners));
+        dispatch(setAvailableBanners(response.data.banners));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -30,6 +23,6 @@ export function fetchBanners() {
             text: 'Banners fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

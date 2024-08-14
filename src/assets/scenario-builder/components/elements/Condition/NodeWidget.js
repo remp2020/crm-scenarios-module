@@ -1,210 +1,210 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import ConditionIcon from '@material-ui/icons/CallSplit';
-import OkIcon from '@material-ui/icons/Check';
-import Grid from '@material-ui/core/Grid';
-import NopeIcon from '@material-ui/icons/Close';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import React, { useState, createRef } from 'react';
+import { useSelector } from 'react-redux';
+import ConditionIcon from '@mui/icons-material/CallSplit';
+import OkIcon from '@mui/icons-material/Check';
+import Grid from '@mui/material/Grid';
+import NopeIcon from '@mui/icons-material/Close';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import CriteriaBuilder from './CriteriaBuilder';
-import { PortWidget } from '../../widgets/PortWidget';
-import { setCanvasZoomingAndPanning } from '../../../actions';
-import StatisticBadge from "../../StatisticBadge";
-import StatisticsTooltip from "../../StatisticTooltip";
+import StatisticBadge from '../../StatisticBadge';
+import StatisticsTooltip from '../../StatisticTooltip';
+import { Handle, Position } from 'reactflow';
+import { store } from '../../../store';
+import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import { bemClassName } from '../../../utils/bem';
 
-class NodeWidget extends React.Component {
-  constructor(props) {
-    super(props);
+const NodeWidget = ({ data, id, isConnectable }) => {
+  // Use it to access CriteriaBuilder state
+  const builderRef = createRef();
 
-    // Use it to access CriteriaBuilder state
-    this.builderRef = React.createRef();
+  const [nodeFormName, setNodeFormName] = useState(data.node.name);
+  const [dialogOpened, setDialogOpened] = useState(false);
+  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
+  const statistics = useSelector(state => state.statistics.statistics);
 
-    this.state = {
-      nodeFormName: this.props.node.name,
-      dialogOpened: false,
-      anchorElementForTooltip: null
-    };
-  }
+  const bem = (selector) => bemClassName(
+    selector,
+    data.node.classBaseName,
+    data.node.className
+  )
 
-  bem(selector) {
-    return (
-      this.props.classBaseName +
-      selector +
-      ' ' +
-      this.props.className +
-      selector +
-      ' '
-    );
-  }
-
-  getClassName() {
-    return this.props.classBaseName + ' ' + this.props.className;
-  }
-
-  openDialog = () => {
-    this.setState({
-      dialogOpened: true,
-      nodeFormName: this.props.node.name,
-      anchorElementForTooltip: null
-    });
-    this.props.dispatch(setCanvasZoomingAndPanning(false));
+  const getClassName = () => {
+    return data.node.classBaseName + ' ' + data.node.className;
   };
 
-  closeDialog = () => {
-    this.setState({ dialogOpened: false });
-    this.props.dispatch(setCanvasZoomingAndPanning(true));
+  const openDialog = () => {
+    if (dialogOpened) {
+      return
+    }
+
+    setDialogOpened(true);
+    setNodeFormName(data.node.name);
+    setAnchorElementForTooltip(null);
+    store.dispatch(setCanvasZoomingAndPanning(false));
   };
 
-  handleNodeMouseEnter = event => {
-    if (!this.state.dialogOpened) {
-      this.setState({ anchorElementForTooltip: event.currentTarget });
+  const closeDialog = () => {
+    setDialogOpened(false);
+    store.dispatch(setCanvasZoomingAndPanning(true));
+  };
+
+  const handleNodeMouseEnter = event => {
+    if (!dialogOpened) {
+      setAnchorElementForTooltip(event.currentTarget);
     }
   };
 
-  handleNodeMouseLeave = () => {
-    this.setState({ anchorElementForTooltip: null });
+  const handleNodeMouseLeave = () => {
+    setAnchorElementForTooltip(null);
   };
 
+  let displayStatisticBadge = false;
+  if (statistics.length === 0 || statistics[id]) {
+    displayStatisticBadge = true;
+  }
 
-  render() {
-    let displayStatisticBadge = false;
-    if (this.props.statistics.length === 0 || this.props.statistics[this.props.node.id]) {
-      displayStatisticBadge = true;
-    }
-    return (
-      <div
-        className={this.getClassName()}
-        style={{ background: this.props.node.color }}
-        onDoubleClick={() => {
-          this.openDialog();
-        }}
-        onMouseEnter={this.handleNodeMouseEnter}
-        onMouseLeave={this.handleNodeMouseLeave}
-      >
-        <div className={this.bem('__title')}>
-          <div className={this.bem('__name')}>
-            {this.props.node.name
-              ? this.props.node.name
-              : 'Condition'}
-          </div>
+  return (
+    <div
+      className={getClassName()}
+      style={{background: data.node.color}}
+      onDoubleClick={() => {
+        openDialog();
+      }}
+      onMouseEnter={handleNodeMouseEnter}
+      onMouseLeave={handleNodeMouseLeave}
+    >
+      <div className={bem('__title')}>
+        <div className={bem('__name')}>
+          {data.node.name
+            ? data.node.name
+            : 'Condition'}
         </div>
-
-        <div className='node-container'>
-          <div className={this.bem('__icon')}>
-            <ConditionIcon />
-          </div>
-
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__left')}>
-              <PortWidget name='left' node={this.props.node} />
-            </div>
-
-            <div className={this.bem('__right')}>
-              <PortWidget name='right' node={this.props.node} />
-              {displayStatisticBadge ?
-                <StatisticBadge elementId={this.props.node.id} color="#21ba45" position="right" /> :
-                <OkIcon style={{position: 'absolute', top: '-5px', right: '-30px', color: '#2ECC40'}}/>
-              }
-            </div>
-
-            <div className={this.bem('__bottom')}>
-              <PortWidget name='bottom' node={this.props.node} />
-              {displayStatisticBadge ?
-                <StatisticBadge elementId={this.props.node.id} color="#db2828" position="bottom"/> :
-                <NopeIcon style={{position: 'absolute', top: '15px', right: '-5px', color: '#FF695E'}}/>
-              }
-            </div>
-          </div>
-        </div>
-
-        <StatisticsTooltip
-          id={this.props.node.id}
-          anchorElement={this.state.anchorElementForTooltip}
-        />
-
-        <Dialog
-          fullWidth={true}
-          maxWidth='md'
-          open={this.state.dialogOpened}
-          onClose={this.closeDialog}
-          aria-labelledby='form-dialog-title'
-          onKeyUp={event => {
-            if (event.keyCode === 46 || event.keyCode === 8) {
-              event.preventDefault();
-              event.stopPropagation();
-              return false;
-            }
-          }}
-        >
-          <DialogTitle id='form-dialog-title'>
-            Event Condition
-          </DialogTitle>
-
-          <DialogContent>
-            <Grid container>
-              <Grid style={{marginBottom: '10px'}} item xs={6}>
-                <TextField
-                  margin='normal'
-                  id='trigger-name'
-                  label='Node name'
-                  fullWidth
-                  value={this.state.nodeFormName}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormName: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-
-              <CriteriaBuilder
-                conditions={this.props.node.conditions}
-                ref={this.builderRef}>
-              </CriteriaBuilder>
-            </Grid>
-          </DialogContent>
-
-          <DialogActions>
-            <Button
-              color='secondary'
-              onClick={() => {
-                this.closeDialog();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              color='primary'
-              onClick={() => {
-                // https://github.com/projectstorm/react-diagrams/issues/50 huh
-
-                this.props.node.name = this.state.nodeFormName;
-                this.props.node.conditions = this.builderRef.current.state;
-
-                this.props.diagramEngine.repaintCanvas();
-                this.closeDialog();
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
-    );
-  }
-}
 
-function mapStateToProps(state) {
-  const { dispatch } = state;
-  return {
-    dispatch,
-    statistics: state.statistics.statistics
-  };
-}
+      <div className="node-container">
+        <div className={bem('__icon')}>
+          <ConditionIcon/>
+        </div>
 
-export default connect(mapStateToProps)(NodeWidget);
+        <div className={bem('__ports')}>
+          <div className={bem('__left')}>
+            <Handle
+              type="target"
+              id="left"
+              position={Position.Left}
+              onConnect={(params) => console.log('handle onConnect', params)}
+              isConnectable={isConnectable}
+              className="port"
+            />
+          </div>
+
+          <div className={bem('__right')}>
+            <Handle
+              type="source"
+              position={Position.Right}
+              id="right"
+              isConnectable={isConnectable}
+              className="port"
+            />
+            {displayStatisticBadge ?
+              <StatisticBadge elementId={id} color="#21ba45" position="right"/> :
+              <OkIcon style={{position: 'absolute', top: '-5px', right: '-30px', color: '#2ECC40'}}/>
+            }
+          </div>
+
+          <div className={bem('__bottom')}>
+            <Handle
+              type="source"
+              position={Position.Bottom}
+              id="bottom"
+              isConnectable={isConnectable}
+              className="port"
+            />
+            {displayStatisticBadge ?
+              <StatisticBadge elementId={id} color="#db2828" position="bottom"/> :
+              <NopeIcon style={{position: 'absolute', top: '15px', right: '-5px', color: '#FF695E'}}/>
+            }
+          </div>
+        </div>
+      </div>
+
+      <StatisticsTooltip
+        id={id}
+        anchorElement={anchorElementForTooltip}
+      />
+
+      <Dialog
+        fullWidth={true}
+        maxWidth="md"
+        open={dialogOpened}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+        onKeyUp={event => {
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }}
+      >
+        <DialogTitle id="form-dialog-title">
+          Event Condition
+        </DialogTitle>
+
+        <DialogContent>
+          <Grid container>
+            <Grid style={{marginBottom: '10px'}} item xs={6}>
+              <TextField
+                margin="normal"
+                id="trigger-name"
+                label="Node name"
+                variant="standard"
+                fullWidth
+                value={nodeFormName}
+                onChange={event => {
+                  setNodeFormName(event.target.value);
+                }}
+              />
+            </Grid>
+
+            <CriteriaBuilder
+              conditions={data.node.conditions}
+              ref={builderRef}
+            >
+            </CriteriaBuilder>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            color="secondary"
+            onClick={() => {
+              closeDialog();
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="primary"
+            onClick={() => {
+              data.node.name = nodeFormName;
+              data.node.conditions = builderRef.current.state;
+
+              closeDialog();
+            }}
+          >
+            Save changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export default NodeWidget;

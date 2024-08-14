@@ -1,29 +1,21 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
+import { setGenerics } from '../store/genericsSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { store } from '../store';
+import { actionWithLoading } from './actionWithLoading';
 
-import { GENERICS_CHANGED } from './types';
-
-export function updateGenerics(generics) {
-  return {
-    type: GENERICS_CHANGED,
-    payload: generics
-  };
-}
+const {dispatch} = store;
 
 export function fetchGenerics() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(`${config.URL_GENERICS_INDEX}`)
+  return actionWithLoading(() =>
+    WidgetsApiService.getGenerics()
       .then(response => {
-        dispatch(updateGenerics(response.data));
+        dispatch(setGenerics(response.data));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -31,6 +23,6 @@ export function fetchGenerics() {
             text: 'Generics fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

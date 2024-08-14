@@ -1,53 +1,21 @@
-import axios from 'axios';
-import {
-  SET_SCENARIO_ID,
-  SET_SCENARIO_NAME,
-  SET_SCENARIO_LOADING,
-  SET_SCENARIO_PAYLOAD
-} from './types';
-import * as config from '../config';
-import { setCanvasNotification } from './CanvasActions';
+import { store } from '../store';
+import { setScenarioId, setScenarioLoading, setScenarioName, setScenarioPayload } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { ScenarioApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-export function setScenarioId(id) {
-  return {
-    type: SET_SCENARIO_ID,
-    payload: id
-  };
-}
-
-export function setScenarioName(name) {
-  return {
-    type: SET_SCENARIO_NAME,
-    payload: name
-  };
-}
-
-export function setScenarioPayload(payload) {
-  return {
-    type: SET_SCENARIO_PAYLOAD,
-    payload
-  };
-}
-
-export function setScenarioLoading(loading) {
-  return {
-    type: SET_SCENARIO_LOADING,
-    payload: loading
-  };
-}
+const { dispatch } = store;
 
 export function fetchScenario(scenarioId) {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(config.URL_SCENARIO_DETAIL + scenarioId)
+  return actionWithLoading(() =>
+    ScenarioApiService.getScenario(scenarioId)
       .then(response => {
         dispatch(setScenarioPayload(response.data));
         dispatch(setScenarioName(response.data.name));
         dispatch(setScenarioId(response.data.id));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
         dispatch(
           setCanvasNotification({
@@ -56,7 +24,6 @@ export function fetchScenario(scenarioId) {
             text: 'Scenario fetching failed.'
           })
         );
-        console.log(error);
-      });
-  };
+      })
+  )
 }

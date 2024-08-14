@@ -1,29 +1,29 @@
-$nodeColor: $violet;
+@import '../../variables';
 
-.srd-node--selected {
+.react-flow__node.selected {
   .square-node.banner-node .node-container {
-    box-shadow: 0 0 10px $nodeColor;
+    box-shadow: 0 0 10px $violet;
   }
 }
 
 .banner-node {
   .node-container {
-    border: solid 2px $nodeColor;
-    color: $nodeColor;
+    border: solid 2px $violet;
+    color: $violet;
   }
 
   &__title {
-    color: $nodeColor;
+    color: $violet;
   }
 
   &__left,
   &__right {
     .port {
-      box-shadow: 0 0 10px $nodeColor;
+      box-shadow: 0 0 10px $violet;
 
       &:hover,
       &.selected {
-        background: $nodeColor;
+        background: $violet;
       }
     }
   }

@@ -1,9 +1,5 @@
-import { NodeModel } from "./NodeModel";
-import { NodeFactory } from "./NodeFactory";
-import { PortModel } from "./PortModel";
+import { createNode } from './NodeFactory';
 
 export {
-	NodeModel,
-	NodeFactory,
-	PortModel
+  createNode
 };

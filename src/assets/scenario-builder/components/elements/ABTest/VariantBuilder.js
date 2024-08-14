@@ -1,23 +1,26 @@
-import React, {forwardRef, useImperativeHandle, useReducer} from "react";
-import Grid from "@material-ui/core/Grid";
+import React, { forwardRef, useImperativeHandle, useReducer, useState } from 'react';
+import Grid from '@mui/material/Grid';
 import {
-  Dialog, DialogActions, DialogContent, DialogTitle,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   Input,
   InputAdornment,
   InputLabel,
   TextField
-} from "@material-ui/core";
-import AddCircle from '@material-ui/icons/AddCircleOutline';
-import DeleteIcon from "@material-ui/icons/Delete";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/AddCircleOutline";
-import EditIcon from '@material-ui/icons/Edit';
-import ShowIcon from '@material-ui/icons/Visibility';
-import uuidv4 from 'uuid/v4';
-import DialogContentText from "@material-ui/core/DialogContentText";
-import * as config from '../../../config';
+} from '@mui/material';
+import AddCircle from '@mui/icons-material/AddCircleOutline';
+import AddIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
+import EditIcon from '@mui/icons-material/Edit';
+import ShowIcon from '@mui/icons-material/Visibility';
+import { v4 as uuid } from 'uuid';
+import DialogContentText from '@mui/material/DialogContentText';
+import { v1 } from '../../../api_routes';
 
 function reducer(state, action) {
 
@@ -29,7 +32,7 @@ function reducer(state, action) {
         ...state,
         variants: [
           ...state.variants, {
-            "code": uuidv4().slice(0, 6),
+            "code": uuid().slice(0, 6),
             "name": "Variant " + String.fromCharCode(65 + state.variants.length),
             "distribution": 0
           }
@@ -121,6 +124,7 @@ function VariantBuilder(props, ref) {
         <Grid container spacing={1} key={"grid-index-" + index}>
           <Grid item xs={1}>
               <TextField
+                variant='standard'
                 disabled={true}
                 label="ID"
                 value={variant.code}
@@ -129,6 +133,7 @@ function VariantBuilder(props, ref) {
           <Grid item xs={5}>
             <FormControl fullWidth>
               <TextField
+                variant='standard'
                 label="Variant name"
                 value={variant.name}
                 required={true}
@@ -137,7 +142,7 @@ function VariantBuilder(props, ref) {
             </FormControl>
           </Grid>
           <Grid item xs={2}>
-            <FormControl>
+            <FormControl variant='standard'>
               <InputLabel error={state.isError}>Distribution</InputLabel>
               <Input
                 error={state.isError}
@@ -151,7 +156,7 @@ function VariantBuilder(props, ref) {
               />
             </FormControl>
           </Grid>
-          
+
           <Grid item xs={1} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-evenly'}}>
             {index > 1 &&
             <IconButton
@@ -163,7 +168,7 @@ function VariantBuilder(props, ref) {
             </IconButton>
             }
           </Grid>
-          
+
           <Grid item xs={3} style={{display: 'flex', alignItems: 'center'}}>
 
             <SegmentForm
@@ -177,7 +182,7 @@ function VariantBuilder(props, ref) {
             />
 
           </Grid>
-          
+
         </Grid>
       ))}
 
@@ -199,8 +204,8 @@ function SegmentForm(props) {
 
   const defaultSegmentName = "Scenario variant: " + props.scenarioName + " - " + props.nodeName + " - " + props.variantName + " (" + props.variantCode + ")";
 
-  const [open, setOpen] = React.useState(false);
-  const [name, setName] = React.useState(props.segment.name ?? defaultSegmentName);
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(props.segment.name ?? defaultSegmentName);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -249,6 +254,7 @@ function SegmentForm(props) {
             margin="dense"
             label="Segment name"
             type="string"
+            variant='standard'
             value={name}
             onChange={e => { setName(e.target.value)}}
             fullWidth
@@ -260,17 +266,18 @@ function SegmentForm(props) {
                 fullWidth
                 margin="dense"
                 label="Segment code"
+                variant='standard'
                 type="string"
                 value={props.segment.code}
                 disabled={true}
               />
               <Button
                 size="small"
-                variant="outlined"
+                variant="standard"
                 color="secondary"
                 disableElevation
                 startIcon={<ShowIcon/>}
-                onClick={() => {window.open(config.URL_SEGMENT_SHOW + props.segment.id)}}
+                onClick={() => {window.open(v1.segments.show(props.segment.id))}}
               >
                 View segment
               </Button>

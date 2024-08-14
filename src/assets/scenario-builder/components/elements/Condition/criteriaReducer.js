@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 ///////////////////////////
 // local reducer and state for criteria builder
@@ -6,7 +6,7 @@ import uuidv4 from 'uuid/v4';
 
 export function emptyNode() {
 	return {
-		id: uuidv4(),
+		id: uuid(),
 		key: '',
 		params: [],
 	};
@@ -18,9 +18,9 @@ export function actionSetKeyForNode(nodeId, criterionKey, criterionParams) {
 		payload: {
 			key: criterionKey,
 			nodeId: nodeId,
-			// Criterion params are associated with key, 
+			// Criterion params are associated with key,
 			// but since we do not have access to blueprint here, request criterionParams as additional parameter
-			params: criterionParams 
+			params: criterionParams
 		}
 	};
 }
@@ -107,7 +107,7 @@ export function reducer(state, action) {
 					id: node.id,
 					key: action.payload.key,
 					// TODO: load params from blueprint without needing them in a payload (since they are associated with a criteria key)
-					params: action.payload.params, 
+					params: action.payload.params,
 				};
 				return node;
 			});
@@ -115,7 +115,7 @@ export function reducer(state, action) {
 				...state, nodes: newNodes
 			};
 		}
-			
+
 		default:
 			throw new Error("unsupported action type " + action.type);
 	}

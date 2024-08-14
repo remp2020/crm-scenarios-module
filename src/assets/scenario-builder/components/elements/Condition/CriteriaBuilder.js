@@ -1,19 +1,19 @@
-import React, { useImperativeHandle, useReducer, useContext, forwardRef } from 'react';
+import React, { useImperativeHandle, useReducer, useContext, forwardRef, createContext, Fragment } from 'react';
 import { useSelector } from 'react-redux';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import DeleteIcon from '@material-ui/icons/Delete';
-import AddIcon from '@material-ui/icons/AddCircleOutline';
-import { Card, CardContent, FormControl, InputLabel, Select, MenuItem, IconButton } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/AddCircleOutline';
+import { Card, CardContent, FormControl, InputLabel, Select, MenuItem, IconButton } from '@mui/material';
+import { makeStyles } from '@mui/styles';
 import StringLabeledArrayParam from '../params/StringLabeledArrayParam';
 import BooleanParam from '../params/BooleanParam';
 import NumberParam from '../params/NumberParam';
 import TimeframeParam from '../params/TimeframeParam';
 import { emptyNode, reducer, actionSetEvent, actionSetKeyForNode, actionAddCriterion, actionDeleteNode } from './criteriaReducer';
 
-const BuilderDispatch = React.createContext(null);
+const BuilderDispatch = createContext(null);
 
 ////////////////////
 // CriterionParam
@@ -46,7 +46,6 @@ function CriterionParams(props) {
   return (
     <>
       {props.blueprint.map(paramBlueprint => (
-        // key is required by React here (not used in CriterionParam)
         <CriterionParam key={paramBlueprint.key} node={props.node} blueprint={paramBlueprint}></CriterionParam>
       ))}
     </>
@@ -69,7 +68,6 @@ const useCriteriaFormStyles = makeStyles({
   },
 });
 
-
 // Props - node, criteriaBlueprint
 function CriteriaForm(props) {
   const classes = useCriteriaFormStyles();
@@ -78,9 +76,10 @@ function CriteriaForm(props) {
   return (
     <Card>
       <CardContent className={classes.cardContent}>
-        <FormControl className={classes.formControl}>
+        <FormControl className={classes.formControl} variant='standard'>
           <InputLabel id="select-criteria-label">Criterion</InputLabel>
           <Select
+            variant="standard"
             labelId="select-criteria-label"
             id="select-criteria"
             placeholder="Select criteria"
@@ -101,9 +100,9 @@ function CriteriaForm(props) {
             ))}
           </Select>
         </FormControl>
-        <IconButton onClick={() => dispatch(actionDeleteNode(props.node.id))} 
-          size="small" 
-          className={classes.icon} 
+        <IconButton onClick={() => dispatch(actionDeleteNode(props.node.id))}
+          size="small"
+          className={classes.icon}
           aria-label="delete">
           <DeleteIcon />
         </IconButton>
@@ -111,8 +110,8 @@ function CriteriaForm(props) {
 
       { props.node.key &&
         <CardContent>
-          <CriterionParams 
-            node={props.node} 
+          <CriterionParams
+            node={props.node}
             blueprint={props.criteriaBlueprint.filter(cr => cr.key === props.node.key)[0].params}>
           </CriterionParams>
         </CardContent>
@@ -131,7 +130,9 @@ const useCriteriaTableStyles = makeStyles({
     justifyContent: 'center',
     flexGrow: 0,
     maxWidth: '100%',
-    flexBasis: '100%'
+    flexBasis: '100%',
+    paddingTop: '12px',
+    marginBottom: '-12px'
   }
 });
 
@@ -143,7 +144,7 @@ function CriteriaTable(props) {
   return (
     <>
       {props.nodes.map((node, index) => (
-        <React.Fragment key={node.id}>
+        <Fragment key={node.id}>
           { index >= 1 &&
             <div className={classes.andContainer}>AND</div>
           }
@@ -153,7 +154,7 @@ function CriteriaTable(props) {
               criteriaBlueprint={props.criteriaBlueprint}>
             </CriteriaForm>
           </Grid>
-        </React.Fragment>
+        </Fragment>
       ))}
 
       <Grid item xs={12}>
@@ -172,7 +173,7 @@ function CriteriaTable(props) {
 const useCriteriaBuilderStyles = makeStyles({
   selectedButton: {
     backgroundColor: "#E4E4E4"
-  }, 
+  },
   deselectedButton: {
     color:  "#A6A6A6"
   }
@@ -184,7 +185,7 @@ function CriteriaBuilder(props, ref) {
 
   const [state, dispatch] = useReducer(reducer, {
     version: 1,
-    event: criteria[0].event,
+    event: criteria[0]?.event,
     nodes: [emptyNode()] // by default, one empty node
   , ...props.conditions});
 
@@ -199,7 +200,7 @@ function CriteriaBuilder(props, ref) {
         <Grid item xs={12}>
           <ButtonGroup aria-label="outlined button group">
             {criteria.map(criteriaBlueprint => (
-              <Button 
+              <Button
                 onClick={() => dispatch(actionSetEvent(criteriaBlueprint.event))}
                 className={state.event === criteriaBlueprint.event ? classes.selectedButton : classes.deselectedButton}
                 key={criteriaBlueprint.event}>{criteriaBlueprint.event}</Button>
@@ -208,8 +209,8 @@ function CriteriaBuilder(props, ref) {
         </Grid>
 
         {criteria.filter(cb => cb.event === state.event).map(criteriaBlueprint => (
-            <CriteriaTable 
-              key={criteriaBlueprint.event} 
+            <CriteriaTable
+              key={criteriaBlueprint.event}
               criteriaBlueprint={criteriaBlueprint.criteria}
               nodes={state.nodes}></CriteriaTable>
           )

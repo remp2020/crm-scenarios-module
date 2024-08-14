@@ -1,26 +1,18 @@
-import * as React from 'react';
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'square-node',
+    className: 'banner-node',
+    name: data?.name,
+    selectedBanner: data?.selectedBanner,
+    expiresInTime: data?.expiresInTime,
+    expiresInUnit: data?.expiresInUnit
+  };
 
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('banner');
-  }
-
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='square-node'
-        className='banner-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
-  }
-}
+  return {
+    id: data?.id || uuid(),
+    type: 'banner',
+    data: {node: nodeData}
+  };
+};

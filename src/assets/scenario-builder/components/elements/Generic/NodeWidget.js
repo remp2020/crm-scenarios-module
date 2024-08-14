@@ -1,35 +1,34 @@
-import * as React from 'react';
+import React, { useState, createRef } from 'react';
 import * as _ from 'lodash';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import ActionIcon from '@material-ui/icons/Extension';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-
-import { PortWidget } from "../../widgets/PortWidget";
+import { useSelector } from 'react-redux';
+import ActionIcon from '@mui/icons-material/Extension';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import StatisticsTooltip from '../../StatisticTooltip';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { setCanvasZoomingAndPanning } from "../../../actions";
-import { withStyles } from '@material-ui/core/styles';
-import { createFilterOptions } from '@material-ui/lab/Autocomplete';
-import OptionsForm from "./OptionsForm";
-import StatisticBadge from "../../StatisticBadge";
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import { makeStyles } from '@mui/styles';
+import OptionsForm from './OptionsForm';
+import StatisticBadge from '../../StatisticBadge';
+import { Handle, Position } from 'reactflow';
+import { store } from '../../../store';
+import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import { bemClassName } from '../../../utils/bem';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   autocomplete: {
     margin: theme.spacing(1)
   },
   subtitle: {
     paddingLeft: '6px',
     color: theme.palette.grey[600]
-  },
-});
+  }
+}));
 
 const filterOptions = createFilterOptions({
   matchFrom: 'any',
@@ -37,78 +36,70 @@ const filterOptions = createFilterOptions({
   ignoreAccents: true,
   ignoreCase: true,
   stringify: option => {
-    return option.label + " " + option.value;
-  },
+    return option.label + ' ' + option.value;
+  }
 });
 
-class NodeWidget extends React.Component {
-  constructor(props) {
-    super(props);
+const NodeWidget = (props) => {
+  const optionsFormRef = createRef();
+  const classes = useStyles();
 
-    // Use it to access CriteriaBuilder state
-    this.optionsFormRef = React.createRef();
+  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
+  const [selectedGeneric, setSelectedGeneric] = useState(props.data.node.selectedGeneric);
+  const [dialogOpened, setDialogOpened] = useState(false);
+  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
+  const generics = useSelector(state => state.generics.generics);
 
-    this.state = {
-      nodeFormName: this.props.node.name,
-      selectedGeneric: this.props.node.selectedGeneric,
-      dialogOpened: false,
-      anchorElementForTooltip: null
-    };
-  }
+  const bem = (selector) => bemClassName(
+    selector,
+    props.data.node.classBaseName,
+    props.data.node.className
+  )
 
-  bem(selector) {
-    return (
-      this.props.classBaseName +
-      selector +
-      ' ' +
-      this.props.className +
-      selector +
-      ' '
-    );
-  }
-
-  getClassName() {
-    return this.props.classBaseName + ' ' + this.props.className;
-  }
-
-  openDialog = () => {
-    this.setState({
-      dialogOpened: true,
-      nodeFormName: this.props.node.name,
-      anchorElementForTooltip: null
-    });
-    this.props.dispatch(setCanvasZoomingAndPanning(false));
+  const getClassName = () => {
+    return props.data.node.classBaseName + ' ' + props.data.node.className;
   };
 
-  closeDialog = () => {
-    this.setState({ dialogOpened: false });
-    this.props.dispatch(setCanvasZoomingAndPanning(true));
+  const openDialog = () => {
+    if (dialogOpened) {
+      return
+    }
+
+    setDialogOpened(true);
+    setNodeFormName(props.data.node.name);
+    setAnchorElementForTooltip(null);
+    store.dispatch(setCanvasZoomingAndPanning(false));
   };
 
-  handleNodeMouseEnter = event => {
-    if (!this.state.dialogOpened) {
-      this.setState({ anchorElementForTooltip: event.currentTarget });
+  const closeDialog = () => {
+    setDialogOpened(false);
+    store.dispatch(setCanvasZoomingAndPanning(true));
+  };
+
+  const handleNodeMouseEnter = event => {
+    if (!dialogOpened) {
+      setAnchorElementForTooltip(event.currentTarget);
     }
   };
 
-  handleNodeMouseLeave = () => {
-    this.setState({ anchorElementForTooltip: null });
+  const handleNodeMouseLeave = () => {
+    setAnchorElementForTooltip(null);
   };
 
-  getSelectedGeneric = () => {
-    const match = this.props.generics.find(generic => {
-      return generic.code === this.state.selectedGeneric;
+  const getSelectedGeneric = () => {
+    const match = generics.find(generic => {
+      return generic.code === selectedGeneric;
     });
 
     return match ? match : null;
   };
 
-  getSelectedGenericOptionBlueprints = () => {
-    const generic = this.getSelectedGeneric();
+  const getSelectedGenericOptionBlueprints = () => {
+    const generic = getSelectedGeneric();
 
     let blueprints = [];
     if (generic !== null && generic.options !== null) {
-      _.forOwn(generic.options, function(value, key) {
+      _.forOwn(generic.options, function (value, key) {
         blueprints.push({
           key: key,
           blueprint: value
@@ -120,184 +111,170 @@ class NodeWidget extends React.Component {
   };
 
   // maybe refactor to more effective way if is a problem
-  transformOptionsForSelect = () => {
-    const generics = [];
-
-    Object.keys(this.props.generics).forEach(key => {
-      generics.push({
-        value: this.props.generics[key].code,
-        label: this.props.generics[key].label
-      });
-    });
-
-    return generics;
+  const transformOptionsForSelect = () => {
+    return generics.map(item => ({
+      value: item.code,
+      label: item.label
+    }));
   };
 
-  getSelectedGenericDefaultLabel = () => {
-    const generic = this.getSelectedGeneric();
+  const getSelectedGenericDefaultLabel = () => {
+    const generic = getSelectedGeneric();
     return generic ? ` - ${generic.label}` : '';
   };
 
-  render() {
-    const { classes } = this.props;
-    return (
-      <div
-        className={this.getClassName()}
-        style={{ background: this.props.node.color }}
-        onDoubleClick={() => {
-          this.openDialog();
-        }}
-        onMouseEnter={this.handleNodeMouseEnter}
-        onMouseLeave={this.handleNodeMouseLeave}
-      >
-        <div className='node-container'>
-          <div className={this.bem('__icon')}>
-            <ActionIcon />
-          </div>
-
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__left')}>
-              <PortWidget name='left' node={this.props.node} />
-            </div>
-            <div className={this.bem('__right')}>
-              <PortWidget name='right' node={this.props.node} />
-              <StatisticBadge elementId={this.props.node.id} color="#a291fb" position="right" />
-            </div>
-          </div>
-        </div>
-        <div className={this.bem('__title')}>
-          <div className={this.bem('__name')}>
-            {this.props.node.name
-              ? this.props.node.name
-              : `Generic ${this.getSelectedGenericDefaultLabel()}`}
-          </div>
+  return (
+    <div
+      className={getClassName()}
+      style={{background: props.data.node.color}}
+      onDoubleClick={() => {
+        openDialog();
+      }}
+      onMouseEnter={handleNodeMouseEnter}
+      onMouseLeave={handleNodeMouseLeave}
+    >
+      <div className="node-container">
+        <div className={bem('__icon')}>
+          <ActionIcon/>
         </div>
 
-        <StatisticsTooltip
-            id={this.props.node.id}
-            anchorElement={this.state.anchorElementForTooltip}
-        />
-
-        <Dialog
-          open={this.state.dialogOpened}
-          onClose={this.closeDialog}
-          aria-labelledby='form-dialog-title'
-          onKeyUp={event => {
-            if (event.keyCode === 46 || event.keyCode === 8) {
-              event.preventDefault();
-              event.stopPropagation();
-              return false;
-            }
-          }}
-          fullWidth
-        >
-          <DialogTitle id='form-dialog-title'>Generic action node</DialogTitle>
-
-          <DialogContent>
-            <DialogContentText>Runs defined generic action.</DialogContentText>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                  margin='normal'
-                  id='action-name'
-                  label='Node name'
-                  fullWidth
-                  value={this.state.nodeFormName}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormName: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container alignItems='center' alignContent='space-between'>
-              <Grid item xs={12}>
-                <Autocomplete
-                  value={this.getSelectedGeneric()}
-                  options={this.transformOptionsForSelect()}
-                  getOptionLabel={(option) => option.label}
-                  getOptionSelected={(option, value) => option.key === value.key}
-                  disableClearable={true}
-                  filterOptions={filterOptions}
-                  onChange={(event, selectedOption) => {
-                    if (selectedOption !== null) {
-                      this.setState({
-                        selectedGeneric: selectedOption.value
-                      });
-                    }
-                  }}
-                  renderInput={params => (
-                    <TextField {...params} variant="standard" label="Action" fullWidth />
-                  )}
-                  renderOption={(option, { selected }) => (
-                    <div>
-                      <span className={classes.title}>{option.label}</span>
-                      <small className={classes.subtitle}>({option.value})</small>
-                    </div>
-                  )}
-                />
-              </Grid>
-            </Grid>
-
-            {this.state.selectedGeneric && this.getSelectedGenericOptionBlueprints().length > 0 &&
-              <Grid container alignItems='center' alignContent='space-between'>
-                <Grid item xs={12}>
-                  <p>Options</p>
-                  <OptionsForm
-                    options={this.props.node.options}
-                    blueprints={this.getSelectedGenericOptionBlueprints()}
-                    ref={this.optionsFormRef}
-                  />
-                </Grid>
-              </Grid>
-            }
-          </DialogContent>
-
-          <DialogActions>
-            <Button
-              color='secondary'
-              onClick={() => {
-                this.closeDialog();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              color='primary'
-              onClick={() => {
-                // https://github.com/projectstorm/react-diagrams/issues/50 huh
-
-                this.props.node.name = this.state.nodeFormName;
-                this.props.node.selectedGeneric = this.state.selectedGeneric;
-                this.props.node.options = this.optionsFormRef.current ? this.optionsFormRef.current.state.options : [];
-
-                this.props.diagramEngine.repaintCanvas();
-                this.closeDialog();
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <div className={bem('__ports')}>
+          <div className={bem('__left')}>
+            <Handle
+              type="target"
+              id="left"
+              position={Position.Left}
+              onConnect={(params) => console.log('handle onConnect', params)}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+          </div>
+          <div className={bem('__right')}>
+            <Handle
+              type="source"
+              id="right"
+              position={Position.Right}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+            <StatisticBadge elementId={props.id} color="#a291fb" position="right"/>
+          </div>
+        </div>
       </div>
-    );
-  }
-}
+      <div className={bem('__title')}>
+        <div className={bem('__name')}>
+          {props.data.node.name
+            ? props.data.node.name
+            : `Generic ${getSelectedGenericDefaultLabel()}`}
+        </div>
+      </div>
 
-NodeWidget.propTypes = {
-  classes: PropTypes.object.isRequired,
+      <StatisticsTooltip
+        id={props.id}
+        anchorElement={anchorElementForTooltip}
+      />
+
+      <Dialog
+        open={dialogOpened}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+        onKeyUp={event => {
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }}
+        fullWidth
+      >
+        <DialogTitle id="form-dialog-title">Generic action node</DialogTitle>
+
+        <DialogContent>
+          <DialogContentText>Runs defined generic action.</DialogContentText>
+
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                margin="normal"
+                id="action-name"
+                label="Node name"
+                variant="standard"
+                fullWidth
+                value={nodeFormName}
+                onChange={event => {
+                  setNodeFormName(event.target.value)
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container alignItems="center" alignContent="space-between">
+            <Grid item xs={12}>
+              <Autocomplete
+                value={getSelectedGeneric()}
+                options={transformOptionsForSelect()}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => option.key === value.key}
+                disableClearable={true}
+                filterOptions={filterOptions}
+                onChange={(event, selectedOption) => {
+                  if (selectedOption !== null) {
+                    setSelectedGeneric(selectedOption.value)
+                  }
+                }}
+                renderInput={params => (
+                  <TextField {...params} variant="standard" label="Action" fullWidth/>
+                )}
+                renderOption={(props, option) => (
+                  <div {...props}>
+                    <span className={classes.title}>{option.label}</span>
+                    <small className={classes.subtitle}>({option.value})</small>
+                  </div>
+                )}
+              />
+            </Grid>
+          </Grid>
+
+          {selectedGeneric && getSelectedGenericOptionBlueprints().length > 0 &&
+            <Grid container alignItems="center" alignContent="space-between">
+              <Grid item xs={12}>
+                <p>Options</p>
+                <OptionsForm
+                  options={props.data.node.options}
+                  blueprints={getSelectedGenericOptionBlueprints()}
+                  ref={optionsFormRef}
+                />
+              </Grid>
+            </Grid>
+          }
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            color="secondary"
+            onClick={() => {
+              closeDialog();
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="primary"
+            onClick={() => {
+              props.data.node.name = nodeFormName;
+              props.data.node.selectedGeneric = selectedGeneric;
+              props.data.node.options = optionsFormRef.current ? optionsFormRef.current.state.options : [];
+
+              closeDialog();
+            }}
+          >
+            Save changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
 };
 
-function mapStateToProps(state) {
-  return {
-    generics: state.generics.generics,
-  };
-}
-
-export default connect(mapStateToProps)(
-  withStyles(styles)(NodeWidget)
-);
+export default NodeWidget;

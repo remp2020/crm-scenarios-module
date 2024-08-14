@@ -1,26 +1,30 @@
-import * as React from 'react';
-import { AbstractNodeFactory } from '@projectstorm/react-diagrams';
+import { v4 as uuid } from 'uuid';
 
-import NodeWidget from './NodeWidget';
-import { NodeModel } from './NodeModel';
+export const createNode = (data) => {
+  const nodeData = {
+    classBaseName: 'diamond-node',
+    className: 'abtest-node',
+    name: data?.name,
+    scenarioName: data?.scenarioName
+  };
 
-export class NodeFactory extends AbstractNodeFactory {
-  constructor() {
-    super('ab_test');
+  if (data?.variants) {
+    nodeData.variants = data.variants;
+  } else {
+    nodeData.variants = [{
+      code: uuid().slice(0, 6),
+      name: 'Variant A',
+      distribution: 50
+    }, {
+      code: uuid().slice(0, 6),
+      name: 'Variant B',
+      distribution: 50
+    }];
   }
 
-  generateReactWidget(diagramEngine, node) {
-    return (
-      <NodeWidget
-        diagramEngine={diagramEngine}
-        node={node}
-        classBaseName='diamond-node'
-        className='abtest-node'
-      />
-    );
-  }
-
-  getNewInstance() {
-    return new NodeModel();
-  }
-}
+  return {
+    id: data.id || uuid(),
+    type: 'ab_test',
+    data: {node: nodeData}
+  };
+};

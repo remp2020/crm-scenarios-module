@@ -1,29 +1,21 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
+import { store } from '../store';
+import { setAvailableTriggers } from '../store/triggersSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-import { TRIGGERS_CHANGED } from './types';
-
-export function updateTriggers(triggers) {
-  return {
-    type: TRIGGERS_CHANGED,
-    payload: triggers
-  };
-}
+const {dispatch} = store;
 
 export function fetchTriggers() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(`${config.URL_TRIGGERS_INDEX}`)
+  return actionWithLoading(() =>
+    WidgetsApiService.getTriggers()
       .then(response => {
-        dispatch(updateTriggers(response.data.events));
+        dispatch(setAvailableTriggers(response.data.events));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
+      .catch(() => {
         dispatch(setScenarioLoading(false));
-        console.log(error);
         dispatch(
           setCanvasNotification({
             open: true,
@@ -31,6 +23,6 @@ export function fetchTriggers() {
             text: 'Triggers fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

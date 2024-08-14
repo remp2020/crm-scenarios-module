@@ -1,229 +1,219 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import WaitIcon from '@material-ui/icons/AccessAlarmsOutlined';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import { PortWidget } from '../../widgets/PortWidget';
-import { setCanvasZoomingAndPanning } from '../../../actions';
-import StatisticBadge from "../../StatisticBadge";
-import StatisticsTooltip from "../../StatisticTooltip";
+import React, { useState } from 'react';
+import WaitIcon from '@mui/icons-material/AccessAlarmsOutlined';
+import Grid from '@mui/material/Grid';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import StatisticBadge from '../../StatisticBadge';
+import StatisticsTooltip from '../../StatisticTooltip';
+import { Handle, Position } from 'reactflow';
+import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import { store } from '../../../store';
+import { bemClassName } from '../../../utils/bem';
 
-class NodeWidget extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      nodeFormWaitingTime: this.props.node.waitingTime,
-      nodeFormName: this.props.node.name,
-      timeUnit: this.props.node.waitingUnit,
-      dialogOpened: false,
-      anchorElementForTooltip: null
-    };
-  }
+const NodeWidget = (props) => {
+  const [nodeFormWaitingTime, setNodeFormWaitingTime] = useState(props.data.node.waitingTime);
+  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
+  const [timeUnit, setTimeUnit] = useState(props.data.node.waitingUnit);
+  const [dialogOpened, setDialogOpened] = useState(false);
+  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
 
-  bem(selector) {
-    return (
-      this.props.classBaseName +
-      selector +
-      ' ' +
-      this.props.className +
-      selector +
-      ' '
-    );
-  }
+  const bem = (selector) => bemClassName(
+    selector,
+    props.data.node.classBaseName,
+    props.data.node.className
+  )
 
-  getClassName() {
-    return this.props.classBaseName + ' ' + this.props.className;
-  }
-
-  openDialog = () => {
-    this.setState({
-      dialogOpened: true,
-      nodeFormWaitingTime: this.props.node.waitingTime,
-      nodeFormName: this.props.node.name,
-      timeUnit: this.props.node.waitingUnit,
-      anchorElementForTooltip: null
-    });
-    this.props.dispatch(setCanvasZoomingAndPanning(false));
+  const getClassName = () => {
+    return props.data.node.classBaseName + ' ' + props.data.node.className;
   };
 
-  closeDialog = () => {
-    this.setState({ dialogOpened: false });
-    this.props.dispatch(setCanvasZoomingAndPanning(true));
+  const openDialog = () => {
+    if (dialogOpened) {
+      return
+    }
+
+    setDialogOpened(true);
+    setNodeFormWaitingTime(props.data.node.waitingTime);
+    setNodeFormName(props.data.node.name);
+    setTimeUnit(props.data.node.waitingUnit);
+    setAnchorElementForTooltip(null);
+    store.dispatch(setCanvasZoomingAndPanning(false));
   };
 
-  handleNodeMouseEnter = event => {
-    if (!this.state.dialogOpened) {
-      this.setState({ anchorElementForTooltip: event.currentTarget });
+  const closeDialog = () => {
+    setDialogOpened(false);
+    store.dispatch(setCanvasZoomingAndPanning(true));
+  };
+
+  const handleNodeMouseEnter = event => {
+    if (!dialogOpened) {
+      setAnchorElementForTooltip(event.currentTarget);
     }
   };
 
-  handleNodeMouseLeave = () => {
-    this.setState({ anchorElementForTooltip: null });
+  const handleNodeMouseLeave = () => {
+    setAnchorElementForTooltip(null);
   };
 
-  render() {
-    return (
-      <div
-        className={this.getClassName()}
-        style={{ background: this.props.node.color }}
-        onDoubleClick={() => {
-          this.openDialog();
-        }}
-        onMouseEnter={this.handleNodeMouseEnter}
-        onMouseLeave={this.handleNodeMouseLeave}
-      >
-        <div className='node-container'>
-          <div className={this.bem('__icon')}>
-            <WaitIcon />
+  return (
+    <div
+      className={getClassName()}
+      style={{background: props.data.node.color}}
+      onDoubleClick={() => {
+        openDialog();
+      }}
+      onMouseEnter={handleNodeMouseEnter}
+      onMouseLeave={handleNodeMouseLeave}
+    >
+      <div className="node-container">
+        <div className={bem('__icon')}>
+          <WaitIcon/>
+        </div>
+        <div className={bem('__ports')}>
+          <div className={bem('__left')}>
+            <Handle
+              type="target"
+              id="left"
+              position={Position.Left}
+              onConnect={(params) => console.log('handle onConnect', params)}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
           </div>
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__left')}>
-              <PortWidget name='left' node={this.props.node} />
-            </div>
-            <div className={this.bem('__right')}>
-              <PortWidget name='right' node={this.props.node} />
-              <StatisticBadge elementId={this.props.node.id} color="#ff851b" position="right" />
-            </div>
+          <div className={bem('__right')}>
+            <Handle
+              type="source"
+              id="right"
+              position={Position.Right}
+              isConnectable={props.isConnectable}
+              className="port"
+            />
+            <StatisticBadge elementId={props.id} color="#ff851b" position="right"/>
           </div>
         </div>
-        <div className={this.bem('__title')}>
-          <div className={this.bem('__name')}>
-            {this.props.node.name
-              ? this.props.node.name
-              : `Wait - ${this.props.node.waitingTime} ${
-                  this.props.node.waitingUnit
-                }`}
-          </div>
-        </div>
-
-        <StatisticsTooltip
-          id={this.props.node.id}
-          anchorElement={this.state.anchorElementForTooltip}
-        />
-
-        <Dialog
-          open={this.state.dialogOpened}
-          onClose={this.closeDialog}
-          aria-labelledby='form-dialog-title'
-          onKeyUp={event => {
-            if (event.keyCode === 46 || event.keyCode === 8) {
-              event.preventDefault();
-              event.stopPropagation();
-              return false;
-            }
-          }}
-        >
-          <DialogTitle id='form-dialog-title'>Wait node</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Postpones the execution of next node in flow by selected amount of
-              time.
-            </DialogContentText>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                  margin='normal'
-                  id='waiting-time'
-                  label='Node name'
-                  fullWidth
-                  value={this.state.nodeFormName}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormName: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container>
-              <Grid item xs={6}>
-                <TextField
-                  id='waiting-time'
-                  label='Waiting time'
-                  type='number'
-                  fullWidth
-                  value={this.state.nodeFormWaitingTime}
-                  onChange={event => {
-                    this.setState({
-                      nodeFormWaitingTime: event.target.value
-                    });
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor='time-unit'>Time unit</InputLabel>
-                  <Select
-                    value={this.state.timeUnit}
-                    onChange={event => {
-                      this.setState({
-                        timeUnit: event.target.value
-                      });
-                    }}
-                    inputProps={{
-                      name: 'time-unit',
-                      id: 'time-unit'
-                    }}
-                  >
-                    <MenuItem value='minutes'>Minutes</MenuItem>
-                    <MenuItem value='hours'>Hours</MenuItem>
-                    <MenuItem value='days'>Days</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </DialogContent>
-
-          <DialogActions>
-            <Button
-              color='secondary'
-              onClick={() => {
-                this.closeDialog();
-              }}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              color='primary'
-              onClick={() => {
-                // https://github.com/projectstorm/react-diagrams/issues/50 huh
-
-                this.props.node.waitingTime = this.state.nodeFormWaitingTime;
-                this.props.node.name = this.state.nodeFormName;
-                this.props.node.waitingUnit = this.state.timeUnit;
-
-                this.props.diagramEngine.repaintCanvas();
-                this.closeDialog();
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
-    );
-  }
-}
+      <div className={bem('__title')}>
+        <div className={bem('__name')}>
+          {props.data.node.name
+            ? props.data.node.name
+            : `Wait - ${props.data.node.waitingTime} ${
+              props.data.node.waitingUnit
+            }`}
+        </div>
+      </div>
 
-function mapStateToProps(state) {
-  const { segments } = state;
+      <StatisticsTooltip
+        id={props.id}
+        anchorElement={anchorElementForTooltip}
+      />
 
-  return {
-    segments: segments.avalaibleSegments
-  };
-}
+      <Dialog
+        open={dialogOpened}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+        onKeyUp={event => {
+          if (event.key === 'Delete' || event.key === 'Backspace') {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+          }
+        }}
+      >
+        <DialogTitle id="form-dialog-title">Wait node</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Postpones the execution of next node in flow by selected amount of
+            time.
+          </DialogContentText>
 
-export default connect(mapStateToProps)(NodeWidget);
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                margin="normal"
+                id="waiting-time"
+                label="Node name"
+                variant="standard"
+                fullWidth
+                value={nodeFormName}
+                onChange={event => {
+                  setNodeFormName(event.target.value)
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          <Grid container>
+            <Grid item xs={6}>
+              <TextField
+                id="waiting-time"
+                label="Waiting time"
+                type="number"
+                variant="standard"
+                fullWidth
+                value={nodeFormWaitingTime}
+                onChange={event => {
+                  setNodeFormWaitingTime(event.target.value)
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth variant="standard">
+                <InputLabel htmlFor="time-unit">Time unit</InputLabel>
+                <Select
+                  variant="standard"
+                  value={timeUnit}
+                  onChange={event => {
+                    setTimeUnit(event.target.value)
+                  }}
+                  inputProps={{
+                    name: 'time-unit',
+                    id: 'time-unit'
+                  }}
+                >
+                  <MenuItem value="minutes">Minutes</MenuItem>
+                  <MenuItem value="hours">Hours</MenuItem>
+                  <MenuItem value="days">Days</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            color="secondary"
+            onClick={() => {
+              closeDialog();
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            color="primary"
+            onClick={() => {
+              props.data.node.waitingTime = nodeFormWaitingTime;
+              props.data.node.name = nodeFormName;
+              props.data.node.waitingUnit = timeUnit;
+
+              closeDialog();
+            }}
+          >
+            Save changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+};
+
+export default NodeWidget;

@@ -1,28 +1,20 @@
-import axios from 'axios';
-import * as config from './../config';
-import { setScenarioLoading } from './ScenarioActions';
-import { setCanvasNotification } from './CanvasActions';
+import { store } from '../store';
+import { setAvailableSegments } from '../store/segmentsSlice';
+import { setScenarioLoading } from '../store/scenarioSlice';
+import { setCanvasNotification } from '../store/canvasSlice';
+import { WidgetsApiService } from '../services';
+import { actionWithLoading } from './actionWithLoading';
 
-import { SEGMENTS_CHANGED } from './types';
-
-export function updateSegments(segments) {
-  return {
-    type: SEGMENTS_CHANGED,
-    payload: segments
-  };
-}
+const { dispatch } = store;
 
 export function fetchSegments() {
-  return dispatch => {
-    dispatch(setScenarioLoading(true));
-    return axios
-      .get(`${config.URL_SEGMENTS_INDEX}`)
+  return actionWithLoading(() =>
+    WidgetsApiService.getSegments()
       .then(response => {
-        dispatch(updateSegments(response.data.result));
+        dispatch(setAvailableSegments(response.data.result));
         dispatch(setScenarioLoading(false));
       })
-      .catch(error => {
-        console.log(error);
+      .catch(() => {
         dispatch(setScenarioLoading(false));
         dispatch(
           setCanvasNotification({
@@ -31,6 +23,6 @@ export function fetchSegments() {
             text: 'Segments fetching failed.'
           })
         );
-      });
-  };
+      })
+  )
 }

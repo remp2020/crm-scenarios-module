@@ -1,30 +1,30 @@
-$nodeColor: $orange;
+@import '../../variables';
 
-.srd-node--selected {
+.react-flow__node.selected {
   .diamond-node.condition-node .node-container {
-    box-shadow: 0 0 10px $nodeColor;
+    box-shadow: 0 0 10px $orange;
   }
 }
 
 .condition-node {
   .node-container {
-    border: solid 2px $nodeColor;
-    color: $nodeColor;
+    border: solid 2px $orange;
+    color: $orange;
   }
 
   &__title {
-    color: $nodeColor;
+    color: $orange;
   }
 
   &__left,
   &__right,
   &__bottom {
     .port {
-      box-shadow: 0 0 10px $nodeColor;
+      box-shadow: 0 0 10px $orange;
 
       &:hover,
       &.selected {
-        background: $nodeColor;
+        background: $orange;
       }
     }
   }
