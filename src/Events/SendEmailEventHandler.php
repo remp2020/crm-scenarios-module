@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
+use Crm\ApplicationModule\Models\Config\ApplicationConfig;
 use Crm\PaymentsModule\Models\RecurrentPaymentsResolver;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
@@ -25,14 +26,15 @@ class SendEmailEventHandler extends ScenariosJobsHandler
 
     public function __construct(
         JobsRepository $jobsRepository,
-        private Emitter $emitter,
-        private UsersRepository $usersRepository,
-        private SubscriptionsRepository $subscriptionsRepository,
-        private RecurrentPaymentsRepository $recurrentPaymentsRepository,
-        private PaymentsRepository $paymentsRepository,
-        private RecurrentPaymentsResolver $recurrentPaymentsResolver,
-        private ReachChecker $reachChecker,
-        private AddressesRepository $addressesRepository,
+        private readonly Emitter $emitter,
+        private readonly UsersRepository $usersRepository,
+        private readonly SubscriptionsRepository $subscriptionsRepository,
+        private readonly RecurrentPaymentsRepository $recurrentPaymentsRepository,
+        private readonly PaymentsRepository $paymentsRepository,
+        private readonly RecurrentPaymentsResolver $recurrentPaymentsResolver,
+        private readonly ReachChecker $reachChecker,
+        private readonly AddressesRepository $addressesRepository,
+        private readonly ApplicationConfig $applicationConfig,
     ) {
         parent::__construct($jobsRepository);
     }

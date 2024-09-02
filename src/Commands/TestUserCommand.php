@@ -39,7 +39,7 @@ class TestUserCommand extends Command
             throw new \InvalidArgumentException('Missing --user_id option');
         }
         $this->hermesEmitter->emit(new HermesMessage(TestUserTriggerHandler::EVENT_TYPE, [
-            'user_id' => $userId
+            'user_id' => (int) $userId,
         ]));
 
         $output->writeln("<info>Event 'scenarios-test-user' with UserID={$userId} fired</info>");
