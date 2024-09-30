@@ -4,6 +4,7 @@ namespace Crm\ScenariosModule\Tests;
 
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
@@ -22,6 +23,7 @@ use Crm\UsersModule\Events\PreNotificationEvent;
 use Crm\UsersModule\Models\Auth\UserManager;
 use League\Event\AbstractListener;
 use League\Event\EventInterface;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 
@@ -39,6 +41,8 @@ class SimpleScenariosTest extends BaseTestCase
 
     private RecurrentPaymentsRepository $recurrentPaymentsRepository;
 
+    private PaymentMethodsRepository $paymentMethodsRepository;
+
     private JobsRepository $jobsRepository;
 
     private SubscriptionEndsSuppressionManager $subscriptionEndsSuppressionManager;
@@ -53,6 +57,7 @@ class SimpleScenariosTest extends BaseTestCase
         $this->subscriptionRepository = $this->getRepository(SubscriptionsRepository::class);
         $this->paymentsRepository = $this->getRepository(PaymentsRepository::class);
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
+        $this->paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
         $this->jobsRepository = $this->getRepository(JobsRepository::class);
         $this->subscriptionEndsSuppressionManager = $this->inject(SubscriptionEndsSuppressionManager::class);
     }
@@ -438,7 +443,13 @@ class SimpleScenariosTest extends BaseTestCase
         $paymentGateway = $this->createTestPaymentGateway();
         $payment = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
         $payment2 = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
-        $recurrentPayment = $this->recurrentPaymentsRepository->add('XXX', $payment, new DateTime('now + 5 minutes'), 1, 1);
+        $recurrentPayment = $this->recurrentPaymentsRepository->add(
+            $this->getPaymentMethod($payment, 'XXX'),
+            $payment,
+            new DateTime('now + 5 minutes'),
+            1,
+            1,
+        );
 
         // Recharge recurrent - this should trigger scenario
         $this->recurrentPaymentsRepository->setCharged($recurrentPayment, $payment2, 'OK', 'OK');
@@ -500,7 +511,13 @@ class SimpleScenariosTest extends BaseTestCase
         $paymentGateway = $this->createTestPaymentGateway();
 
         $payment = $this->paymentsRepository->add($subscriptionType, $paymentGateway, $user, new PaymentItemContainer(), null, 1);
-        $recurrentPayment = $this->recurrentPaymentsRepository->add('XXX', $payment, new DateTime('now + 5 minutes'), 1, 1);
+        $recurrentPayment = $this->recurrentPaymentsRepository->add(
+            $this->getPaymentMethod($payment, 'XXX'),
+            $payment,
+            new DateTime('now + 5 minutes'),
+            1,
+            1,
+        );
 
         // Change status of recurrent payment - this should trigger scenario
         $this->recurrentPaymentsRepository->update($recurrentPayment, ['state' => RecurrentPaymentsRepository::STATE_USER_STOP]);
@@ -562,5 +579,14 @@ class SimpleScenariosTest extends BaseTestCase
                 ])
             ]
         ]);
+    }
+
+    private function getPaymentMethod(ActiveRow $payment, string $externalToken): ActiveRow
+    {
+        return $this->paymentMethodsRepository->findOrAdd(
+            $payment->user_id,
+            $payment->payment_gateway_id,
+            $externalToken,
+        );
     }
 }

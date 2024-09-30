@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
@@ -25,6 +26,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
     private ActiveRow $paymentGateway;
     protected BeforeEventGenerator $beforeEventGenerator;
     private RecurrentPaymentsRepository $recurrentPaymentsRepository;
+    private PaymentMethodsRepository $paymentMethodsRepository;
     private JobsRepository $scenariosJobsRepository;
 
     public function setUp(): void
@@ -46,6 +48,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
         $dispatcher = $this->inject(Dispatcher::class);
 
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
+        $this->paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
 
         $beforeRecurrentPaymentExpiresEventGenerator = new BeforeRecurrentPaymentExpiresEventGenerator($this->recurrentPaymentsRepository);
         $this->eventsStorage->registerEventGenerator('before_recurrent_payment_expires', $beforeRecurrentPaymentExpiresEventGenerator);
@@ -270,7 +273,19 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
             $paymentsRepository->update($payment, ['status' => PaymentsRepository::STATUS_FAIL]);
         }
 
-        $recurrentPayment = $this->recurrentPaymentsRepository->add('111', $payment, new DateTime("+30 days"), 0, 5);
+        $paymentMethod = $this->paymentMethodsRepository->findOrAdd(
+            $user->id,
+            $payment->payment_gateway_id,
+            '111',
+        );
+
+        $recurrentPayment = $this->recurrentPaymentsRepository->add(
+            $paymentMethod,
+            $payment,
+            new DateTime("+30 days"),
+            0,
+            5,
+        );
 
         $updateData = [
             'expires_at' => new DateTime("+$expiresAt minutes")

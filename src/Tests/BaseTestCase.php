@@ -19,6 +19,7 @@ use Crm\PaymentsModule\Events\RecurrentPaymentRenewedEvent;
 use Crm\PaymentsModule\Events\RecurrentPaymentStateChangedEvent;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentItemsRepository;
+use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\PaymentsModule\Seeders\PaymentGatewaysSeeder;
@@ -102,6 +103,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             PaymentsRepository::class,
             PaymentItemsRepository::class,
             RecurrentPaymentsRepository::class,
+            PaymentMethodsRepository::class,
             // User goals
             OnboardingGoalsRepository::class,
             UserOnboardingGoalsRepository::class,

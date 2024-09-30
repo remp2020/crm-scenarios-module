@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Engine\Dispatcher;
@@ -23,6 +24,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
 {
     protected BeforeEventGenerator $beforeEventGenerator;
     private RecurrentPaymentsRepository $recurrentPaymentsRepository;
+    private PaymentMethodsRepository $paymentMethodsRepository;
     private JobsRepository $scenariosJobsRepository;
 
     public function setUp(): void
@@ -39,6 +41,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         $dispatcher = $this->inject(Dispatcher::class);
 
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
+        $this->paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
 
         $beforeRecurrentPaymentChargeEventGenerator = new BeforeRecurrentPaymentChargeEventGenerator($this->recurrentPaymentsRepository);
         $this->eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $beforeRecurrentPaymentChargeEventGenerator);
@@ -173,7 +176,15 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
             $paymentsRepository->update($payment, ['status' => PaymentsRepository::STATUS_FAIL]);
         }
 
-        return $this->recurrentPaymentsRepository->add('111', $payment, new DateTime("+ {$minutes} minutes"), 0, 5);
+        $paymentMethod = $this->paymentMethodsRepository->findOrAdd($user->id, $paymentGateway->id, '111');
+
+        return $this->recurrentPaymentsRepository->add(
+            $paymentMethod,
+            $payment,
+            new DateTime("+ {$minutes} minutes"),
+            0,
+            5,
+        );
     }
 
     private function loadUser($email)

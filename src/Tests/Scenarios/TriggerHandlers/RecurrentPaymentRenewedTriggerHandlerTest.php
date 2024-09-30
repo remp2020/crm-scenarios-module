@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Tests\Scenarios\TriggerHandlers;
 
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
+use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentRenewedTriggerHandler;
@@ -13,6 +14,7 @@ use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
 use Crm\UsersModule\Repositories\UsersRepository;
 use Exception;
+use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 
 class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
@@ -79,7 +81,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
         /** @var RecurrentPaymentsRepository $recurrentPaymentsRepository */
         $recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $recurrentPayment = $recurrentPaymentsRepository->add(
-            'someCid',
+            $this->getPaymentMethod($payment, 'someCid'),
             $payment,
             chargeAt: new DateTime(),
             customAmount: null,
@@ -133,7 +135,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
         /** @var RecurrentPaymentsRepository $recurrentPaymentsRepository */
         $recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $recurrentPayment = $recurrentPaymentsRepository->add(
-            'someCid',
+            $this->getPaymentMethod($payment, 'someCid'),
             $payment,
             chargeAt: new DateTime(),
             customAmount: null,
@@ -187,7 +189,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
         /** @var RecurrentPaymentsRepository $recurrentPaymentsRepository */
         $recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $recurrentPayment = $recurrentPaymentsRepository->add(
-            'someCid',
+            $this->getPaymentMethod($payment, 'someCid'),
             $payment,
             chargeAt: new DateTime(),
             customAmount: null,
@@ -226,5 +228,16 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
         $recurrentPaymentRenewedTriggerHandler->handleEvent([
             'recurrent_payment_id' => 1,
         ]);
+    }
+
+    private function getPaymentMethod(ActiveRow $payment, string $externalToken): ActiveRow
+    {
+        $paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
+
+        return $paymentMethodsRepository->findOrAdd(
+            $payment->user_id,
+            $payment->payment_gateway_id,
+            $externalToken,
+        );
     }
 }
