@@ -32,8 +32,6 @@ class ScenariosRepository extends Repository
 
     private $segmentsRepository;
 
-    private $jobsRepository;
-
     public function __construct(
         Explorer $database,
         AuditLogRepository $auditLogRepository,
@@ -43,7 +41,6 @@ class ScenariosRepository extends Repository
         TriggersRepository $triggersRepository,
         TriggerElementsRepository $triggerElementsRepository,
         SegmentsRepository $segmentsRepository,
-        JobsRepository $jobsRepository,
         Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
@@ -55,7 +52,6 @@ class ScenariosRepository extends Repository
         $this->triggerElementsRepository = $triggerElementsRepository;
         $this->auditLogRepository = $auditLogRepository;
         $this->segmentsRepository = $segmentsRepository;
-        $this->jobsRepository = $jobsRepository;
     }
 
     final public function all(?bool $deleted = null)

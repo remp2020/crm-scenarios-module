@@ -4,13 +4,9 @@ namespace Crm\ScenariosModule\Events;
 
 use Crm\ApplicationModule\Hermes\HermesMessage;
 use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
-use Crm\PaymentsModule\Repositories\PaymentsRepository;
-use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Scenarios\ScenariosTriggerCriteriaInterface;
-use Crm\SubscriptionsModule\Repositories\SubscriptionsRepository;
-use Crm\UsersModule\Repositories\UsersRepository;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Tomaj\Hermes\MessageInterface;
@@ -21,32 +17,16 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
 
     public const RESULT_PARAM_CONDITION_MET = 'conditions_met';
 
-    private $usersRepository;
-
-    private $subscriptionsRepository;
-
-    private $paymentsRepository;
-
-    private $recurrentPaymentsRepository;
-
     private $scenariosCriteriaStorage;
 
     private $scenariosElementStatsRepository;
 
     public function __construct(
         JobsRepository $jobsRepository,
-        UsersRepository $usersRepository,
-        SubscriptionsRepository $subscriptionsRepository,
-        PaymentsRepository $paymentsRepository,
-        RecurrentPaymentsRepository $recurrentPaymentsRepository,
         ScenariosCriteriaStorage $scenariosCriteriaStorage,
         ElementStatsRepository $elementStatsRepository
     ) {
         parent::__construct($jobsRepository);
-        $this->usersRepository = $usersRepository;
-        $this->subscriptionsRepository = $subscriptionsRepository;
-        $this->paymentsRepository = $paymentsRepository;
-        $this->recurrentPaymentsRepository = $recurrentPaymentsRepository;
         $this->scenariosCriteriaStorage = $scenariosCriteriaStorage;
         $this->scenariosElementStatsRepository = $elementStatsRepository;
     }
