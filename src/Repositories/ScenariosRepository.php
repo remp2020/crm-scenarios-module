@@ -8,8 +8,6 @@ use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Crm\SegmentModule\Repositories\SegmentsRepository;
 use Exception;
 use Nette\Caching\Storage;
-use Nette\Database\Connection;
-use Nette\Database\DriverException;
 use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
@@ -20,38 +18,19 @@ class ScenariosRepository extends Repository
 {
     protected $tableName = 'scenarios';
 
-    private $connection;
-
-    private $elementsRepository;
-
-    private $elementElementsRepository;
-
-    private $triggersRepository;
-
-    private $triggerElementsRepository;
-
-    private $segmentsRepository;
-
     public function __construct(
+        private readonly ElementsRepository $elementsRepository,
+        private readonly ElementElementsRepository $elementElementsRepository,
+        private readonly TriggersRepository $triggersRepository,
+        private readonly TriggerElementsRepository $triggerElementsRepository,
+        private readonly SegmentsRepository $segmentsRepository,
         Explorer $database,
-        AuditLogRepository $auditLogRepository,
-        Connection $connection,
-        ElementsRepository $elementsRepository,
-        ElementElementsRepository $elementElementsRepository,
-        TriggersRepository $triggersRepository,
-        TriggerElementsRepository $triggerElementsRepository,
-        SegmentsRepository $segmentsRepository,
+        AuditLogRepository $auditLogRepository = null,
         Storage $cacheStorage = null
     ) {
         parent::__construct($database, $cacheStorage);
 
-        $this->connection = $connection;
-        $this->elementsRepository = $elementsRepository;
-        $this->elementElementsRepository = $elementElementsRepository;
-        $this->triggersRepository = $triggersRepository;
-        $this->triggerElementsRepository = $triggerElementsRepository;
         $this->auditLogRepository = $auditLogRepository;
-        $this->segmentsRepository = $segmentsRepository;
     }
 
     final public function all(?bool $deleted = null)
@@ -77,47 +56,38 @@ class ScenariosRepository extends Repository
      */
     final public function createOrUpdate(array $data)
     {
-        $inTransaction = false;
-        try {
-            $this->connection->beginTransaction();
-            $inTransaction = true;
-        } catch (DriverException $e) {
-            // transaction already in progress, ignore exception
-        }
-
-        $scenarioData['name'] = $data['name'];
-        $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
-        $scenarioData['modified_at'] = new DateTime();
-        if (isset($data['enabled'])) {
-            $scenarioData['enabled'] = $data['enabled'];
-        }
-
-        // save or update scenario details
-        if (isset($data['id'])) {
-            $scenario = $this->find((int)$data['id']);
-            if (!$scenario) {
-                $this->connection->commit();
-                return false;
+        return $this->triggersRepository->getTransaction()->wrap(function () use ($data): ActiveRow|false {
+            $scenarioData['name'] = $data['name'];
+            $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
+            $scenarioData['modified_at'] = new DateTime();
+            if (isset($data['enabled'])) {
+                $scenarioData['enabled'] = $data['enabled'];
             }
 
-            // do not allow to edit deleted scenario
-            if ($scenario->deleted_at) {
-                throw new \Exception("Unable to save deleted scenario. Restore it first.");
+            // save or update scenario details
+            if (isset($data['id'])) {
+                $scenario = $this->find((int)$data['id']);
+                if (!$scenario) {
+                    return false;
+                }
+
+                // do not allow to edit deleted scenario
+                if ($scenario->deleted_at) {
+                    throw new \Exception("Unable to save deleted scenario. Restore it first.");
+                }
+
+                $this->update($scenario, $scenarioData);
+            } else {
+                $scenarioData['created_at'] = $scenarioData['modified_at'];
+                // If not specified, by default not enabled
+                $scenarioData['enabled'] = $scenarioData['enabled'] ?? false;
+                $scenario = $this->insert($scenarioData);
             }
+            $scenarioId = $scenario->id;
 
-            $this->update($scenario, $scenarioData);
-        } else {
-            $scenarioData['created_at'] = $scenarioData['modified_at'];
-            // If not specified, by default not enabled
-            $scenarioData['enabled'] = $scenarioData['enabled'] ?? false;
-            $scenario = $this->insert($scenarioData);
-        }
-        $scenarioId = $scenario->id;
+            $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'id');
+            $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'id');
 
-        $oldTriggers = $this->triggersRepository->allScenarioTriggers($scenarioId)->fetchPairs('uuid', 'id');
-        $oldElements = $this->elementsRepository->allScenarioElements($scenarioId)->fetchPairs('uuid', 'id');
-
-        try {
             // Delete all links
             $this->triggerElementsRepository->deleteLinksForTriggers(array_values($oldTriggers));
             $this->triggerElementsRepository->deleteLinksForElements(array_values($oldElements));
@@ -163,17 +133,9 @@ class ScenariosRepository extends Repository
 
             // Delete old triggers
             $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
-        } catch (\Exception $exception) {
-            if ($inTransaction) {
-                $this->connection->rollBack();
-            }
-            throw $exception;
-        }
 
-        if ($inTransaction) {
-            $this->connection->commit();
-        }
-        return $scenario;
+            return $scenario;
+        });
     }
 
     final public function getEnabledScenarios()
