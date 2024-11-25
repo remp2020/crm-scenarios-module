@@ -43,7 +43,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $this->paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
 
-        $beforeRecurrentPaymentChargeEventGenerator = new BeforeRecurrentPaymentChargeEventGenerator($this->recurrentPaymentsRepository);
+        $beforeRecurrentPaymentChargeEventGenerator = $this->inject(BeforeRecurrentPaymentChargeEventGenerator::class);
         $this->eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $beforeRecurrentPaymentChargeEventGenerator);
 
         $this->beforeEventGenerator = new BeforeEventGenerator(

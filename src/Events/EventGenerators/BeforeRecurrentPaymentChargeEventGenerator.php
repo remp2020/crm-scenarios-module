@@ -5,6 +5,7 @@ namespace Crm\ScenariosModule\Events\EventGenerators;
 use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\ApplicationModule\Models\Event\EventGeneratorInterface;
 use Crm\ApplicationModule\Models\Event\EventGeneratorOutputProviderInterface;
+use Crm\PaymentsModule\Models\RecurrentPaymentsResolver;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use DateInterval;
 use Nette\Database\Table\ActiveRow;
@@ -16,6 +17,7 @@ class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterf
 
     public function __construct(
         private readonly RecurrentPaymentsRepository $recurrentPaymentsRepository,
+        private readonly RecurrentPaymentsResolver $recurrentPaymentsResolver,
     ) {
     }
 
@@ -34,7 +36,7 @@ class BeforeRecurrentPaymentChargeEventGenerator implements EventGeneratorInterf
         return array_map(function (ActiveRow $recurrentPaymentRow) {
             $parameters['user_id'] = $recurrentPaymentRow->user_id;
             $parameters['recurrent_payment_id'] = $recurrentPaymentRow->id;
-            $parameters['subscription_type_id'] = $recurrentPaymentRow->subscription_type_id;
+            $parameters['subscription_type_id'] = $this->recurrentPaymentsResolver->resolveSubscriptionType($recurrentPaymentRow);
             $parameters['subscription_id'] = $recurrentPaymentRow->parent_payment->subscription_id ?? null;
 
             return new BeforeEvent($recurrentPaymentRow->id, $recurrentPaymentRow->user_id, $parameters);
