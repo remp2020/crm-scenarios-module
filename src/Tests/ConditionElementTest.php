@@ -238,8 +238,12 @@ class ConditionElementTest extends BaseTestCase
      */
     public function testContentAccessConditionPositiveFlow()
     {
-        $this->contentAccessRepository->add('web', 'Web access');
-        $this->contentAccessRepository->add('plus', 'Plus access');
+        if (!$this->contentAccessRepository->exists('web')) {
+            $this->contentAccessRepository->add('web', 'Web access');
+        }
+        if (!$this->contentAccessRepository->exists('plus')) {
+            $this->contentAccessRepository->add('plus', 'Plus access');
+        }
 
         $this->getRepository(ScenariosRepository::class)->createOrUpdate([
             'name' => 'test1',
