@@ -12,12 +12,11 @@ use Crm\ScenariosModule\Engine\Validator\ScenarioValidator;
 use Crm\ScenariosModule\Engine\Validator\TriggerOutputParamsRetrieveException;
 use Crm\ScenariosModule\Engine\Validator\TriggerOutputParamsRetriever;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ScenarioValidatorTest extends CrmTestCase
 {
-    /**
-     * @dataProvider notValidatableElementsProvider
-     */
+    #[DataProvider('notValidatableElementsProvider')]
     public function testValidateNotValidatableElements(string $elementType): void
     {
         $triggerOutputParamsRetriever = $this->createMock(TriggerOutputParamsRetriever::class);
