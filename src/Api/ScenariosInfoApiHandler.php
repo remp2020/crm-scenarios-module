@@ -4,7 +4,6 @@ namespace Crm\ScenariosModule\Api;
 
 use Crm\ApiModule\Models\Api\ApiHandler;
 use Crm\ApiModule\Models\Params\InputParam;
-use Crm\ApiModule\Models\Params\ParamsProcessor;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Http\Response;
 use Tomaj\NetteApi\Response\JsonApiResponse;
@@ -35,9 +34,6 @@ class ScenariosInfoApiHandler extends ApiHandler
             $response = new JsonApiResponse(Response::S403_FORBIDDEN, ['status' => 'error', 'message' => 'Cannot authorize user']);
             return $response;
         }
-
-        $paramsProcessor = new ParamsProcessor($this->params());
-        $params = $paramsProcessor->getValues();
 
         try {
             $result = $this->scenariosRepository->getScenario((int)$params['id']);
