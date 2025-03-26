@@ -57,7 +57,7 @@ class AddressChangedTriggerHandlerTest extends BaseTestCase
             AddressTypesTestSeeder::ADDRESS_TYPE,
             firstName: null,
             lastName: null,
-            address: null,
+            street: null,
             number: null,
             city: null,
             zip: null,
