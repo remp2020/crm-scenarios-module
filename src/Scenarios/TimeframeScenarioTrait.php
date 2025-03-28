@@ -12,7 +12,7 @@ trait TimeframeScenarioTrait
     /**
      * @param string[] $units
      * @param string[] $operators
-     * @return null|array{limit: \Nette\Utils\DateTime|false, operator: string}
+     * @return null|array{limit: DateTime|false, operator: string}
      */
     protected function getTimeframe(array $paramValues, array $units, array $operators, string $timeFrameKey): ?array
     {
