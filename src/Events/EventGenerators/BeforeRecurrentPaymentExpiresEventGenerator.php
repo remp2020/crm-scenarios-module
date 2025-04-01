@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\ApplicationModule\Models\Event\EventGeneratorInterface;
 use Crm\ApplicationModule\Models\Event\EventGeneratorOutputProviderInterface;
 use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
+use Crm\PaymentsModule\Models\RecurrentPayment\RecurrentPaymentStateEnum;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
 use DateInterval;
 use Nette\Database\Table\ActiveRow;
@@ -46,7 +47,7 @@ class BeforeRecurrentPaymentExpiresEventGenerator implements EventGeneratorInter
     {
         return $this->recurrentPaymentsRepository->getTable()
             ->where([
-                'state' => RecurrentPaymentsRepository::STATE_ACTIVE,
+                'state' => RecurrentPaymentStateEnum::Active->value,
                 'expires_at >=' => $expiresFrom,
                 'expires_at <=' => $expiresTo,
                 'parent_payment.status' => [PaymentStatusEnum::Paid->value, PaymentStatusEnum::Prepaid->value]

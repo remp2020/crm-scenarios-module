@@ -6,6 +6,7 @@ use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Models\RecurrentPayment\RecurrentPaymentStateEnum;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
@@ -292,7 +293,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
             'expires_at' => new DateTime("+$expiresAt minutes")
         ];
         if (!$active) {
-            $updateData['state'] = RecurrentPaymentsRepository::STATE_SYSTEM_STOP;
+            $updateData['state'] = RecurrentPaymentStateEnum::SystemStop->value;
         }
         $this->recurrentPaymentsRepository->update($recurrentPayment, $updateData);
 

@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Models\RecurrentPayment\RecurrentPaymentStateEnum;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
@@ -520,7 +521,7 @@ class SimpleScenariosTest extends BaseTestCase
         );
 
         // Change status of recurrent payment - this should trigger scenario
-        $this->recurrentPaymentsRepository->update($recurrentPayment, ['state' => RecurrentPaymentsRepository::STATE_USER_STOP]);
+        $this->recurrentPaymentsRepository->update($recurrentPayment, ['state' => RecurrentPaymentStateEnum::UserStop->value]);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
         $this->engine->run(3);

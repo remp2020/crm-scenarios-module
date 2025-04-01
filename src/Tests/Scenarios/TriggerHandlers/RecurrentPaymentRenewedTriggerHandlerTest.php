@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Crm\ScenariosModule\Tests\Scenarios\TriggerHandlers;
 
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Models\RecurrentPayment\RecurrentPaymentStateEnum;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
@@ -87,7 +88,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
             customAmount: null,
             retries: 0,
         );
-        $recurrentPaymentsRepository->setCharged($recurrentPayment, $payment, RecurrentPaymentsRepository::STATE_CHARGED, '');
+        $recurrentPaymentsRepository->setCharged($recurrentPayment, $payment, RecurrentPaymentStateEnum::Charged->value, '');
 
         /** @var RecurrentPaymentRenewedTriggerHandler $recurrentPaymentRenewedTriggerHandler */
         $recurrentPaymentRenewedTriggerHandler = $this->inject(RecurrentPaymentRenewedTriggerHandler::class);
@@ -141,7 +142,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
             customAmount: null,
             retries: 0,
         );
-        $recurrentPaymentsRepository->setCharged($recurrentPayment, $payment, RecurrentPaymentsRepository::STATE_CHARGED, '');
+        $recurrentPaymentsRepository->setCharged($recurrentPayment, $payment, RecurrentPaymentStateEnum::Charged->value, '');
 
         /** @var RecurrentPaymentRenewedTriggerHandler $recurrentPaymentRenewedTriggerHandler */
         $recurrentPaymentRenewedTriggerHandler = $this->inject(RecurrentPaymentRenewedTriggerHandler::class);
