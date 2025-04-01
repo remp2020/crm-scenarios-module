@@ -3,6 +3,7 @@
 namespace Crm\ScenariosModule\Tests;
 
 use Crm\ApplicationModule\Models\Event\BeforeEvent;
+use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
@@ -171,9 +172,9 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
 
         $payment = $paymentsRepository->add($this->getSubscriptionType(), $paymentGateway, $user, $paymentItemContainer);
         if ($firstCharge) {
-            $paymentsRepository->update($payment, ['status' => PaymentsRepository::STATUS_PAID]);
+            $paymentsRepository->update($payment, ['status' => PaymentStatusEnum::Paid->value]);
         } else {
-            $paymentsRepository->update($payment, ['status' => PaymentsRepository::STATUS_FAIL]);
+            $paymentsRepository->update($payment, ['status' => PaymentStatusEnum::Fail->value]);
         }
 
         $paymentMethod = $this->paymentMethodsRepository->findOrAdd($user->id, $paymentGateway->id, '111');

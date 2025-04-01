@@ -7,6 +7,7 @@ use Crm\InvoicesModule\Models\InvoiceNumber\InvoiceNumber;
 use Crm\InvoicesModule\Repositories\InvoiceNumbersRepository;
 use Crm\InvoicesModule\Repositories\InvoicesRepository;
 use Crm\PaymentsModule\Models\Gateways\BankTransfer;
+use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
@@ -209,7 +210,7 @@ class ScenarioTriggersTest extends BaseTestCase
         $this->assertCount(0, $jobsRepository->getUnprocessedJobs()->fetchAll());
 
         // Trigger the scenario
-        $this->paymentsRepository->updateStatus($paymentRow, PaymentsRepository::STATUS_PAID, true);
+        $this->paymentsRepository->updateStatus($paymentRow, PaymentStatusEnum::Paid->value, true);
         $this->dispatcher->handle();
         $this->assertCount(1, $jobsRepository->getUnprocessedJobs()->fetchAll());
     }
@@ -322,7 +323,7 @@ class ScenarioTriggersTest extends BaseTestCase
             null,
             1
         );
-        $paymentRow = $this->paymentsRepository->updateStatus($paymentRow, PaymentsRepository::STATUS_PAID);
+        $paymentRow = $this->paymentsRepository->updateStatus($paymentRow, PaymentStatusEnum::Paid->value);
 
         $invoiceNumber = $this->inject(InvoiceNumber::class);
         $this->paymentsRepository->update($paymentRow, [

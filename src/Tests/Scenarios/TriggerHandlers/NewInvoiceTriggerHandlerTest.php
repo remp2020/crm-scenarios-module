@@ -6,6 +6,7 @@ namespace Crm\ScenariosModule\Tests\Scenarios\TriggerHandlers;
 use Crm\InvoicesModule\Models\InvoiceNumber\InvoiceNumber;
 use Crm\InvoicesModule\Repositories\InvoiceNumbersRepository;
 use Crm\InvoicesModule\Repositories\InvoicesRepository;
+use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
@@ -103,7 +104,7 @@ class NewInvoiceTriggerHandlerTest extends BaseTestCase
             new PaymentItemContainer(),
             amount: 1,
         );
-        $paymentsRepository->updateStatus($payment, PaymentsRepository::STATUS_PAID);
+        $paymentsRepository->updateStatus($payment, PaymentStatusEnum::Paid->value);
         $paymentsRepository->addSubscriptionToPayment($subscription, $payment);
         $payment = $paymentsRepository->find($payment->id);
 
@@ -194,7 +195,7 @@ class NewInvoiceTriggerHandlerTest extends BaseTestCase
             new PaymentItemContainer(),
             amount: 1,
         );
-        $paymentsRepository->updateStatus($payment, PaymentsRepository::STATUS_PAID);
+        $paymentsRepository->updateStatus($payment, PaymentStatusEnum::Paid->value);
         $paymentsRepository->addSubscriptionToPayment($subscription, $payment);
         $payment = $paymentsRepository->find($payment->id);
 
@@ -257,7 +258,7 @@ class NewInvoiceTriggerHandlerTest extends BaseTestCase
             new PaymentItemContainer(),
             amount: 1,
         );
-        $paymentsRepository->updateStatus($payment, PaymentsRepository::STATUS_PAID);
+        $paymentsRepository->updateStatus($payment, PaymentStatusEnum::Paid->value);
         $payment = $paymentsRepository->find($payment->id);
 
         $invoiceNumber = $this->invoiceNumber->getNextInvoiceNumber($payment);
