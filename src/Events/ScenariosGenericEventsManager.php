@@ -6,7 +6,8 @@ use Exception;
 
 class ScenariosGenericEventsManager
 {
-    private $events = [];
+    private array $events = [];
+    private array $unregisteredEvents = [];
 
     public function register(string $code, ScenarioGenericEventInterface $event): void
     {
@@ -16,9 +17,18 @@ class ScenariosGenericEventsManager
         $this->events[$code] = $event;
     }
 
+    public function unregister(string $code): void
+    {
+        if (!in_array($code, $this->unregisteredEvents, true)) {
+            $this->unregisteredEvents[] = $code;
+        }
+    }
+
     public function getByCode(string $code): ScenarioGenericEventInterface
     {
-        if (!isset($this->events[$code])) {
+        if (!isset($this->events[$code])
+            || (isset($this->events[$code]) && in_array($code, $this->unregisteredEvents, true))
+        ) {
             throw new Exception("event with code '{$code}' is not registered");
         }
         return $this->events[$code];
@@ -29,6 +39,8 @@ class ScenariosGenericEventsManager
      */
     public function getAllRegisteredEvents(): array
     {
-        return $this->events;
+        return array_filter($this->events, function ($eventCode) {
+            return !in_array($eventCode, $this->unregisteredEvents, true);
+        }, ARRAY_FILTER_USE_KEY);
     }
 }

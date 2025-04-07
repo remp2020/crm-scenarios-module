@@ -77,6 +77,14 @@ services:
 			- register('test_gen_event', Crm\ScenariosModule\Scenarios\TestGenericEvent())
 ```
 
+You can unregister event registered by another module by calling `unregister` method:
+```neon
+services:
+	scenariosGenericEventsManager:	
+		setup:
+			- unregister('test_gen_event')
+```
+
 ### Operations
 
 Typically, scenario actions should be reached only by a subset of users triggering the initial scenario trigger. 
