@@ -32,6 +32,7 @@ services:
 	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator
 	beforeRecurrentPaymentChargeEventGenerator: Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator
 	beforeRecurrentPaymentExpiresEventGenerator: Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentExpiresEventGenerator
+	afterLastSubscriptionEndedEventGenerator: Crm\ScenariosModule\Events\EventGenerators\AfterLastSubscriptionEndedEventGenerator
 
 	- Crm\ScenariosModule\Api\ScenariosCreateApiHandler
 	- Crm\ScenariosModule\Api\ScenariosInfoApiHandler

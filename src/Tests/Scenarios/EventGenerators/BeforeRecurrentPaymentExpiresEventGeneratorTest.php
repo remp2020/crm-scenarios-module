@@ -1,28 +1,32 @@
 <?php
+declare(strict_types=1);
 
-namespace Crm\ScenariosModule\Tests;
+namespace Crm\ScenariosModule\Tests\Scenarios\EventGenerators;
 
 use Crm\ApplicationModule\Models\Event\BeforeEvent;
 use Crm\PaymentsModule\Models\Payment\PaymentStatusEnum;
 use Crm\PaymentsModule\Models\PaymentItem\DonationPaymentItem;
 use Crm\PaymentsModule\Models\PaymentItem\PaymentItemContainer;
+use Crm\PaymentsModule\Models\RecurrentPayment\RecurrentPaymentStateEnum;
 use Crm\PaymentsModule\Repositories\PaymentGatewaysRepository;
 use Crm\PaymentsModule\Repositories\PaymentMethodsRepository;
 use Crm\PaymentsModule\Repositories\PaymentsRepository;
 use Crm\PaymentsModule\Repositories\RecurrentPaymentsRepository;
-use Crm\ScenariosModule\Engine\Dispatcher;
 use Crm\ScenariosModule\Events\BeforeEventGenerator;
-use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator;
+use Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentExpiresEventGenerator;
 use Crm\ScenariosModule\Repositories\GeneratedEventsRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
+use Crm\ScenariosModule\Tests\BaseTestCase;
 use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\UsersModule\Repositories\UsersRepository;
 use DateTime;
+use Nette\Database\Table\ActiveRow;
 
-class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
+class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
 {
+    private ActiveRow $paymentGateway;
     protected BeforeEventGenerator $beforeEventGenerator;
     private RecurrentPaymentsRepository $recurrentPaymentsRepository;
     private PaymentMethodsRepository $paymentMethodsRepository;
@@ -32,27 +36,18 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
     {
         parent::setUp();
 
-        /** @var TriggersRepository $triggerRepository */
-        $triggerRepository = $this->getRepository(TriggersRepository::class);
+        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
+        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
 
-        /** @var GeneratedEventsRepository $generatedEventsRepository */
-        $generatedEventsRepository = $this->getRepository(GeneratedEventsRepository::class);
-
-        /** @var Dispatcher $dispatcher */
-        $dispatcher = $this->inject(Dispatcher::class);
+        $this->paymentGateway = $paymentGatewaysRepository->add('test', 'test', 10, true, true);
 
         $this->recurrentPaymentsRepository = $this->getRepository(RecurrentPaymentsRepository::class);
         $this->paymentMethodsRepository = $this->getRepository(PaymentMethodsRepository::class);
 
-        $beforeRecurrentPaymentChargeEventGenerator = $this->inject(BeforeRecurrentPaymentChargeEventGenerator::class);
-        $this->eventsStorage->registerEventGenerator('before_recurrent_payment_charge', $beforeRecurrentPaymentChargeEventGenerator);
+        $beforeRecurrentPaymentExpiresEventGenerator = new BeforeRecurrentPaymentExpiresEventGenerator($this->recurrentPaymentsRepository);
+        $this->eventsStorage->registerEventGenerator('before_recurrent_payment_expires', $beforeRecurrentPaymentExpiresEventGenerator);
 
-        $this->beforeEventGenerator = new BeforeEventGenerator(
-            $this->eventsStorage,
-            $triggerRepository,
-            $generatedEventsRepository,
-            $dispatcher
-        );
+        $this->beforeEventGenerator = $this->inject(BeforeEventGenerator::class);
 
         $this->scenariosJobsRepository = $this->getRepository(JobsRepository::class);
     }
@@ -64,7 +59,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         ]);
     }
 
-    public function testValid(): void
+    public function testExpires(): void
     {
         $minutes = 1000;
 
@@ -77,21 +72,23 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_charge'],
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
         ]);
 
         $user = $this->loadUser('test@test.com');
-        $recurrentPayment = $this->createRecurrentPayment($user, $minutes, true);
+        $recurrentPayment = $this->createRecurrentPayment($user, $minutes - 10, true);
 
         $result = $this->beforeEventGenerator->generate();
-
         $this->assertCount(1, $result);
 
+        $events = current($result);
+        self::assertCount(1, $events);
+
         /** @var BeforeEvent $beforeEvent */
-        $beforeEvent = current($result)[0];
+        $beforeEvent = $events[0];
         $this->assertEquals($recurrentPayment->id, $beforeEvent->getId());
         $this->assertEquals($user->id, $beforeEvent->getUserId());
         $this->assertEquals($recurrentPayment->id, $beforeEvent->getParameters()['recurrent_payment_id']);
@@ -100,7 +97,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         $this->assertEquals(1, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
     }
 
-    public function testNotFirstCharge(): void
+    public function testExpiresTwo(): void
     {
         $minutes = 1000;
 
@@ -113,24 +110,25 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_charge'],
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
         ]);
 
         $user = $this->loadUser('test@test.com');
-        $recurrentPayment = $this->createRecurrentPayment($user, $minutes, false);
+        $this->createRecurrentPayment($user, $minutes - 10, true);
+        $this->createRecurrentPayment($user, $minutes - 20, true);
 
-        $result = $this->beforeEventGenerator->generate();
+        $result = current($this->beforeEventGenerator->generate());
 
-        $this->assertCount(0, $result);
+        $this->assertCount(2, $result);
 
-        $this->assertEquals(0, $this->scenariosJobsRepository->getAllJobs()->count('*'));
-        $this->assertEquals(0, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
+        $this->assertEquals(2, $this->scenariosJobsRepository->getAllJobs()->count('*'));
+        $this->assertEquals(2, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
     }
 
-    public function testChargeBeforeThreshold(): void
+    public function testExpiresOneOfTwo(): void
     {
         $minutes = 1000;
 
@@ -143,14 +141,45 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_charge'],
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
         ]);
 
         $user = $this->loadUser('test@test.com');
-        $recurrentPayment = $this->createRecurrentPayment($user, $minutes + 100, false);
+        $this->createRecurrentPayment($user, $minutes - 10, true);
+        $this->createRecurrentPayment($user, $minutes + 20, true);
+
+        $result = current($this->beforeEventGenerator->generate());
+
+        $this->assertCount(1, $result);
+
+        $this->assertEquals(1, $this->scenariosJobsRepository->getAllJobs()->count('*'));
+        $this->assertEquals(1, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
+    }
+
+    public function testNotExpires(): void
+    {
+        $minutes = 1000;
+
+        /** @var ScenariosRepository $scenariosRepository */
+        $scenariosRepository = $this->getRepository(ScenariosRepository::class);
+        $scenariosRepository->createOrUpdate(['name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
+                    'options' => self::obj(["minutes" => $minutes]),
+                ])
+            ]
+        ]);
+
+        $user = $this->loadUser('test@test.com');
+        $this->createRecurrentPayment($user, $minutes + 500, true);
 
         $result = $this->beforeEventGenerator->generate();
 
@@ -160,32 +189,102 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         $this->assertEquals(0, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
     }
 
-    private function createRecurrentPayment($user, $minutes, $firstCharge)
+    public function testNotPaid(): void
+    {
+        $minutes = 1000;
+
+        /** @var ScenariosRepository $scenariosRepository */
+        $scenariosRepository = $this->getRepository(ScenariosRepository::class);
+        $scenariosRepository->createOrUpdate(['name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
+                    'options' => self::obj(["minutes" => $minutes]),
+                ])
+            ]
+        ]);
+
+        $user = $this->loadUser('test@test.com');
+        $this->createRecurrentPayment($user, $minutes - 10, false);
+
+        $result = $this->beforeEventGenerator->generate();
+
+        $this->assertCount(0, $result);
+
+        $this->assertEquals(0, $this->scenariosJobsRepository->getAllJobs()->count('*'));
+        $this->assertEquals(0, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
+    }
+
+    public function testNotActive(): void
+    {
+        $minutes = 1000;
+
+        /** @var ScenariosRepository $scenariosRepository */
+        $scenariosRepository = $this->getRepository(ScenariosRepository::class);
+        $scenariosRepository->createOrUpdate(['name' => 'test1',
+            'enabled' => true,
+            'triggers' => [
+                self::obj([
+                    'name' => '',
+                    'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
+                    'id' => 'trigger1',
+                    'event' => ['code' => 'before_recurrent_payment_expires'],
+                    'options' => self::obj(["minutes" => $minutes]),
+                ])
+            ]
+        ]);
+
+        $user = $this->loadUser('test@test.com');
+        $this->createRecurrentPayment($user, $minutes - 10, true, false);
+
+        $result = $this->beforeEventGenerator->generate();
+
+        $this->assertCount(0, $result);
+
+        $this->assertEquals(0, $this->scenariosJobsRepository->getAllJobs()->count('*'));
+        $this->assertEquals(0, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));
+    }
+
+    private function createRecurrentPayment($user, $expiresAt, $paid, $active = true)
     {
         /** @var PaymentsRepository $paymentsRepository */
         $paymentsRepository = $this->getRepository(PaymentsRepository::class);
-        /** @var PaymentGatewaysRepository $paymentGatewaysRepository */
-        $paymentGatewaysRepository = $this->getRepository(PaymentGatewaysRepository::class);
-
-        $paymentGateway = $paymentGatewaysRepository->add('test', 'test', 10, true, true);
         $paymentItemContainer = (new PaymentItemContainer())->addItems([new DonationPaymentItem('donation', 10, 0)]);
 
-        $payment = $paymentsRepository->add($this->getSubscriptionType(), $paymentGateway, $user, $paymentItemContainer);
-        if ($firstCharge) {
+        $payment = $paymentsRepository->add($this->getSubscriptionType(), $this->paymentGateway, $user, $paymentItemContainer);
+        if ($paid) {
             $paymentsRepository->update($payment, ['status' => PaymentStatusEnum::Paid->value]);
         } else {
             $paymentsRepository->update($payment, ['status' => PaymentStatusEnum::Fail->value]);
         }
 
-        $paymentMethod = $this->paymentMethodsRepository->findOrAdd($user->id, $paymentGateway->id, '111');
+        $paymentMethod = $this->paymentMethodsRepository->findOrAdd(
+            $user->id,
+            $payment->payment_gateway_id,
+            '111',
+        );
 
-        return $this->recurrentPaymentsRepository->add(
+        $recurrentPayment = $this->recurrentPaymentsRepository->add(
             $paymentMethod,
             $payment,
-            new DateTime("+ {$minutes} minutes"),
+            new DateTime("+30 days"),
             0,
             5,
         );
+
+        $updateData = [
+            'expires_at' => new DateTime("+$expiresAt minutes")
+        ];
+        if (!$active) {
+            $updateData['state'] = RecurrentPaymentStateEnum::SystemStop->value;
+        }
+        $this->recurrentPaymentsRepository->update($recurrentPayment, $updateData);
+
+        return $recurrentPayment;
     }
 
     private function loadUser($email)
