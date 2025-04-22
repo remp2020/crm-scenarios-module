@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Crm\ScenariosModule\Engine\Validator;
 
+use Contributte\Translation\Exceptions\InvalidArgument;
 use Contributte\Translation\Translator;
 use Crm\ApplicationModule\Models\Criteria\ScenarioConditionModelRequirementsInterface;
 use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
@@ -39,9 +40,41 @@ class ScenarioConditionValidator
         $this->validateCondition($conditionOptions, $triggerOutputParams);
     }
 
+    /**
+     * @throws ScenarioElementValidationException
+     * @throws InvalidArgument
+     */
     private function validateCondition(array $conditionOptions, array $triggerOutputParams): void
     {
         $event = $conditionOptions['conditions']['event'];
+        $emptyCriterionMessage = $this->translator->translate('scenarios.admin.scenarios.validation_errors.empty_criterion');
+        $emptyCriterionValueMessage = $this->translator->translate('scenarios.admin.scenarios.validation_errors.empty_criterion_value');
+
+        if (empty($conditionOptions['conditions']['nodes'])) {
+            throw new ScenarioElementValidationException($emptyCriterionMessage);
+        }
+
+        foreach ($conditionOptions['conditions']['nodes'] as $criterion) {
+            if (empty($criterion['key'])) {
+                throw new ScenarioElementValidationException($emptyCriterionMessage);
+            }
+
+            $errorMessage = $emptyCriterionValueMessage . ' (' . $criterion['key'] . ')';
+
+            foreach ($criterion['params'] as $param) {
+                if (empty($param['values'])) {
+                    throw new ScenarioElementValidationException($errorMessage);
+                }
+
+                if (!isset($param['values']['selection'])) {
+                    throw new ScenarioElementValidationException($errorMessage);
+                }
+
+                if (is_array($param['values']['selection']) && empty($param['values']['selection'])) {
+                    throw new ScenarioElementValidationException($errorMessage);
+                }
+            }
+        }
 
         $criteria = $this->criteriaStorage->getConditionModel($event) ?? throw new Exception(sprintf(
             "Unknown condition type '%s'.",

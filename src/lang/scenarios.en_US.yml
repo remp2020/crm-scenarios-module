@@ -21,6 +21,8 @@ admin:
         validation_errors:
             element_validation_error: "An issue with element '%elementName%' (%elementType%) within a trigger '%triggerName%' (%triggerKey%) found: %errorMessage%"
             incompatible_criteria_with_trigger: "The trigger criteria can't be used with the trigger."
+            empty_criterion: "Empty criterion."
+            empty_criterion_value: "Empty criterion value."
         edit:
             title: Edit scenario
         new:

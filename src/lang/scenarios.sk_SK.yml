@@ -25,6 +25,8 @@ admin:
         validation_errors:
             element_validation_error: "Bola nájdená chyba v elemente '%elementName%' (%elementType%) v rámci spúšťaču '%triggerName%' (%triggerKey%): %errorMessage%"
             incompatible_criteria_with_trigger: "Podmienka nemôže byť použitá s týmto spúšťačom."
+            empty_criterion: "Prázdna podmienka."
+            empty_criterion_value: "Prázdna hodnota v podmienke."
 data:
     fields:
         name: Meno

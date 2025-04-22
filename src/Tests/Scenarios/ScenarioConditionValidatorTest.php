@@ -40,6 +40,20 @@ class ScenarioConditionValidatorTest extends TestCase
             'name' => 'Example criteria 1',
             'conditions' => [
                 'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [
+                                    'selection' => ['first_value'],
+                                    'operator' => 'or',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ], ['first_input_param', 'second_input_param']);
     }
@@ -65,10 +79,15 @@ class ScenarioConditionValidatorTest extends TestCase
         $this->criteriaStorage->registerConditionModel('subscription', $this->getSampleConditionModel());
 
         $translator = $this->createMock(Translator::class);
-        $translator->expects($this->once())
+        $translator->expects($this->exactly(3))
             ->method('translate')
-            ->with('scenarios.admin.scenarios.validation_errors.incompatible_criteria_with_trigger')
-            ->willReturn('Translated error message');
+            ->willReturnCallback(function ($key) {
+                return match ($key) {
+                    'scenarios.admin.scenarios.validation_errors.empty_criterion' => 'Empty criterion message',
+                    'scenarios.admin.scenarios.validation_errors.empty_criterion_value' => 'Empty criterion value message',
+                    'scenarios.admin.scenarios.validation_errors.incompatible_criteria_with_trigger' => 'Translated error message'
+                };
+            });
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -76,6 +95,20 @@ class ScenarioConditionValidatorTest extends TestCase
             'name' => 'Example criteria 1',
             'conditions' => [
                 'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [
+                                    'selection' => ['first_value'],
+                                    'operator' => 'or',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ], []);
     }
@@ -94,6 +127,20 @@ class ScenarioConditionValidatorTest extends TestCase
             'name' => 'Example criteria 1',
             'conditions' => [
                 'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [
+                                    'selection' => ['first_value'],
+                                    'operator' => 'or',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ], ['first_input_param', 'second_input_param', 'third_additional_input_param']);
     }
@@ -112,6 +159,20 @@ class ScenarioConditionValidatorTest extends TestCase
             'name' => 'Example criteria 1',
             'conditions' => [
                 'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [
+                                    'selection' => ['first_value'],
+                                    'operator' => 'or',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ], ['first_input_param']);
     }
@@ -281,5 +342,81 @@ class ScenarioConditionValidatorTest extends TestCase
                 throw new Exception('Not implemented');
             }
         };
+    }
+
+    public function testValidateEmptyConditions(): void
+    {
+        $this->expectException(ScenarioElementValidationException::class);
+
+        $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
+
+        $translator = $this->createMock(Translator::class);
+
+        $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
+        $scenarioConditionValidator->validate([
+            'id' => 'e5da1f60-73eb-4bea-8fea-a4b64d6cbe3b',
+            'name' => 'Example criteria 1',
+            'conditions' => [
+                'event' => 'subscription',
+            ],
+        ], ['first_input_param', 'second_input_param']);
+    }
+
+    public function testValidateEmptyConditionCriteriaValue(): void
+    {
+        $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
+
+        $translator = $this->createMock(Translator::class);
+        $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
+
+        $this->expectException(ScenarioElementValidationException::class);
+        $scenarioConditionValidator->validate([
+            'id' => 'e5da1f60-73eb-4bea-8fea-a4b64d6cbe3b',
+            'name' => 'Example criteria 1',
+            'conditions' => [
+                'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], ['first_input_param', 'second_input_param']);
+    }
+
+    public function testValidateEmptyConditionCriteriaValueSelection(): void
+    {
+        $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
+
+        $translator = $this->createMock(Translator::class);
+        $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
+
+        $this->expectException(ScenarioElementValidationException::class);
+        $scenarioConditionValidator->validate([
+            'id' => 'e5da1f60-73eb-4bea-8fea-a4b64d6cbe3b',
+            'name' => 'Example criteria 1',
+            'conditions' => [
+                'event' => 'subscription',
+                'nodes' => [
+                    [
+                        'key' => 'first_condition',
+                        'params' => [
+                            [
+                                'key' => 'first_condition',
+                                'values' => [
+                                    'selection' => [],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], ['first_input_param', 'second_input_param']);
     }
 }
