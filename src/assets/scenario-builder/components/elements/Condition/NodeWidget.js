@@ -1,4 +1,4 @@
-import React, { useState, createRef } from 'react';
+import React, { createRef } from 'react';
 import { useSelector } from 'react-redux';
 import ConditionIcon from '@mui/icons-material/CallSplit';
 import OkIcon from '@mui/icons-material/Check';
@@ -14,77 +14,59 @@ import CriteriaBuilder from './CriteriaBuilder';
 import StatisticBadge from '../../StatisticBadge';
 import StatisticsTooltip from '../../StatisticTooltip';
 import { Handle, Position } from 'reactflow';
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
-const NodeWidget = ({ data, id, isConnectable }) => {
+const NodeWidget = (props) => {
   // Use it to access CriteriaBuilder state
   const builderRef = createRef();
-
-  const [nodeFormName, setNodeFormName] = useState(data.node.name);
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const statistics = useSelector(state => state.statistics.statistics);
-
-  const bem = (selector) => bemClassName(
-    selector,
-    data.node.classBaseName,
-    data.node.className
-  )
-
-  const getClassName = () => {
-    return data.node.classBaseName + ' ' + data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(data.node.name);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
   let displayStatisticBadge = false;
-  if (statistics.length === 0 || statistics[id]) {
+  if (statistics.length === 0 || statistics[props.id]) {
     displayStatisticBadge = true;
   }
 
   return (
     <div
       className={getClassName()}
-      style={{background: data.node.color}}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      style={{background: props.data.node.color}}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
       <div className={bem('__title')}>
         <div className={bem('__name')}>
-          {data.node.name
-            ? data.node.name
+          {props.data.node.name
+            ? props.data.node.name
             : 'Condition'}
         </div>
       </div>
+
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
 
       <div className="node-container">
         <div className={bem('__icon')}>
@@ -98,7 +80,7 @@ const NodeWidget = ({ data, id, isConnectable }) => {
               id="left"
               position={Position.Left}
               onConnect={(params) => console.log('handle onConnect', params)}
-              isConnectable={isConnectable}
+              isConnectable={props.isConnectable}
               className="port"
             />
           </div>
@@ -108,11 +90,11 @@ const NodeWidget = ({ data, id, isConnectable }) => {
               type="source"
               position={Position.Right}
               id="right"
-              isConnectable={isConnectable}
+              isConnectable={props.isConnectable}
               className="port"
             />
             {displayStatisticBadge ?
-              <StatisticBadge elementId={id} color="#21ba45" position="right"/> :
+              <StatisticBadge elementId={props.id} color="#21ba45" position="right"/> :
               <OkIcon style={{position: 'absolute', top: '-5px', right: '-30px', color: '#2ECC40'}}/>
             }
           </div>
@@ -122,11 +104,11 @@ const NodeWidget = ({ data, id, isConnectable }) => {
               type="source"
               position={Position.Bottom}
               id="bottom"
-              isConnectable={isConnectable}
+              isConnectable={props.isConnectable}
               className="port"
             />
             {displayStatisticBadge ?
-              <StatisticBadge elementId={id} color="#db2828" position="bottom"/> :
+              <StatisticBadge elementId={props.id} color="#db2828" position="bottom"/> :
               <NopeIcon style={{position: 'absolute', top: '15px', right: '-5px', color: '#FF695E'}}/>
             }
           </div>
@@ -134,7 +116,7 @@ const NodeWidget = ({ data, id, isConnectable }) => {
       </div>
 
       <StatisticsTooltip
-        id={id}
+        id={props.id}
         anchorElement={anchorElementForTooltip}
       />
 
@@ -173,7 +155,7 @@ const NodeWidget = ({ data, id, isConnectable }) => {
             </Grid>
 
             <CriteriaBuilder
-              conditions={data.node.conditions}
+              conditions={props.data.node.conditions}
               ref={builderRef}
             >
             </CriteriaBuilder>
@@ -193,8 +175,8 @@ const NodeWidget = ({ data, id, isConnectable }) => {
           <Button
             color="primary"
             onClick={() => {
-              data.node.name = nodeFormName;
-              data.node.conditions = builderRef.current.state;
+              props.data.node.name = nodeFormName;
+              props.data.node.conditions = builderRef.current.state;
 
               closeDialog();
             }}

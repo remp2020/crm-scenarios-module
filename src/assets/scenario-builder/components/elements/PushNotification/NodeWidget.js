@@ -9,58 +9,35 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import StatisticsTooltip from '../../StatisticTooltip';
-import Autocomplete from "@mui/material/Autocomplete";
-import StatisticBadge from "../../StatisticBadge";
-import { Handle, Position } from 'reactflow'
+import Autocomplete from '@mui/material/Autocomplete';
+import StatisticBadge from '../../StatisticBadge';
+import { Handle, Position } from 'reactflow';
 import React, { useState } from 'react';
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
 const NodeWidget = (props) => {
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
-  const [dialogOpened, setDialogOpened] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(props.data.node.selectedTemplate);
   const [selectedApplication, setSelectedApplication] = useState(props.data.node.selectedApplication);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const templates = useSelector(state => state.pushNotifications.availableTemplates)
   const applications = useSelector(state => state.pushNotifications.availableApplications)
-
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(props.data.node.name);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
   const getTemplatesInSelectableFormat = () => {
     return templates.map(item => {
@@ -92,12 +69,17 @@ const NodeWidget = (props) => {
     <div
       className={getClassName()}
       style={{ background: props.data.node.color }}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className='node-container'>
         <div className={bem('__icon')}>
           <ActionIcon />

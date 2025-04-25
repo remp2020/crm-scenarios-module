@@ -158,6 +158,11 @@ export default function FlowWidget(props) {
         node = Email.createNode();
       }
 
+      node.data = {
+        ...node.data,
+        deleteNode: (id) => props.app.diagramService.deleteNode(id)
+      }
+
       node.position = screenToFlowPosition({
         x: event.clientX,
         y: event.clientY

@@ -15,65 +15,51 @@ import DialogTitle from '@mui/material/DialogTitle';
 import StatisticBadge from '../../StatisticBadge';
 import StatisticsTooltip from '../../StatisticTooltip';
 import { Handle, Position } from 'reactflow';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
-import { store } from '../../../store';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
 const NodeWidget = (props) => {
   const [nodeFormWaitingTime, setNodeFormWaitingTime] = useState(props.data.node.waitingTime);
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
   const [timeUnit, setTimeUnit] = useState(props.data.node.waitingUnit);
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    onDialogOpen,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
+  onDialogOpen(() => {
     setNodeFormWaitingTime(props.data.node.waitingTime);
-    setNodeFormName(props.data.node.name);
     setTimeUnit(props.data.node.waitingUnit);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  })
 
   return (
     <div
       className={getClassName()}
       style={{background: props.data.node.color}}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className="node-container">
         <div className={bem('__icon')}>
           <WaitIcon/>

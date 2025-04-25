@@ -15,66 +15,47 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import GoalIcon from '@mui/icons-material/CheckBox';
 import StatisticsTooltip from '../../StatisticTooltip';
-import StatisticBadge from "../../StatisticBadge";
-import { Autocomplete } from "@mui/material";
-import { Handle, Position } from 'reactflow'
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
+import StatisticBadge from '../../StatisticBadge';
+import { Autocomplete } from '@mui/material';
+import { Handle, Position } from 'reactflow';
 import React, { useState } from 'react';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
 const NodeWidget = (props) => {
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
   const [selectedGoals, setSelectedGoals] = useState(props.data.node.selectedGoals);
   const [timeoutTime, setTimeoutTime] = useState(props.data.node.timeoutTime);
   const [timeoutUnit, setTimeoutUnit] = useState(props.data.node.timeoutUnit);
   const [recheckPeriodTime, setRecheckPeriodTime] = useState(props.data.node.recheckPeriodTime);
   const [recheckPeriodUnit, setRecheckPeriodUnit] = useState(props.data.node.recheckPeriodUnit);
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const goals = useSelector(state => state.goals.availableGoals)
   const statistics = useSelector(state => state.statistics.statistics)
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    onDialogOpen,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  }
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(props.data.node.name);
+  onDialogOpen(() => {
     setSelectedGoals(props.data.node.selectedGoals);
     setTimeoutTime(props.data.node.timeoutTime);
     setTimeoutUnit(props.data.node.timeoutUnit);
     setRecheckPeriodTime(props.data.node.recheckPeriodTime);
     setRecheckPeriodUnit(props.data.node.recheckPeriodUnit);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false)
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget)
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null)
-  };
+  })
 
   const getSelectedGoals = () => {
     if (selectedGoals === undefined) {
@@ -89,9 +70,8 @@ const NodeWidget = (props) => {
   return (
     <div
       className={getClassName()}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
@@ -100,7 +80,12 @@ const NodeWidget = (props) => {
           {props.data.node.name ? props.data.node.name : 'Goal'}
         </div>
       </div>
-
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className='node-container'>
         <div className={bem('__icon')}>
           <GoalIcon />

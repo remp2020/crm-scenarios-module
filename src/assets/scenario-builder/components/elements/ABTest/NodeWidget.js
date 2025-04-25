@@ -1,4 +1,4 @@
-import React, { useState, createRef } from 'react';
+import React, { createRef, useState } from 'react';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
@@ -13,55 +13,33 @@ import { Typography } from '@mui/material';
 import StatisticBadge from '../../StatisticBadge';
 import StatisticsTooltip from '../../StatisticTooltip';
 import { Handle, Position } from 'reactflow';
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
+
 
 const NodeWidget = (props) => {
 
   // Use it to access VariantBuilder state
   const builderRef = createRef();
 
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
   const [enabledSave, setEnabledSave] = useState(true);
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
-
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(props.data.node.name);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = ({ currentTarget }) => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
   const enableSave = enable => {
     // prevents re-rendering, setState only if value differs
@@ -74,11 +52,10 @@ const NodeWidget = (props) => {
     <div
       className={getClassName()}
       style={{background: props.data.node.color}}
-      onDoubleClick={() => {
-        openDialog();
-      }}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
     >
       <div className={bem('__title')}>
         <div className={bem('__name')}>
@@ -88,6 +65,12 @@ const NodeWidget = (props) => {
         </div>
       </div>
 
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className="node-container">
         <div className={bem('__icon')}>
           <SwapVertIcon/>

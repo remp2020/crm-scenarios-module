@@ -17,60 +17,41 @@ import StatisticsTooltip from '../../StatisticTooltip';
 import OkIcon from '@mui/icons-material/Check';
 import NopeIcon from '@mui/icons-material/Close';
 import { Handle, Position } from 'reactflow';
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
 import { v1 } from '../../../api_routes';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
 const NewSegmentButton = styled(Button)({
   marginRight: 'auto'
 });
 
 const NodeWidget = (props) => {
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
-  const [dialogOpened, setDialogOpened] = useState(false);
   const [selectedSegment, setSelectedSegment] = useState(props.data.node.selectedSegment);
   const [selectedSegmentSourceTable, setSelectedSegmentSourceTable] = useState(null);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const segments = useSelector(state => state.segments.availableSegments);
   const statistics = useSelector(state => state.statistics.statistics);
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    onDialogOpen,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(props.data.node.name);
-    setAnchorElementForTooltip(null);
+  onDialogOpen(() => {
     setSelectedSegment(props.data.node.selectedSegment);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  })
 
   const actionSetTable = table => {
     if (selectedSegmentSourceTable !== table) {
@@ -110,9 +91,8 @@ const NodeWidget = (props) => {
   return (
     <div
       className={getClassName()}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
@@ -123,7 +103,12 @@ const NodeWidget = (props) => {
             : `Segment ${getSelectedSegmentValue()}`}
         </div>
       </div>
-
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className="node-container">
         <div className={bem('__icon')}>
           <SegmentIcon/>

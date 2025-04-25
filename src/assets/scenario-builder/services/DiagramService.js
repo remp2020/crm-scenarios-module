@@ -135,6 +135,11 @@ export class DiagramService {
         node = BeforeTrigger.createNode(data);
       }
 
+      node.data = {
+        ...node.data,
+        deleteNode: (id) => this.deleteNode(id)
+      }
+
       node.position = payload.visual[data.id];
 
       // link triggers with nodes
@@ -227,6 +232,11 @@ export class DiagramService {
       });
     }
 
+    node.data = {
+      ...node.data,
+      deleteNode: (id) => this.deleteNode(id)
+    }
+
     return node;
   }
 
@@ -266,5 +276,11 @@ export class DiagramService {
     newNode.originalId = node.id;
     newNode.id = uuid();
     return newNode;
+  }
+
+  deleteNode(nodeId) {
+    this.instance.deleteElements({
+      nodes: [{ id: nodeId }]
+    })
   }
 }

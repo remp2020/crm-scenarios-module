@@ -1,4 +1,4 @@
-import React, { useState, createRef } from 'react';
+import React, { createRef, useState } from 'react';
 import * as _ from 'lodash';
 import { useSelector } from 'react-redux';
 import ActionIcon from '@mui/icons-material/Extension';
@@ -16,9 +16,8 @@ import { makeStyles } from '@mui/styles';
 import OptionsForm from './OptionsForm';
 import StatisticBadge from '../../StatisticBadge';
 import { Handle, Position } from 'reactflow';
-import { store } from '../../../store';
-import { setCanvasZoomingAndPanning } from '../../../store/canvasSlice';
-import { bemClassName } from '../../../utils/bem';
+import { NodePopover } from '../../NodePopover';
+import { useNode } from '../../../hooks/useNode';
 
 const useStyles = makeStyles(theme => ({
   autocomplete: {
@@ -43,48 +42,25 @@ const filterOptions = createFilterOptions({
 const NodeWidget = (props) => {
   const optionsFormRef = createRef();
   const classes = useStyles();
-
-  const [nodeFormName, setNodeFormName] = useState(props.data.node.name);
   const [selectedGeneric, setSelectedGeneric] = useState(props.data.node.selectedGeneric);
-  const [dialogOpened, setDialogOpened] = useState(false);
-  const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const generics = useSelector(state => state.generics.generics);
-
-  const bem = (selector) => bemClassName(
-    selector,
-    props.data.node.classBaseName,
-    props.data.node.className
-  )
-
-  const getClassName = () => {
-    return props.data.node.classBaseName + ' ' + props.data.node.className;
-  };
-
-  const openDialog = () => {
-    if (dialogOpened) {
-      return
-    }
-
-    setDialogOpened(true);
-    setNodeFormName(props.data.node.name);
-    setAnchorElementForTooltip(null);
-    store.dispatch(setCanvasZoomingAndPanning(false));
-  };
-
-  const closeDialog = () => {
-    setDialogOpened(false);
-    store.dispatch(setCanvasZoomingAndPanning(true));
-  };
-
-  const handleNodeMouseEnter = event => {
-    if (!dialogOpened) {
-      setAnchorElementForTooltip(event.currentTarget);
-    }
-  };
-
-  const handleNodeMouseLeave = () => {
-    setAnchorElementForTooltip(null);
-  };
+  const {
+    bem,
+    getClassName,
+    anchorElementForTooltip,
+    anchorElForPopover,
+    deleteNode,
+    closePopover,
+    dialogOpened,
+    openDialog,
+    onNodeClick,
+    onNodeDoubleClick,
+    nodeFormName,
+    setNodeFormName,
+    closeDialog,
+    handleNodeMouseEnter,
+    handleNodeMouseLeave
+  } = useNode(props)
 
   const getSelectedGeneric = () => {
     const match = generics.find(generic => {
@@ -127,12 +103,17 @@ const NodeWidget = (props) => {
     <div
       className={getClassName()}
       style={{background: props.data.node.color}}
-      onDoubleClick={() => {
-        openDialog();
-      }}
+      onClick={onNodeClick}
+      onDoubleClick={onNodeDoubleClick}
       onMouseEnter={handleNodeMouseEnter}
       onMouseLeave={handleNodeMouseLeave}
     >
+      <NodePopover
+        anchorEl={anchorElForPopover}
+        onClose={closePopover}
+        onEdit={openDialog}
+        onDelete={deleteNode}
+      />
       <div className="node-container">
         <div className={bem('__icon')}>
           <ActionIcon/>
