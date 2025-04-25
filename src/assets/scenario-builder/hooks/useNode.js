@@ -61,7 +61,7 @@ export const useNode = (nodeProps) => {
           setAnchorElementForTooltip(null);
         }
         clickTimeout.current = null;
-      }, 250);
+      }, 200);
     }
   };
 
