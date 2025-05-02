@@ -112,6 +112,7 @@ trait NotificationTemplateParamsTrait
 
         return [
             'renewal_payment' => $renewalPayment->toArray(),
+            'renewal_subscription_type' => $renewalPayment->subscription_type?->toArray(),
         ];
     }
 
