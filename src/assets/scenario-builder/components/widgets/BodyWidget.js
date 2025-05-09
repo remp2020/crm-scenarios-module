@@ -280,7 +280,7 @@ const BodyWidget = ({ app }) => {
 
             <TrayItemWidget
               model={{ type: 'before_trigger', shape: 'square' }}
-              name='Before Event'
+              name='Before/After Event'
               icon={<NotificationsActiveIcon />}
             />
           </List>

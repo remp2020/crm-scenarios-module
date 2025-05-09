@@ -63,7 +63,7 @@ const NodeWidget = (props) => {
       trigger => trigger.value === props.data.node.selectedTrigger
     );
 
-    return selected ? `${props.data.node.time} ${props.data.node.timeUnit} before - ${selected.label} event` : 'Before Event';
+    return selected ? `${props.data.node.time} ${props.data.node.timeUnit} - ${selected.label} event` : 'Before/After Event';
   };
 
   return (
@@ -126,7 +126,7 @@ const NodeWidget = (props) => {
           }
         }}
       >
-        <DialogTitle id="form-dialog-title">Before event node</DialogTitle>
+        <DialogTitle id="form-dialog-title">Before/after event node</DialogTitle>
 
         <DialogContent>
           <DialogContentText>
@@ -175,7 +175,7 @@ const NodeWidget = (props) => {
             <Grid item xs={6}>
               <TextField
                 id="waiting-time"
-                label="Before time"
+                label="Time offset"
                 type="number"
                 variant="standard"
                 fullWidth
