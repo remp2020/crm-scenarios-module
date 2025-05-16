@@ -65,6 +65,7 @@ class BeforeEventTest extends BaseTestCase
 
     public function testSubscriptionEndsBeforeEventSingleEvent(): void
     {
+        $eventCode = 'subscription_ends';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -76,7 +77,7 @@ class BeforeEventTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'subscription_ends'],
+                    'event' => ['code' =>$eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
@@ -93,7 +94,7 @@ class BeforeEventTest extends BaseTestCase
         $this->assertNotEmpty($result);
 
         /** @var BeforeEvent $beforeEvent */
-        $beforeEvent = current($result)[0];
+        $beforeEvent = current($result[$eventCode][$minutes]);
         $this->assertEquals($userRow->id, $beforeEvent->getUserId());
         $this->assertEquals($subscriptionRow->id, $beforeEvent->getParameters()['subscription_id']);
 
@@ -143,6 +144,7 @@ class BeforeEventTest extends BaseTestCase
 
     public function testSubscriptionEndsBeforeEventMultipleTriggers(): void
     {
+        $eventCode = 'subscription_ends';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -154,14 +156,14 @@ class BeforeEventTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'subscription_ends'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ]),
                 self::obj([
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger2',
-                    'event' => ['code' => 'subscription_ends'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => 2000]),
                 ]),
             ]
@@ -178,7 +180,7 @@ class BeforeEventTest extends BaseTestCase
         $this->assertNotEmpty($result);
 
         /** @var BeforeEvent $beforeEvent */
-        $beforeEvent = current($result)[0];
+        $beforeEvent = current($result[$eventCode][$minutes]);
         $this->assertEquals($userRow->id, $beforeEvent->getUserId());
         $this->assertEquals($subscriptionRow->id, $beforeEvent->getParameters()['subscription_id']);
 
@@ -191,6 +193,7 @@ class BeforeEventTest extends BaseTestCase
 
     public function testSubscriptionEndsBeforeEventMultipleSubscriptions(): void
     {
+        $eventCode = 'subscription_ends';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -202,7 +205,7 @@ class BeforeEventTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'subscription_ends'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ]),
             ]
@@ -224,7 +227,7 @@ class BeforeEventTest extends BaseTestCase
         $this->assertNotEmpty($result);
 
         /** @var BeforeEvent $beforeEvent */
-        $beforeEvent = current($result)[0];
+        $beforeEvent = current($result[$eventCode][$minutes]);
         $this->assertEquals($userRow->id, $beforeEvent->getUserId());
 
         /** @var JobsRepository $scenariosJobsRepository */
