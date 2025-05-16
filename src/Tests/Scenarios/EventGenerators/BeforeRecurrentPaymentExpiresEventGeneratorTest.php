@@ -61,6 +61,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
 
     public function testExpires(): void
     {
+        $eventCode = 'before_recurrent_payment_expires';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -72,7 +73,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_expires'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
@@ -84,7 +85,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
         $result = $this->beforeEventGenerator->generate();
         $this->assertCount(1, $result);
 
-        $events = current($result);
+        $events = $result[$eventCode][$minutes];
         self::assertCount(1, $events);
 
         /** @var BeforeEvent $beforeEvent */
@@ -99,6 +100,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
 
     public function testExpiresTwo(): void
     {
+        $eventCode = 'before_recurrent_payment_expires';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -110,7 +112,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_expires'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
@@ -120,9 +122,10 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
         $this->createRecurrentPayment($user, $minutes - 10, true);
         $this->createRecurrentPayment($user, $minutes - 20, true);
 
-        $result = current($this->beforeEventGenerator->generate());
+        $result = $this->beforeEventGenerator->generate();
+        $events = $result[$eventCode][$minutes];
 
-        $this->assertCount(2, $result);
+        $this->assertCount(2, $events);
 
         $this->assertEquals(2, $this->scenariosJobsRepository->getAllJobs()->count('*'));
         $this->assertEquals(2, $this->scenariosJobsRepository->getUnprocessedJobs()->count('*'));

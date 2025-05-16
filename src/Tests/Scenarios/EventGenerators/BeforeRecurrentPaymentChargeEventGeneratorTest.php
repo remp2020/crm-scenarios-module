@@ -53,6 +53,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
 
     public function testValid(): void
     {
+        $eventCode = 'before_recurrent_payment_charge';
         $minutes = 1000;
 
         /** @var ScenariosRepository $scenariosRepository */
@@ -64,7 +65,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'name' => '',
                     'type' => TriggersRepository::TRIGGER_TYPE_BEFORE_EVENT,
                     'id' => 'trigger1',
-                    'event' => ['code' => 'before_recurrent_payment_charge'],
+                    'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ])
             ]
@@ -78,7 +79,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         $this->assertCount(1, $result);
 
         /** @var BeforeEvent $beforeEvent */
-        $beforeEvent = current($result)[0];
+        $beforeEvent = current($result[$eventCode][$minutes]);
         $this->assertEquals($recurrentPayment->id, $beforeEvent->getId());
         $this->assertEquals($user->id, $beforeEvent->getUserId());
         $this->assertEquals($recurrentPayment->id, $beforeEvent->getParameters()['recurrent_payment_id']);
