@@ -12,7 +12,7 @@ use Tomaj\NetteApi\Response\ResponseInterface;
 class ScenariosListTriggersApiHandler extends ApiHandler
 {
     public function __construct(
-        private readonly TriggerManager $triggerManager
+        private readonly TriggerManager $triggerManager,
     ) {
         parent::__construct();
     }

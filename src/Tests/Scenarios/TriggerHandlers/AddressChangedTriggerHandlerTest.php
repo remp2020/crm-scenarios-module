@@ -62,7 +62,7 @@ class AddressChangedTriggerHandlerTest extends BaseTestCase
             city: null,
             zip: null,
             countryId: null,
-            phoneNumber: null
+            phoneNumber: null,
         );
 
         /** @var AddressChangedTriggerHandler $addressChangedTriggerHandler */

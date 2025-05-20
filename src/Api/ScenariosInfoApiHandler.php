@@ -14,7 +14,7 @@ class ScenariosInfoApiHandler extends ApiHandler
     private $scenariosRepository;
 
     public function __construct(
-        ScenariosRepository $scenariosRepository
+        ScenariosRepository $scenariosRepository,
     ) {
         $this->scenariosRepository = $scenariosRepository;
     }

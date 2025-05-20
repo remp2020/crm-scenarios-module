@@ -67,8 +67,8 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -103,8 +103,8 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_charge'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -133,8 +133,8 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_charge'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');

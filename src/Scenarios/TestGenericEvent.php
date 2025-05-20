@@ -21,7 +21,7 @@ class TestGenericEvent implements ScenarioGenericEventInterface
             new BooleanParam('bool_param', 'Boolean param'),
             new NumberParam('number_param', 'Number param', 'unit'),
             new StringLabeledArrayParam('labeled_string_param', 'Labeled string param', [
-                'abc' => 'Abc'
+                'abc' => 'Abc',
             ]),
         ];
     }
@@ -30,7 +30,7 @@ class TestGenericEvent implements ScenarioGenericEventInterface
     {
         return [
             new class extends AbstractEvent {
-            }
+            },
         ];
     }
 }

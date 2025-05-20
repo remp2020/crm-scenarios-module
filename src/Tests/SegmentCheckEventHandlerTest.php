@@ -98,7 +98,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
     {
         $segmentRow = $this->prepareSegment(
             'users',
-            "SELECT %table%.id FROM %table% WHERE %table%.source = '{$this->userRow->source}' GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.source = '{$this->userRow->source}' GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
@@ -116,7 +116,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
     {
         $segmentRow = $this->prepareSegment(
             'users',
-            "SELECT %table%.id FROM %table% WHERE %table%.source != '{$this->userRow->source}' GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.source != '{$this->userRow->source}' GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
@@ -135,7 +135,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $subscriptionRow = $this->prepareSubscription();
         $segmentRow = $this->prepareSegment(
             'subscriptions',
-            "SELECT %table%.id FROM %table% WHERE %table%.subscription_type_id = {$subscriptionRow->subscription_type_id} GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.subscription_type_id = {$subscriptionRow->subscription_type_id} GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id, 'subscription_id' => $subscriptionRow->id]);
 
@@ -154,7 +154,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $subscriptionRow = $this->prepareSubscription();
         $segmentRow = $this->prepareSegment(
             'subscriptions',
-            "SELECT %table%.id FROM %table% WHERE %table%.subscription_type_id != {$subscriptionRow->subscription_type_id} GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.subscription_type_id != {$subscriptionRow->subscription_type_id} GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id, 'subscription_id' => $subscriptionRow->id]);
 
@@ -173,7 +173,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $paymentRow = $this->preparePayment();
         $segmentRow = $this->prepareSegment(
             'payments',
-            "SELECT %table%.id FROM %table% WHERE %table%.status IN ('{$paymentRow->status}') GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.status IN ('{$paymentRow->status}') GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id, 'payment_id' => $paymentRow->id]);
 
@@ -192,7 +192,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
         $paymentRow = $this->preparePayment();
         $segmentRow = $this->prepareSegment(
             'payments',
-            "SELECT %table%.id FROM %table% WHERE %table%.status NOT IN ('{$paymentRow->status}') GROUP BY %table%.id"
+            "SELECT %table%.id FROM %table% WHERE %table%.status NOT IN ('{$paymentRow->status}') GROUP BY %table%.id",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id, 'payment_id' => $paymentRow->id]);
 
@@ -210,7 +210,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
     {
         $segmentRow = $this->prepareSegment(
             'subscription_types',
-            "SELECT %table%.id FROM %table% WHERE %table%.source = '{$this->userRow->source}' GROUP BY %table%"
+            "SELECT %table%.id FROM %table% WHERE %table%.source = '{$this->userRow->source}' GROUP BY %table%",
         );
         $scenarioJobRow = $this->prepareScenarioJob($segmentRow, ['user_id' => $this->userRow->id]);
 
@@ -232,7 +232,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
             'visual' => '{}',
             'created_at' => new \DateTime(),
             'modified_at' => new \DateTime(),
-            'enabled' => 1
+            'enabled' => 1,
         ]);
 
         /** @var ElementsRepository $scenarioElementRepository */
@@ -266,7 +266,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
             $table,
             "{$table}.id",
             $queryString,
-            $segmentGroupRow
+            $segmentGroupRow,
         );
 
         return $segmentRow;
@@ -286,7 +286,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
             $subscriptionTypeRow,
             false,
             false,
-            $this->userRow
+            $this->userRow,
         );
     }
 
@@ -312,7 +312,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
             $this->userRow,
             new PaymentItemContainer(),
             null,
-            1
+            1,
         );
     }
 }

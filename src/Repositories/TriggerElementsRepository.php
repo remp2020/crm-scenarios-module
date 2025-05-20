@@ -18,7 +18,7 @@ class TriggerElementsRepository extends Repository
         AuditLogRepository $auditLogRepository,
         Explorer $database,
         ElementsRepository $elementsRepository,
-        Storage $cacheStorage = null
+        Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 

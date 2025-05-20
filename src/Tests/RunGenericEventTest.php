@@ -52,17 +52,17 @@ class RunGenericEventTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_run_generic']
-                ])
+                    'elements' => ['element_run_generic'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_run_generic',
                     'type' => ElementsRepository::ELEMENT_TYPE_GENERIC,
-                    'generic' => ['code' => 'test_generic_event_code']
+                    'generic' => ['code' => 'test_generic_event_code'],
                 ]),
-            ]
+            ],
         ]);
 
         $this->lazyEventEmitter->addListener(TriggerGenericActionEvent::class, $this->triggerGenericActionEventHandler);

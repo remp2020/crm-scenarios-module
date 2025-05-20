@@ -30,7 +30,7 @@ class GraphConfiguration
         ElementsRepository $elementsRepository,
         TriggersRepository $triggersRepository,
         ElementElementsRepository $elementElementsRepository,
-        TriggerElementsRepository $triggerElementsRepository
+        TriggerElementsRepository $triggerElementsRepository,
     ) {
         $this->elementsRepository = $elementsRepository;
         $this->triggersRepository = $triggersRepository;

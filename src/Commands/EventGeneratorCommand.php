@@ -35,7 +35,7 @@ class EventGeneratorCommand extends Command
             foreach ($eventTimeOffsets as $minutes => $events) {
                 $output->writeln(
                     " * <comment>" . count($events) . " events</comment> generated for trigger: "
-                    . "<comment>{$code}</comment> (time offset: <comment>{$minutes}</comment> minutes)"
+                    . "<comment>{$code}</comment> (time offset: <comment>{$minutes}</comment> minutes)",
                 );
             }
         }

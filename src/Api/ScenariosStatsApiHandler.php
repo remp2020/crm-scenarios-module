@@ -33,7 +33,7 @@ class ScenariosStatsApiHandler extends ApiHandler
         ScenariosRepository $scenariosRepository,
         ElementStatsRepository $elementStatsRepository,
         TriggerStatsRepository $triggerStatsRepository,
-        JobsRepository $jobsRepository
+        JobsRepository $jobsRepository,
     ) {
         parent::__construct();
 
@@ -57,7 +57,7 @@ class ScenariosStatsApiHandler extends ApiHandler
         if (!$scenarioRow) {
             $response = new JsonApiResponse(Response::S404_NOT_FOUND, [
                 'status' => 'error',
-                'message' => "Scenario with ID [{$params['id']}] not found."
+                'message' => "Scenario with ID [{$params['id']}] not found.",
             ]);
             return $response;
         }
@@ -84,7 +84,7 @@ class ScenariosStatsApiHandler extends ApiHandler
                 "finished" => [
                     "24h" => (int)($triggerStatsDay[$triggerId][JobsRepository::STATE_FINISHED] ?? 0),
                     "30d" => (int)($triggerStatsMonth[$triggerId][JobsRepository::STATE_FINISHED] ?? 0),
-                ]
+                ],
             ];
         }
 
@@ -116,7 +116,7 @@ class ScenariosStatsApiHandler extends ApiHandler
                         "notMatched" => [
                             self::DAY => $elementStatsDay[$elementId][ElementStatsRepository::STATE_NEGATIVE] ?? 0,
                             self::MONTH => $elementStatsMonth[$elementId][ElementStatsRepository::STATE_NEGATIVE] ?? 0,
-                        ]
+                        ],
                     ];
                     break;
                 case ElementsRepository::ELEMENT_TYPE_GOAL:
@@ -160,7 +160,7 @@ class ScenariosStatsApiHandler extends ApiHandler
                         "finished" => [
                             self::DAY => $elementStatsDay[$elementId][ElementStatsRepository::STATE_FINISHED] ?? 0,
                             self::MONTH => $elementStatsMonth[$elementId][ElementStatsRepository::STATE_FINISHED] ?? 0,
-                        ]
+                        ],
                     ];
                     break;
                 default:

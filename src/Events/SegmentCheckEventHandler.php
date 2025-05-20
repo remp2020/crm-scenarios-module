@@ -39,7 +39,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
         SubscriptionsRepository $subscriptionsRepository,
         PaymentsRepository $paymentsRepository,
         SegmentsRepository $segmentsRepository,
-        ElementStatsRepository $elementStatsRepository
+        ElementStatsRepository $elementStatsRepository,
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -114,7 +114,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
         $this->jobsRepository->update($job, [
             'result' => Json::encode(['in' => $inSegment]),
             'state' => JobsRepository::STATE_FINISHED,
-            'finished_at' => new DateTime()
+            'finished_at' => new DateTime(),
         ]);
         return true;
     }
@@ -122,7 +122,7 @@ class SegmentCheckEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($jobId)
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $jobId
+            'job_id' => $jobId,
         ]);
     }
 

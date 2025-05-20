@@ -59,7 +59,7 @@ class AfterLastSubscriptionEndedEventGenerator implements EventGeneratorInterfac
                   AND `subscriptions`.`end_time` >= '{$lastEndTimeFrom}'
                   AND `subscriptions`.`end_time` <= '{$lastEndTimeTo}'
                 ;
-            SQL
+            SQL,
         )->fetchAll();
 
         return $subscriptionsEndedInInterval;

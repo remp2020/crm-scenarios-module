@@ -46,7 +46,7 @@ class NewAddressTriggerHandler implements TriggerHandlerInterface
         if (!$address) {
             throw new Exception(sprintf(
                 "Address with ID=%s does not exist",
-                $addressId
+                $addressId,
             ));
         }
 

@@ -15,7 +15,7 @@ class Dispatcher
 
     public function __construct(
         JobsRepository $jobsRepository,
-        ScenariosRepository $scenariosRepository
+        ScenariosRepository $scenariosRepository,
     ) {
         $this->jobsRepository = $jobsRepository;
         $this->scenariosRepository = $scenariosRepository;

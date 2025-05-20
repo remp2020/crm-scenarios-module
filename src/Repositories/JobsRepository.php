@@ -39,7 +39,7 @@ class JobsRepository extends Repository
     public function __construct(
         Explorer $database,
         private ElementStatsRepository $elementStatsRepository,
-        Storage $cacheStorage = null
+        Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
     }
@@ -106,7 +106,7 @@ class JobsRepository extends Repository
     {
         return $this->getAllJobs()
             ->where('state IN (?)', [
-                self::STATE_CREATED, self::STATE_FINISHED, self::STATE_FAILED
+                self::STATE_CREATED, self::STATE_FINISHED, self::STATE_FAILED,
             ]);
     }
 

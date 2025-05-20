@@ -41,7 +41,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => 'Cannot authorize user',
                     'code' => 'unauthorized_user',
-                ]
+                ],
             );
         }
 
@@ -56,13 +56,13 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => "Incorrect Content-Type [{$contentType}]. Expected 'application/json'.",
                     'code' => 'invalid_content_type',
-                ]
+                ],
             );
         }
 
         $requestValidationResult = $this->validateInput(
             __DIR__ . '/scenarios-create-request.schema.json',
-            $this->rawPayload()
+            $this->rawPayload(),
         );
 
         if ($requestValidationResult->hasErrorResponse()) {
@@ -80,7 +80,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'code' => 'validation_error',
                     'affected_trigger_id' => $exception->triggerId,
                     'affected_element_id' => $exception->elementId,
-                ]
+                ],
             );
         }
 
@@ -94,7 +94,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => $exception->getMessage(),
                     'code' => 'invalid_data',
-                ]
+                ],
             );
         } catch (\Exception $exception) {
             Debugger::log($exception, Debugger::EXCEPTION);
@@ -104,7 +104,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => $exception->getMessage(),
                     'code' => 'unknown_error',
-                ]
+                ],
             );
         }
 
@@ -115,7 +115,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => "Scenario with provided ID [{$data['id']}] not found.",
                     'code' => 'not_found',
-                ]
+                ],
             );
         }
 
@@ -130,7 +130,7 @@ class ScenariosCreateApiHandler extends ApiHandler
                     'status' => 'error',
                     'message' => $message,
                     'code' => 'not_found',
-                ]
+                ],
             );
         }
 

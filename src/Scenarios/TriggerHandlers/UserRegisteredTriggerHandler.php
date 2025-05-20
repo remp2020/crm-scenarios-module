@@ -41,7 +41,7 @@ class UserRegisteredTriggerHandler implements TriggerHandlerInterface
 
         return new TriggerData($data['user_id'], [
             'user_id' => $data['user_id'],
-            'password' => $data['password']
+            'password' => $data['password'],
         ]);
     }
 }

@@ -61,7 +61,7 @@ class PaymentStatusChangeTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var PaymentsRepository $paymentsRepository */
@@ -150,7 +150,7 @@ class PaymentStatusChangeTriggerHandlerTest extends BaseTestCase
         $paymentStatusChangeTriggerHandler = $this->inject(PaymentStatusChangeTriggerHandler::class);
         $paymentStatusChangeTriggerHandler->handleEvent([
             'payment_id' => 1,
-            'send_email' => false
+            'send_email' => false,
         ]);
     }
 

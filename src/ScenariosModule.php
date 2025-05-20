@@ -69,7 +69,7 @@ class ScenariosModule extends CrmModule
             $this->translator->translate('scenarios.admin.menu.default'),
             ':Scenarios:ScenariosAdmin:default',
             'fa fa-code-branch',
-            780
+            780,
         );
 
         $menuContainer->attachMenuItem($mainMenu);
@@ -80,34 +80,34 @@ class ScenariosModule extends CrmModule
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'info'),
             ScenariosInfoApiHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'create'),
             ScenariosCreateApiHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),
             ScenariosCriteriaHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'generics'),
             ScenariosListGenericsApiHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'stats'),
             ScenariosStatsApiHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'list-triggers'),
             ScenariosListTriggersApiHandler::class,
-            BearerTokenAuthorization::class
+            BearerTokenAuthorization::class,
         ));
     }
 

@@ -47,17 +47,17 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_email']
-                ])
+                    'elements' => ['element_email'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_email',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => 'empty_template_code']
-                ])
-            ]
+                    'email' => ['code' => 'empty_template_code'],
+                ]),
+            ],
         ]);
 
         // Add user, which triggers scenario
@@ -77,17 +77,17 @@ class ElementDeletedInRunningScenarioTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_email2']
-                ])
+                    'elements' => ['element_email2'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_email2',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => 'empty_template_code']
-                ])
-            ]
+                    'email' => ['code' => 'empty_template_code'],
+                ]),
+            ],
         ]);
 
         $this->engine->run(1); // email job should be scheduled

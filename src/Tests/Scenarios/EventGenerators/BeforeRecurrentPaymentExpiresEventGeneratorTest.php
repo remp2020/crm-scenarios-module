@@ -75,8 +75,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -114,8 +114,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -146,8 +146,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -177,8 +177,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -207,8 +207,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -237,8 +237,8 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'before_recurrent_payment_expires'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         $user = $this->loadUser('test@test.com');
@@ -280,7 +280,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
         );
 
         $updateData = [
-            'expires_at' => new DateTime("+$expiresAt minutes")
+            'expires_at' => new DateTime("+$expiresAt minutes"),
         ];
         if (!$active) {
             $updateData['state'] = RecurrentPaymentStateEnum::SystemStop->value;

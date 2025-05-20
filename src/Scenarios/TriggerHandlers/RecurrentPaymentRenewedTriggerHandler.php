@@ -46,13 +46,13 @@ class RecurrentPaymentRenewedTriggerHandler implements TriggerHandlerInterface
         if (!$recurrentPayment) {
             throw new Exception(sprintf(
                 "Recurrent payment with ID=%s does not exist",
-                $recurrentPaymentId
+                $recurrentPaymentId,
             ));
         }
         if ($recurrentPayment->payment_id === null) {
             throw new Exception(sprintf(
                 "Recurrent payment with ID=%s has no payment assigned",
-                $recurrentPaymentId
+                $recurrentPaymentId,
             ));
         }
 

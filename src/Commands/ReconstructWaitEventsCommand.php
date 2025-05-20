@@ -22,7 +22,7 @@ class ReconstructWaitEventsCommand extends Command
 
     public function __construct(
         JobsRepository $jobsRepository,
-        Emitter $emitter
+        Emitter $emitter,
     ) {
         parent::__construct();
         $this->jobsRepository = $jobsRepository;
@@ -37,13 +37,13 @@ class ReconstructWaitEventsCommand extends Command
                 'started_at_from',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Use only jobs that started since the provided date'
+                'Use only jobs that started since the provided date',
             )
             ->addOption(
                 'past_events',
                 null,
                 InputOption::VALUE_NONE,
-                'Emit events that should have been already executed'
+                'Emit events that should have been already executed',
             )
         ;
     }
@@ -97,8 +97,8 @@ class ReconstructWaitEventsCommand extends Command
                         ['job_id' => $job->id],
                         null,
                         null,
-                        (float) $executeAt->getTimestamp()
-                    )
+                        (float) $executeAt->getTimestamp(),
+                    ),
                 );
                 $output->writeln('OK');
             }

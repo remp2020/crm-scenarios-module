@@ -20,7 +20,7 @@ class RemoveOldStatsDataCommand extends Command
 
     public function __construct(
         ElementStatsRepository $elementStatsRepository,
-        TriggerStatsRepository $triggerStatsRepository
+        TriggerStatsRepository $triggerStatsRepository,
     ) {
         parent::__construct();
 
@@ -36,7 +36,7 @@ class RemoveOldStatsDataCommand extends Command
                 'date-to',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'Date to remove all statistic data created before'
+                'Date to remove all statistic data created before',
             );
     }
 

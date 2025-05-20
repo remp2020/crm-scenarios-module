@@ -50,7 +50,7 @@ class BeforeRecurrentPaymentExpiresEventGenerator implements EventGeneratorInter
                 'state' => RecurrentPaymentStateEnum::Active->value,
                 'expires_at >=' => $expiresFrom,
                 'expires_at <=' => $expiresTo,
-                'parent_payment.status' => [PaymentStatusEnum::Paid->value, PaymentStatusEnum::Prepaid->value]
+                'parent_payment.status' => [PaymentStatusEnum::Paid->value, PaymentStatusEnum::Prepaid->value],
             ])->fetchAll();
     }
 }

@@ -22,7 +22,7 @@ class ABTestElementUpdatedHandler extends AbstractListener
     public function __construct(
         SegmentsRepository $segmentsRepository,
         SegmentGroupsRepository $segmentGroupsRepository,
-        ElementsRepository $elementsRepository
+        ElementsRepository $elementsRepository,
     ) {
         $this->segmentsRepository = $segmentsRepository;
         $this->segmentGroupsRepository = $segmentGroupsRepository;
@@ -66,7 +66,7 @@ class ABTestElementUpdatedHandler extends AbstractListener
                 $segmentProperties['query_string'],
                 $segmentProperties['table_name'],
                 $segmentProperties['fields'],
-                $group
+                $group,
             );
 
             $this->updateSegmentReferenceInElementOptions($elementRow, $segment['uuid'], $segmentRow);
@@ -81,7 +81,7 @@ class ABTestElementUpdatedHandler extends AbstractListener
             'version' => 1,
             'table_name' => 'users',
             'fields' => 'users.id, users.email',
-            'query_string' => $this->getQueryString($elementRow->id, $code)
+            'query_string' => $this->getQueryString($elementRow->id, $code),
         ];
     }
 

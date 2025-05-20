@@ -46,7 +46,7 @@ class RecurrentPaymentStateChangedTriggerHandler implements TriggerHandlerInterf
         if (!$recurrentPayment) {
             throw new Exception(sprintf(
                 "Recurrent payment with ID=%s does not exist",
-                $recurrentPaymentId
+                $recurrentPaymentId,
             ));
         }
 

@@ -14,7 +14,7 @@ class HasPaymentCriteria implements ScenariosCriteriaInterface, ScenariosTrigger
     public function params(): array
     {
         return [
-            new BooleanParam(self::KEY, $this->label())
+            new BooleanParam(self::KEY, $this->label()),
         ];
     }
 

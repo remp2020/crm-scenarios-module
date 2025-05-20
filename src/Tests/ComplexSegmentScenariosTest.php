@@ -31,8 +31,8 @@ class ComplexSegmentScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_wait']
-                ])
+                    'elements' => ['element_wait'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -42,9 +42,9 @@ class ComplexSegmentScenariosTest extends BaseTestCase
                     'wait' => [
                         'minutes' => 10,
                         'descendants' => [
-                            ['uuid' => 'element_segment']
-                        ]
-                    ]
+                            ['uuid' => 'element_segment'],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
@@ -53,17 +53,17 @@ class ComplexSegmentScenariosTest extends BaseTestCase
                     'segment' => [
                         'code' => 'tests_all_users',
                         'descendants' => [
-                            ['uuid' => 'element_email', 'direction' => 'positive']
-                        ]
-                    ]
+                            ['uuid' => 'element_email', 'direction' => 'positive'],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => 'empty_template_code']
+                    'email' => ['code' => 'empty_template_code'],
                 ]),
-            ]
+            ],
         ]);
         $jr = $this->getRepository(JobsRepository::class);
 
@@ -76,7 +76,7 @@ class ComplexSegmentScenariosTest extends BaseTestCase
             'users',
             'users.id',
             'SELECT %fields% FROM %table% WHERE %where%',
-            $segmentGroup
+            $segmentGroup,
         );
 
         // Add user, which triggers scenario
@@ -119,7 +119,7 @@ class ComplexSegmentScenariosTest extends BaseTestCase
         $elementStats = $esr->countsForElements([
             $this->elementId('element_wait'),
             $this->elementId('element_segment'),
-            $this->elementId('element_email')
+            $this->elementId('element_email'),
         ], new DateTime('-1 hour'));
 
         $this->assertEquals(1, sizeof($elementStats[$this->elementId('element_wait')]));

@@ -83,7 +83,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
         $this->assertContains($result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_CODE], array_column($variants, 'code'));
         $this->assertEquals(
             array_search($result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_CODE], array_column($variants, 'code')),
-            $result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX]
+            $result[ABTestDistributeEventHandler::RESULT_PARAM_SELECTED_VARIANT_INDEX],
         );
 
         $this->assertEquals(JobsRepository::STATE_FINISHED, $scenarioJobRow->state);
@@ -136,7 +136,7 @@ class ABTestDistributeEventHandlerTest extends DatabaseTestCase
             'visual' => '{}',
             'created_at' => new \DateTime(),
             'modified_at' => new \DateTime(),
-            'enabled' => 1
+            'enabled' => 1,
         ]);
 
         /** @var ElementsRepository $scenarioElementRepository */

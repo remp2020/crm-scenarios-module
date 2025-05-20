@@ -67,7 +67,7 @@ class RecurrentPaymentStateChangedTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var PaymentsRepository $paymentsRepository */

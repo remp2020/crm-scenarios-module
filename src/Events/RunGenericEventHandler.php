@@ -26,7 +26,7 @@ class RunGenericEventHandler extends ScenariosJobsHandler
         Emitter $emitter,
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
-        ScenariosGenericEventsManager $genericEventHandlerManager
+        ScenariosGenericEventsManager $genericEventHandlerManager,
     ) {
         parent::__construct($jobsRepository);
         $this->emitter = $emitter;
@@ -83,7 +83,7 @@ class RunGenericEventHandler extends ScenariosJobsHandler
                 if (!$event instanceof EventInterface) {
                     $genericEventClassName = get_class($genericEvent);
                     throw new \Exception(
-                        "Generic event `{$genericEventClassName}` returned wrong event instance should be `EventInterface`"
+                        "Generic event `{$genericEventClassName}` returned wrong event instance should be `EventInterface`",
                     );
                 }
                 $this->emitter->emit($event);
@@ -100,7 +100,7 @@ class RunGenericEventHandler extends ScenariosJobsHandler
                         $parameters->{$addParamKey} = $addParamVal;
                     }
                     $this->jobsRepository->update($job, [
-                        'parameters' => Json::encode($parameters)
+                        'parameters' => Json::encode($parameters),
                     ]);
                 }
             }
@@ -116,7 +116,7 @@ class RunGenericEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($scenarioJobId)
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $scenarioJobId
+            'job_id' => $scenarioJobId,
         ]);
     }
 }

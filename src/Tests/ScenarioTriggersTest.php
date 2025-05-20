@@ -126,7 +126,7 @@ class ScenarioTriggersTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now - 1 month'),
             new DateTime('now + 1 month'),
-            false
+            false,
         ), 1);
 
         $subscription = $this->subscriptionRepository->actualUserSubscription($user1->id);
@@ -179,7 +179,7 @@ class ScenarioTriggersTest extends BaseTestCase
             $user1,
             new PaymentItemContainer(),
             null,
-            1
+            1,
         );
 
         $this->dispatcher->handle();
@@ -202,7 +202,7 @@ class ScenarioTriggersTest extends BaseTestCase
             $user1,
             new PaymentItemContainer(),
             null,
-            1
+            1,
         );
         $this->dispatcher->handle();
 
@@ -236,7 +236,7 @@ class ScenarioTriggersTest extends BaseTestCase
             null,
             null,
             null,
-            'print'
+            'print',
         );
 
         /** @var JobsRepository $jobsRepository */
@@ -281,7 +281,7 @@ class ScenarioTriggersTest extends BaseTestCase
             null,
             null,
             null,
-            'print'
+            'print',
         );
 
         /** @var JobsRepository $jobsRepository */
@@ -321,7 +321,7 @@ class ScenarioTriggersTest extends BaseTestCase
             $user1,
             new PaymentItemContainer(),
             null,
-            1
+            1,
         );
         $paymentRow = $this->paymentsRepository->updateStatus($paymentRow, PaymentStatusEnum::Paid->value);
 
@@ -353,8 +353,8 @@ class ScenarioTriggersTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => $triggerCode],
-                ])
-            ]
+                ]),
+            ],
         ]);
     }
 }

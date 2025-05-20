@@ -29,7 +29,7 @@ class UserRegisteredTriggerHandlerTest extends BaseTestCase
         $userRegisteredTriggerHandler = $this->inject(UserRegisteredTriggerHandler::class);
         $triggerData = $userRegisteredTriggerHandler->handleEvent([
             'user_id' => 1,
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $this->assertSame(1, $triggerData->userId);
@@ -48,7 +48,7 @@ class UserRegisteredTriggerHandlerTest extends BaseTestCase
         /** @var UserRegisteredTriggerHandler $userRegisteredTriggerHandler */
         $userRegisteredTriggerHandler = $this->inject(UserRegisteredTriggerHandler::class);
         $userRegisteredTriggerHandler->handleEvent([
-            'password' => 'password'
+            'password' => 'password',
         ]);
     }
 
@@ -60,7 +60,7 @@ class UserRegisteredTriggerHandlerTest extends BaseTestCase
         /** @var UserRegisteredTriggerHandler $userRegisteredTriggerHandler */
         $userRegisteredTriggerHandler = $this->inject(UserRegisteredTriggerHandler::class);
         $userRegisteredTriggerHandler->handleEvent([
-            'user_id' => 1
+            'user_id' => 1,
         ]);
     }
 }

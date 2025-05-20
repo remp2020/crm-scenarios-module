@@ -24,8 +24,8 @@ class PushNotificationActionTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_push_notification']
-                ])
+                    'elements' => ['element_push_notification'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -35,9 +35,9 @@ class PushNotificationActionTest extends BaseTestCase
                     ElementsRepository::ELEMENT_TYPE_PUSH_NOTIFICATION => [
                         'template' => 'test_template',
                         'application' => 'test_application',
-                    ]
+                    ],
                 ]),
-            ]
+            ],
         ]);
 
         /** @var UserManager $userManager */

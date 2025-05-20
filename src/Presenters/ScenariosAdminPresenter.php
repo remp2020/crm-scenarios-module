@@ -17,7 +17,7 @@ class ScenariosAdminPresenter extends AdminPresenter
 
     public function __construct(
         ScenariosRepository $scenariosRepository,
-        InternalToken $internalToken
+        InternalToken $internalToken,
     ) {
         parent::__construct();
 
@@ -93,7 +93,7 @@ class ScenariosAdminPresenter extends AdminPresenter
             'scenarios.admin.scenarios.messages.scenario_enabled',
             [
                 'name' => $scenario->name,
-            ]
+            ],
         ));
         $this->redirect('default');
     }
@@ -112,7 +112,7 @@ class ScenariosAdminPresenter extends AdminPresenter
             'scenarios.admin.scenarios.messages.scenario_disabled',
             [
                 'name' => $scenario->name,
-            ]
+            ],
         ));
         $this->redirect('default');
     }
@@ -133,7 +133,7 @@ class ScenariosAdminPresenter extends AdminPresenter
             'scenarios.admin.scenarios.messages.scenario_deleted',
             [
                 'name' => $scenario->name,
-            ]
+            ],
         ));
         $this->redirect('default');
     }
@@ -154,7 +154,7 @@ class ScenariosAdminPresenter extends AdminPresenter
             'scenarios.admin.scenarios.messages.scenario_restored',
             [
                 'name' => $scenario->name,
-            ]
+            ],
         ));
         $this->redirect('default');
     }

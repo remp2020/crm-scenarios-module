@@ -53,7 +53,7 @@ class SubscriptionStartsTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var SubscriptionStartsTriggerHandler $subscriptionStartsTriggerHandler */

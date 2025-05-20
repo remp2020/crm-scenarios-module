@@ -20,7 +20,7 @@ trait TimeframeScenarioTrait
             $paramValues[$timeFrameKey],
             $paramValues[$timeFrameKey]->operator,
             $paramValues[$timeFrameKey]->unit,
-            $paramValues[$timeFrameKey]->selection
+            $paramValues[$timeFrameKey]->selection,
         )) {
             $timeframeOperator = array_search($paramValues[$timeFrameKey]->operator, $operators, true);
             if ($timeframeOperator === false) {

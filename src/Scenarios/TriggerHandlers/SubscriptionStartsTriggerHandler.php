@@ -11,7 +11,7 @@ use Exception;
 class SubscriptionStartsTriggerHandler implements TriggerHandlerInterface
 {
     public function __construct(
-        private readonly SubscriptionsRepository $subscriptionsRepository
+        private readonly SubscriptionsRepository $subscriptionsRepository,
     ) {
     }
 
@@ -46,7 +46,7 @@ class SubscriptionStartsTriggerHandler implements TriggerHandlerInterface
         if (!$subscription) {
             throw new Exception(sprintf(
                 "Subscription with ID=%s does not exist",
-                $subscriptionId
+                $subscriptionId,
             ));
         }
 

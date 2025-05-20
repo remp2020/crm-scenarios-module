@@ -28,7 +28,7 @@ class TriggersRepository extends Repository
         Explorer $database,
         TriggerElementsRepository $triggerElementsRepository,
         EventsStorage $eventsStorage,
-        Storage $cacheStorage = null
+        Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 
@@ -50,7 +50,7 @@ class TriggersRepository extends Repository
     final public function allScenarioTriggers(int $scenarioId): Selection
     {
         return $this->scopeNotDeleted()->where([
-            'scenario_id' => $scenarioId
+            'scenario_id' => $scenarioId,
         ]);
     }
 
@@ -105,7 +105,7 @@ class TriggersRepository extends Repository
             'uuid' => $trigger->id,
             'name' => $trigger->name,
             'type' => $trigger->type,
-            'options' => empty($options) ? null : Json::encode($options)
+            'options' => empty($options) ? null : Json::encode($options),
         ];
 
         $triggerRow = $this->findByUuid($triggerData['uuid']);

@@ -55,7 +55,7 @@ class SubscriptionEndsTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         $subscriptionsEndsSuppressionManager = $this->createMock(SubscriptionEndsSuppressionManager::class);
@@ -96,7 +96,7 @@ class SubscriptionEndsTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         $subscriptionsEndsSuppressionManager = $this->createMock(SubscriptionEndsSuppressionManager::class);

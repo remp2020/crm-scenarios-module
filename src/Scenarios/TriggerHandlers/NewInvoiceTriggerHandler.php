@@ -48,7 +48,7 @@ class NewInvoiceTriggerHandler implements TriggerHandlerInterface
         if (!$invoice) {
             throw new Exception(sprintf(
                 "Invoice with ID=%s does not exist",
-                $invoiceId
+                $invoiceId,
             ));
         }
 
@@ -56,7 +56,7 @@ class NewInvoiceTriggerHandler implements TriggerHandlerInterface
         if (!$payment) {
             throw new Exception(sprintf(
                 "No payment related to invoice ID=%s",
-                $invoiceId
+                $invoiceId,
             ));
         }
 

@@ -22,7 +22,7 @@ class ScenariosStatsAggregatorCommand extends Command
 
     public function __construct(
         ElementStatsRepository $elementStatsRepository,
-        TriggerStatsRepository $triggerStatsRepository
+        TriggerStatsRepository $triggerStatsRepository,
     ) {
         parent::__construct();
 
@@ -38,7 +38,7 @@ class ScenariosStatsAggregatorCommand extends Command
                 'from',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'Date from'
+                'Date from',
             );
     }
 
@@ -94,7 +94,7 @@ class ScenariosStatsAggregatorCommand extends Command
                     $triggersStat['state'],
                     (int)$triggersStat['total'],
                     self::AGGREGATION_STEP_MINUTES,
-                    $fromDateTime
+                    $fromDateTime,
                 );
             }
         }
@@ -120,7 +120,7 @@ class ScenariosStatsAggregatorCommand extends Command
                     $elementStat['state'],
                     $elementStat['total'],
                     self::AGGREGATION_STEP_MINUTES,
-                    $fromDateTime
+                    $fromDateTime,
                 );
             }
         }

@@ -34,7 +34,7 @@ class TriggerOutputParamsRetriever
             } catch (Exception $exception) {
                 throw new TriggerOutputParamsRetrieveException(
                     sprintf("Trigger handler with key '%s' not found.", $eventKey),
-                    previous: $exception
+                    previous: $exception,
                 );
             }
         }
@@ -45,7 +45,7 @@ class TriggerOutputParamsRetriever
             } catch (Exception $exception) {
                 throw new TriggerOutputParamsRetrieveException(
                     sprintf("Event generator with key '%s' not found.", $eventKey),
-                    previous: $exception
+                    previous: $exception,
                 );
             }
 

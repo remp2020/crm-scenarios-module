@@ -100,7 +100,7 @@ class ConditionElementTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
             new DateTime(),
-            false
+            false,
         ), 1);
 
         // SIMULATE RUN
@@ -144,7 +144,7 @@ class ConditionElementTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
             new DateTime(),
-            false
+            false,
         ), 1);
 
         // SIMULATE RUN
@@ -172,8 +172,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -183,7 +183,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'subscription',
@@ -196,10 +196,10 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => 'type',
                                             'values' => [
                                                 'selection'=> ['free'],
-                                                'operator' => 'or'
-                                            ]
-                                        ]
-                                    ]
+                                                'operator' => 'or',
+                                            ],
+                                        ],
+                                    ],
                                 ],
                                 [
                                     'key' => 'subscription_type',
@@ -208,28 +208,28 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => 'subscription_type',
                                             'values' => [
                                                 'selection' => [$checkForSubscriptionType],
-                                                'operator' => 'or'
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                'operator' => 'or',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
     }
 
@@ -254,8 +254,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -265,7 +265,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'subscription',
@@ -278,28 +278,28 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => 'content_access',
                                             'values' => [
                                                 'selection'=> ['plus'],
-                                                'operator' => 'or'
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                'operator' => 'or',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
 
         // Create user
@@ -323,7 +323,7 @@ class ConditionElementTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
             new DateTime(),
-            false
+            false,
         ), 1);
 
         // SIMULATE RUN
@@ -354,8 +354,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -365,7 +365,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'subscription',
@@ -377,28 +377,28 @@ class ConditionElementTest extends BaseTestCase
                                         [
                                             'key' => 'is_recurrent',
                                             'values' => [
-                                                'selection' => false
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                'selection' => false,
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
 
         // Create user
@@ -421,7 +421,7 @@ class ConditionElementTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
             new DateTime(),
-            false
+            false,
         ), 1);
 
         // SIMULATE RUN
@@ -452,8 +452,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -463,7 +463,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'user',
@@ -476,28 +476,28 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => 'source',
                                             'values' => [
                                                 'selection'=> ['mobile_app'],
-                                                'operator' => 'or'
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                'operator' => 'or',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
 
         // Create user, trigger scenario
@@ -546,8 +546,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -557,7 +557,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'trigger',
@@ -570,27 +570,27 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => HasPaymentCriteria::KEY,
                                             'values' => [
                                                 'selection'=> true,
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
 
         $userRow = $this->userManager->addNewUser('test@email.com');
@@ -616,7 +616,7 @@ class ConditionElementTest extends BaseTestCase
             $userRow,
             new PaymentItemContainer(),
             null,
-            1
+            1,
         );
 
         $paymentsRepository->addSubscriptionToPayment($subscriptionRow, $paymentRow);
@@ -649,8 +649,8 @@ class ConditionElementTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'new_subscription'],
-                    'elements' => ['element_condition']
-                ])
+                    'elements' => ['element_condition'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -660,7 +660,7 @@ class ConditionElementTest extends BaseTestCase
                     'condition' => [
                         'descendants' => [
                             ['uuid' => 'element_email_pos', 'direction' => 'positive'],
-                            ['uuid' => 'element_email_neg', 'direction' => 'negative']
+                            ['uuid' => 'element_email_neg', 'direction' => 'negative'],
                         ],
                         'conditions' => [
                             'event' => 'trigger',
@@ -673,27 +673,27 @@ class ConditionElementTest extends BaseTestCase
                                             'key' => HasPaymentCriteria::KEY,
                                             'values' => [
                                                 'selection'=> true,
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_pos',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_SUCCESS],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email_neg',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL]
-                ])
-            ]
+                    'email' => ['code' => self::EMAIL_TEMPLATE_FAIL],
+                ]),
+            ],
         ]);
 
         $userRow = $this->userManager->addNewUser('test@email.com');

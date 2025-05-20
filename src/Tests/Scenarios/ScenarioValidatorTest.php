@@ -107,7 +107,7 @@ class ScenarioValidatorTest extends CrmTestCase
                         ],
                         'descendants' => [
                             [
-                                'uuid' => '033b6927-5f94-486a-9a34-073135995748'
+                                'uuid' => '033b6927-5f94-486a-9a34-073135995748',
                             ],
                         ],
                     ],
@@ -122,7 +122,7 @@ class ScenarioValidatorTest extends CrmTestCase
                         ],
                         'descendants' => [
                             [
-                                'uuid' => '033b6927-5f94-486a-9a34-073135995748'
+                                'uuid' => '033b6927-5f94-486a-9a34-073135995748',
                             ],
                         ],
                     ],
@@ -137,7 +137,7 @@ class ScenarioValidatorTest extends CrmTestCase
                         ],
                         'descendants' => [
                             [
-                                'uuid' => '593399e4-d234-4d0d-8a42-8a8deaeda9af'
+                                'uuid' => '593399e4-d234-4d0d-8a42-8a8deaeda9af',
                             ],
                         ],
                     ],
@@ -210,7 +210,7 @@ class ScenarioValidatorTest extends CrmTestCase
                         ],
                         'descendants' => [
                             [
-                                'uuid' => '033b6927-5f94-486a-9a34-073135995748'
+                                'uuid' => '033b6927-5f94-486a-9a34-073135995748',
                             ],
                         ],
                     ],

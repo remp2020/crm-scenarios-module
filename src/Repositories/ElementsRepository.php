@@ -33,7 +33,7 @@ class ElementsRepository extends Repository
         AuditLogRepository $auditLogRepository,
         Explorer $database,
         Emitter $emitter,
-        Storage $cacheStorage = null
+        Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 
@@ -62,7 +62,7 @@ class ElementsRepository extends Repository
     final public function allScenarioElements(int $scenarioId): Selection
     {
         return $this->scopeNotDeleted()->where([
-            'scenario_id' => $scenarioId
+            'scenario_id' => $scenarioId,
         ]);
     }
 
@@ -102,7 +102,7 @@ class ElementsRepository extends Repository
                     throw new ScenarioInvalidDataException("Missing 'code' parameter for the Email node.");
                 }
                 $elementOptions = [
-                    'code' => $element->email->code
+                    'code' => $element->email->code,
                 ];
                 $elementPairs[$element->id]['descendants'] = $element->email->descendants ?? [];
                 break;
@@ -134,7 +134,7 @@ class ElementsRepository extends Repository
                     throw new ScenarioInvalidDataException("Missing 'code' parameter for the Segment node.");
                 }
                 $elementOptions = [
-                    'code' => $element->segment->code
+                    'code' => $element->segment->code,
                 ];
                 $elementPairs[$element->id]['descendants'] = $element->segment->descendants ?? [];
                 break;
@@ -143,7 +143,7 @@ class ElementsRepository extends Repository
                     throw new ScenarioInvalidDataException("Missing 'conditions' parameter for the Condition node.");
                 }
                 $elementOptions = [
-                    'conditions' => $element->condition->conditions
+                    'conditions' => $element->condition->conditions,
                 ];
                 $elementPairs[$element->id]['descendants'] = $element->condition->descendants ?? [];
                 break;
@@ -152,7 +152,7 @@ class ElementsRepository extends Repository
                     throw new ScenarioInvalidDataException("Missing 'minutes' parameter for the Wait node.");
                 }
                 $elementOptions = [
-                    'minutes' => $element->wait->minutes
+                    'minutes' => $element->wait->minutes,
                 ];
                 $elementPairs[$element->id]['descendants'] = $element->wait->descendants ?? [];
                 break;

@@ -27,7 +27,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         SelectedVariantsRepository $selectedVariantRepository,
-        ElementStatsRepository $elementStatsRepository
+        ElementStatsRepository $elementStatsRepository,
     ) {
         parent::__construct($jobsRepository);
 
@@ -76,7 +76,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
                 $selectedVariantRow = $this->selectedVariantRepository->add(
                     $element,
                     $this->usersRepository->find($parameters->user_id),
-                    $variantCode
+                    $variantCode,
                 );
             }
         } catch (\Exception $exception) {
@@ -90,7 +90,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
                 self::RESULT_PARAM_SELECTED_VARIANT_INDEX => array_search(
                     $selectedVariantRow->variant_code,
                     array_column($options['variants'], 'code'),
-                    true
+                    true,
                 ),
             ]),
             'state' => JobsRepository::STATE_FINISHED,
@@ -124,7 +124,7 @@ class ABTestDistributeEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage(int $scenarioJobId): HermesMessage
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $scenarioJobId
+            'job_id' => $scenarioJobId,
         ]);
     }
 }

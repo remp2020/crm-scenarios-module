@@ -46,7 +46,7 @@ class NewPaymentTriggerHandler implements TriggerHandlerInterface
         if (!$payment) {
             throw new Exception(sprintf(
                 "Payment with ID=%s does not exist",
-                $paymentId
+                $paymentId,
             ));
         }
 

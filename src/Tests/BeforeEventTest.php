@@ -43,7 +43,7 @@ class BeforeEventTest extends BaseTestCase
 
         $subscriptionEndsEventGenerator = new SubscriptionEndsEventGenerator(
             $subscriptionsRepository,
-            $this->subscriptionEndsSuppressionManager
+            $this->subscriptionEndsSuppressionManager,
         );
 
         $this->eventsStorage->registerEventGenerator('subscription_ends', $subscriptionEndsEventGenerator);
@@ -52,7 +52,7 @@ class BeforeEventTest extends BaseTestCase
             $this->eventsStorage,
             $triggerRepository,
             $generatedEventsRepository,
-            $dispatcher
+            $dispatcher,
         );
     }
 
@@ -79,8 +79,8 @@ class BeforeEventTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' =>$eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         /** @var UserManager $userManager */
@@ -120,8 +120,8 @@ class BeforeEventTest extends BaseTestCase
                     'id' => 'trigger1',
                     'event' => ['code' => 'subscription_ends'],
                     'options' => self::obj(["minutes" => $minutes]),
-                ])
-            ]
+                ]),
+            ],
         ]);
 
         /** @var UserManager $userManager */
@@ -166,7 +166,7 @@ class BeforeEventTest extends BaseTestCase
                     'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => 2000]),
                 ]),
-            ]
+            ],
         ]);
 
         /** @var UserManager $userManager */
@@ -208,7 +208,7 @@ class BeforeEventTest extends BaseTestCase
                     'event' => ['code' => $eventCode],
                     'options' => self::obj(["minutes" => $minutes]),
                 ]),
-            ]
+            ],
         ]);
 
         /** @var UserManager $userManager */
@@ -263,7 +263,7 @@ class BeforeEventTest extends BaseTestCase
             $userRow,
             SubscriptionsRepository::TYPE_REGULAR,
             $now,
-            $endTime
+            $endTime,
         );
     }
 }

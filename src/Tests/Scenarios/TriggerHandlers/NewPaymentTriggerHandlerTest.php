@@ -60,7 +60,7 @@ class NewPaymentTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var PaymentsRepository $paymentsRepository */
@@ -77,7 +77,7 @@ class NewPaymentTriggerHandlerTest extends BaseTestCase
         /** @var NewPaymentTriggerHandler $newPaymentTriggerHandler */
         $newPaymentTriggerHandler = $this->inject(NewPaymentTriggerHandler::class);
         $triggerData = $newPaymentTriggerHandler->handleEvent([
-            'payment_id' => $payment->id
+            'payment_id' => $payment->id,
         ]);
 
         $this->assertSame($user->id, $triggerData->userId);

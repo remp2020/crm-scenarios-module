@@ -65,7 +65,7 @@ class ScenarioValidator
             if (!empty($elementDescendants)) {
                 $elementDescendantUuids = array_map(
                     fn(array $elementDescendant) => $elementDescendant['uuid'],
-                    $elementDescendants
+                    $elementDescendants,
                 );
 
                 $this->validateElements($elementDescendantUuids, $triggerOutputParams, $allElements, $trigger);

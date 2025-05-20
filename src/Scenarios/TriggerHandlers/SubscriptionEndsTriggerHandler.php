@@ -49,7 +49,7 @@ class SubscriptionEndsTriggerHandler implements TriggerHandlerInterface
         if (!$subscription) {
             throw new Exception(sprintf(
                 "Subscription with ID=%s does not exist",
-                $subscriptionId
+                $subscriptionId,
             ));
         }
 

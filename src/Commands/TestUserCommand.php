@@ -28,7 +28,7 @@ class TestUserCommand extends Command
                 'user_id',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'User ID that will be passed as a parameter'
+                'User ID that will be passed as a parameter',
             );
     }
 

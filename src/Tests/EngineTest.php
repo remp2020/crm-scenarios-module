@@ -203,8 +203,8 @@ class EngineTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger_user_registered',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_run_generic_1']
-                ])
+                    'elements' => ['element_run_generic_1'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -214,7 +214,7 @@ class EngineTest extends BaseTestCase
                     'generic' => [
                         'code' => 'test_generic_event_code',
                         'descendants' => [
-                            ['uuid' => 'element_run_generic_2']
+                            ['uuid' => 'element_run_generic_2'],
                         ],
                     ],
                 ]),
@@ -224,7 +224,7 @@ class EngineTest extends BaseTestCase
                     'type' => ElementsRepository::ELEMENT_TYPE_GENERIC,
                     'generic' => ['code' => 'test_generic_event_code'],
                 ]),
-            ]
+            ],
         ]);
     }
 }

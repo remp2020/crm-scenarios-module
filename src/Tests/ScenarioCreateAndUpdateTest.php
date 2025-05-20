@@ -41,17 +41,17 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger_user_registered',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_wait']
-                ])
+                    'elements' => ['element_wait'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_wait',
                     'type' => ElementsRepository::ELEMENT_TYPE_WAIT,
-                    'wait' => ['minutes' => 10]
-                ])
-            ]
+                    'wait' => ['minutes' => 10],
+                ]),
+            ],
         ]);
 
         $element = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
@@ -67,17 +67,17 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger_user_registered',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_wait']
-                ])
+                    'elements' => ['element_wait'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_wait',
                     'type' => ElementsRepository::ELEMENT_TYPE_WAIT,
-                    'wait' => ['minutes' => 20]
-                ])
-            ]
+                    'wait' => ['minutes' => 20],
+                ]),
+            ],
         ]);
 
         $updatedElement = $this->elementsRepository->findByScenarioIDAndElementUUID($scenario->id, 'element_wait');
@@ -97,17 +97,17 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger_user_registered',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_wait2']
-                ])
+                    'elements' => ['element_wait2'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_wait2',
                     'type' => ElementsRepository::ELEMENT_TYPE_WAIT,
-                    'wait' => ['minutes' => 10]
-                ])
-            ]
+                    'wait' => ['minutes' => 10],
+                ]),
+            ],
         ]);
 
         // Old element should be deleted + its link
@@ -132,7 +132,7 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                     'id' => 'trigger_user_created',
                     'event' => ['code' => 'user_created'],
                     'elements' => ['element_condition'],
-                ])
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -154,16 +154,16 @@ class ScenarioCreateAndUpdateTest extends BaseTestCase
                                             'key' => 'type',
                                             'values' => [
                                                 'selection'=> ['free'],
-                                                'operator' => 'or'
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                                                'operator' => 'or',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ]),
-            ]
+            ],
         ]);
     }
 }

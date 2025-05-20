@@ -24,7 +24,7 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
     public function __construct(
         JobsRepository $jobsRepository,
         ScenariosCriteriaStorage $scenariosCriteriaStorage,
-        ElementStatsRepository $elementStatsRepository
+        ElementStatsRepository $elementStatsRepository,
     ) {
         parent::__construct($jobsRepository);
         $this->scenariosCriteriaStorage = $scenariosCriteriaStorage;
@@ -81,7 +81,7 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($jobId)
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $jobId
+            'job_id' => $jobId,
         ]);
     }
 

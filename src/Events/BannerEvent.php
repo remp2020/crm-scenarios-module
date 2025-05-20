@@ -16,7 +16,7 @@ class BannerEvent extends AbstractEvent
     public function __construct(
         ActiveRow $user,
         $bannerId,
-        int $expiresInMinutes
+        int $expiresInMinutes,
     ) {
         $this->user = $user;
         $this->bannerId = $bannerId;

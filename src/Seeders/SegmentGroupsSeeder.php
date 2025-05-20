@@ -28,7 +28,7 @@ class SegmentGroupsSeeder implements ISeeder
             $output,
             'Scenarios - AB Test',
             self::AB_TEST_SEGMENT_GROUP_CODE,
-            1800
+            1800,
         );
     }
 

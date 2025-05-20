@@ -90,7 +90,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
             null,
             [],
             null,
-            $this->getNotificationContext($job)
+            $this->getNotificationContext($job),
         );
         $this->emitter->emit($notificationEvent);
 
@@ -101,7 +101,7 @@ class SendEmailEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($scenarioJobId)
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $scenarioJobId
+            'job_id' => $scenarioJobId,
         ]);
     }
 }

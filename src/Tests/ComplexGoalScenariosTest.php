@@ -448,8 +448,8 @@ class ComplexGoalScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_goal']
-                ])
+                    'elements' => ['element_goal'],
+                ]),
             ],
             'elements' => [
                 self::obj([
@@ -464,21 +464,21 @@ class ComplexGoalScenariosTest extends BaseTestCase
                         ],
                         'recheckPeriodMinutes' => 5,
                         'timeoutMinutes' => 15,
-                    ]
+                    ],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email1',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => 'empty_template_code_pos']
+                    'email' => ['code' => 'empty_template_code_pos'],
                 ]),
                 self::obj([
                     'name' => '',
                     'id' => 'element_email2',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => 'empty_template_code_neg']
-                ])
-            ]
+                    'email' => ['code' => 'empty_template_code_neg'],
+                ]),
+            ],
         ]);
     }
 

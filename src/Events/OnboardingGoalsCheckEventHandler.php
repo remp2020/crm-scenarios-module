@@ -36,7 +36,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         OnboardingGoalsRepository $onboardingGoalsRepository,
         UserOnboardingGoalsRepository $userOnboardingGoalsRepository,
         Emitter $hermesEmitter,
-        ElementStatsRepository $elementStatsRepository
+        ElementStatsRepository $elementStatsRepository,
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -54,7 +54,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         }
 
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $jobId
+            'job_id' => $jobId,
         ], null, null, $executeAt);
     }
 
@@ -112,7 +112,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
             $this->jobsRepository->update($job, [
                 'result' => Json::encode([self::RESULT_PARAM_GOALS_COMPLETED => true]),
                 'state' => JobsRepository::STATE_FINISHED,
-                'finished_at' => new DateTime()
+                'finished_at' => new DateTime(),
             ]);
 
             $this->elementStatsRepository->add($job->element_id, ElementStatsRepository::STATE_POSITIVE);

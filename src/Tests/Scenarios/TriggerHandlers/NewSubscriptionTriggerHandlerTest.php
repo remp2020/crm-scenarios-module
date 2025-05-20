@@ -61,7 +61,7 @@ class NewSubscriptionTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var PaymentsRepository $paymentsRepository */
@@ -109,7 +109,7 @@ class NewSubscriptionTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var NewSubscriptionTriggerHandler $newSubscriptionTriggerHandler */
@@ -145,7 +145,7 @@ class NewSubscriptionTriggerHandlerTest extends BaseTestCase
         $newSubscriptionTriggerHandler = $this->inject(NewSubscriptionTriggerHandler::class);
         $newSubscriptionTriggerHandler->handleEvent([
             'subscription_id' => 1,
-            'send_email' => false
+            'send_email' => false,
         ]);
     }
 

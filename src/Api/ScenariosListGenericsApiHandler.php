@@ -34,7 +34,7 @@ class ScenariosListGenericsApiHandler extends ApiHandler
             $events[] = [
                 'code' => $code,
                 'label' => $event->getLabel(),
-                'options' => $paramsArray
+                'options' => $paramsArray,
             ];
         }
 

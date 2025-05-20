@@ -65,7 +65,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
             $subscriptionType,
             isRecurrent: false,
             isPaid: true,
-            user: $user
+            user: $user,
         );
 
         /** @var PaymentsRepository $paymentsRepository */
@@ -199,7 +199,7 @@ class RecurrentPaymentRenewedTriggerHandlerTest extends BaseTestCase
 
         $this->expectExceptionMessage(sprintf(
             'Recurrent payment with ID=%d has no payment assigned',
-            $recurrentPayment->id
+            $recurrentPayment->id,
         ));
 
         /** @var RecurrentPaymentRenewedTriggerHandler $recurrentPaymentRenewedTriggerHandler */

@@ -49,7 +49,7 @@ class Engine
         private JobsRepository $jobsRepository,
         private GraphConfiguration $graphConfiguration,
         private ElementsRepository $elementsRepository,
-        private TriggerStatsRepository $triggerStatsRepository
+        private TriggerStatsRepository $triggerStatsRepository,
     ) {
         $this->startTime = new DateTime();
     }
@@ -86,7 +86,7 @@ class Engine
                         'FIELD(state, ?, ?, ?), updated_at',
                         JobsRepository::STATE_CREATED,
                         JobsRepository::STATE_FINISHED,
-                        JobsRepository::STATE_FAILED
+                        JobsRepository::STATE_FAILED,
                     )
                     ->fetchAll();
 
@@ -213,7 +213,7 @@ class Engine
             $this->jobsRepository->update($job, [
                 'started_at' => new DateTime(),
                 'finished_at' => new DateTime(),
-                'state' => JobsRepository::STATE_FINISHED
+                'state' => JobsRepository::STATE_FINISHED,
             ]);
             $this->triggerStatsRepository->add($job->trigger_id, JobsRepository::STATE_FINISHED);
         } elseif ($job->element_id) {
@@ -292,7 +292,7 @@ class Engine
             $this->jobsRepository->addElement(
                 $elementId,
                 Json::decode($job->parameters, Json::FORCE_ARRAY),
-                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null
+                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
             );
         }
     }
@@ -357,7 +357,7 @@ class Engine
             $this->jobsRepository->addElement(
                 $elementId,
                 Json::decode($job->parameters, Json::FORCE_ARRAY),
-                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null
+                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
             );
         }
     }

@@ -126,17 +126,17 @@ class SimpleScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_wait']
-                ])
+                    'elements' => ['element_wait'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_wait',
                     'type' => ElementsRepository::ELEMENT_TYPE_WAIT,
-                    'wait' => ['minutes' => 10]
-                ])
-            ]
+                    'wait' => ['minutes' => 10],
+                ]),
+            ],
         ]);
 
         // Add user, which triggers scenario
@@ -175,17 +175,17 @@ class SimpleScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_segment']
-                ])
+                    'elements' => ['element_segment'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_segment',
                     'type' => ElementsRepository::ELEMENT_TYPE_SEGMENT,
-                    'segment' => ['code' => 'empty_segment']
-                ])
-            ]
+                    'segment' => ['code' => 'empty_segment'],
+                ]),
+            ],
         ]);
         // Insert empty segment
         $segmentGroup = $this->getRepository(SegmentGroupsRepository::class)->add('Test group', 'test_group');
@@ -196,7 +196,7 @@ class SimpleScenariosTest extends BaseTestCase
             'users',
             'users.id',
             'SELECT %fields% FROM %table% WHERE %where% AND 1=2',
-            $segmentGroup
+            $segmentGroup,
         );
 
         // Add user, which triggers scenario
@@ -238,17 +238,17 @@ class SimpleScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => 'user_registered'],
-                    'elements' => ['element_segment']
-                ])
+                    'elements' => ['element_segment'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_segment',
                     'type' => ElementsRepository::ELEMENT_TYPE_SEGMENT,
-                    'segment' => ['code' => 'non_existing_segment']
-                ])
-            ]
+                    'segment' => ['code' => 'non_existing_segment'],
+                ]),
+            ],
         ]);
 
         // Add user, which triggers scenario
@@ -284,7 +284,7 @@ class SimpleScenariosTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime(),
             new DateTime(),
-            false
+            false,
         ), 1);
 
         $this->dispatcher->handle(); // run Hermes to create trigger job
@@ -323,7 +323,7 @@ class SimpleScenariosTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now + 5 minutes'),
             new DateTime('now + 30 minutes'),
-            false
+            false,
         ), 1);
 
         // check scheduled jobs - should be still empty (subscription didn't start yet)
@@ -367,7 +367,7 @@ class SimpleScenariosTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now - 15 minutes'),
             new DateTime('now + 5 minutes'),
-            false
+            false,
         ), 1);
 
         // check scheduled jobs - should be still empty (subscription didn't end yet)
@@ -411,7 +411,7 @@ class SimpleScenariosTest extends BaseTestCase
             SubscriptionsRepository::TYPE_FREE,
             new DateTime('now - 15 minutes'),
             new DateTime('now + 5 minutes'),
-            false
+            false,
         ), 1);
 
         // check scheduled jobs - should be still empty (subscription didn't end yet)
@@ -568,17 +568,17 @@ class SimpleScenariosTest extends BaseTestCase
                     'type' => TriggersRepository::TRIGGER_TYPE_EVENT,
                     'id' => 'trigger1',
                     'event' => ['code' => $trigger],
-                    'elements' => ['element_email']
-                ])
+                    'elements' => ['element_email'],
+                ]),
             ],
             'elements' => [
                 self::obj([
                     'name' => '',
                     'id' => 'element_email',
                     'type' => ElementsRepository::ELEMENT_TYPE_EMAIL,
-                    'email' => ['code' => $emailCode]
-                ])
-            ]
+                    'email' => ['code' => $emailCode],
+                ]),
+            ],
         ]);
     }
 

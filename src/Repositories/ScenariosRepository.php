@@ -26,7 +26,7 @@ class ScenariosRepository extends Repository
         private readonly SegmentsRepository $segmentsRepository,
         Explorer $database,
         AuditLogRepository $auditLogRepository = null,
-        Storage $cacheStorage = null
+        Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 
@@ -117,7 +117,7 @@ class ScenariosRepository extends Repository
                     }
                     if ($descendant->id === $parent->id) {
                         throw new \Exception(
-                            "Element '{$parent->name}' has link to itself, unable to save the scenario."
+                            "Element '{$parent->name}' has link to itself, unable to save the scenario.",
                         );
                     }
 
@@ -211,7 +211,7 @@ class ScenariosRepository extends Repository
                 'name' => $scenarioTrigger->name,
                 'type' => $scenarioTrigger->type,
                 'event' => [
-                    'code' => $scenarioTrigger->event_code
+                    'code' => $scenarioTrigger->event_code,
                 ],
                 'elements' => [],
             ];
@@ -382,7 +382,7 @@ class ScenariosRepository extends Repository
         foreach ($element->related('scenarios_element_elements.parent_element_id')->fetchAll() as $descendant) {
             $d = [
                 'uuid' => $descendant->ref('scenarios_elements', 'child_element_id')->uuid,
-                'position' => $descendant->position
+                'position' => $descendant->position,
             ];
             switch ($element->type) {
                 case ElementsRepository::ELEMENT_TYPE_SEGMENT:

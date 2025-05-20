@@ -27,7 +27,7 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
         JobsRepository $jobsRepository,
         Emitter $emitter,
         UsersRepository $usersRepository,
-        ReachChecker $reachChecker
+        ReachChecker $reachChecker,
     ) {
         parent::__construct($jobsRepository);
 
@@ -85,11 +85,11 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
             $options->template,
             array_merge(
                 (array) $options,
-                (array) $parameters
+                (array) $parameters,
             ),
             null,
             null,
-            $this->getNotificationContext($job)
+            $this->getNotificationContext($job),
         ));
 
         $this->jobsRepository->finishJob($job);
@@ -99,7 +99,7 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage(int $scenarioJobId): HermesMessage
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $scenarioJobId
+            'job_id' => $scenarioJobId,
         ]);
     }
 }

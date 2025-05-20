@@ -24,7 +24,7 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
         JobsRepository $jobsRepository,
         UsersRepository $usersRepository,
         Emitter $emitter,
-        ReachChecker $reachChecker
+        ReachChecker $reachChecker,
     ) {
         parent::__construct($jobsRepository);
         $this->usersRepository = $usersRepository;
@@ -88,7 +88,7 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
     public static function createHermesMessage($scenarioJobId)
     {
         return new HermesMessage(self::HERMES_MESSAGE_CODE, [
-            'job_id' => $scenarioJobId
+            'job_id' => $scenarioJobId,
         ]);
     }
 }

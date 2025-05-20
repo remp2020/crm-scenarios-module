@@ -43,8 +43,8 @@ abstract class ScenariosJobsHandler implements HandlerInterface
             'state' => JobsRepository::STATE_FAILED,
             'result' => Json::encode([
                 'error' => $message,
-                'retry' => $retry
-            ])
+                'retry' => $retry,
+            ]),
         ]);
     }
 }
