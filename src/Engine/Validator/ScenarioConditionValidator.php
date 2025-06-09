@@ -61,18 +61,27 @@ class ScenarioConditionValidator
 
             $errorMessage = $emptyCriterionValueMessage . ' (' . $criterion['key'] . ')';
 
+            $hasNonEmptyParam = false;
             foreach ($criterion['params'] as $param) {
                 if (empty($param['values'])) {
-                    throw new ScenarioElementValidationException($errorMessage);
+                    continue;
                 }
 
                 if (!isset($param['values']['selection'])) {
-                    throw new ScenarioElementValidationException($errorMessage);
+                    continue;
                 }
 
-                if (is_array($param['values']['selection']) && empty($param['values']['selection'])) {
-                    throw new ScenarioElementValidationException($errorMessage);
+                if (is_array($param['values']['selection']) && count($param['values']['selection']) == 0) {
+                    continue;
+                } elseif (is_string($param['values']['selection']) && $param['values']['selection'] == "") {
+                    continue;
                 }
+
+                $hasNonEmptyParam = true;
+                break;
+            }
+            if (!$hasNonEmptyParam) {
+                throw new ScenarioElementValidationException($errorMessage);
             }
         }
 
