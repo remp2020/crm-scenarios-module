@@ -11,6 +11,7 @@ admin:
             disable: Disable
             delete: Delete
             restore: Restore
+            copy: Copy
             deleted_scenarios: Deleted scenarios
         messages:
             scenario_not_found: "Selected scenario doesn't exist."
@@ -18,6 +19,9 @@ admin:
             scenario_disabled: "Scenario <em>%name%</em> was disabled."
             scenario_deleted: "Scenario <em>%name%</em> was deleted."
             scenario_restored: "Scenario <em>%name%</em> was restored."
+            scenario_duplicated: "Scenario was copied successfully."
+        copy:
+            title: Copy scenario
         validation_errors:
             element_validation_error: "An issue with element '%elementName%' (%elementType%) within a trigger '%triggerName%' (%triggerKey%) found: %errorMessage%"
             incompatible_criteria_with_trigger: "The trigger criteria can't be used with the trigger."
@@ -27,6 +31,17 @@ admin:
             title: Edit scenario
         new:
             title: New scenario
+
+components:
+    duplicate_scenario_form:
+        name:
+            label: Name
+            required: "Scenario name is required."
+            unique: "Scenario with the same name already exists."
+        error:
+            missing_scenario_id: "Missing scenario ID."
+            scenario_not_found: "Selected scenario was not found."
+
 data:
     fields:
         name: Name

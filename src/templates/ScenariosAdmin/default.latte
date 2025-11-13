@@ -4,102 +4,147 @@
 
 <div class="row">
 
-  <div class="col-md-12">
-    <h1>
-      {_'scenarios.admin.scenarios.default.title'}
+    <div class="col-md-12">
+        <h1>
+            {_'scenarios.admin.scenarios.default.title'}
 
-      <a n:href="new" class="btn btn-success btn-lg pull-right"><i
-                class="fa fa-sliders-h"></i>
-        {_'scenarios.admin.scenarios.default.new'}
-      </a>
-    </h1>
-    <hr>
-  </div>
+            <a n:href="new" class="btn btn-success btn-lg pull-right"><i
+                        class="fa fa-sliders-h"></i>
+                {_'scenarios.admin.scenarios.default.new'}
+            </a>
+        </h1>
+        <hr>
+    </div>
 
-  <div class="col-md-12">
-    <table class="table table-striped table-hover table-bordered">
-      <thead>
-        <tr>
-          <th>{_scenarios.data.fields.name}</th>
-          <th>{_scenarios.data.fields.created_at}</th>
-          <th>{_scenarios.data.fields.modified_at}</th>
-          <th>{_system.actions}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {foreach $scenarios as $scenario}
-          <tr>
-            <td>
-              <a n:href="Edit $scenario->id">{$scenario->name}</a>
+    <div class="col-md-12">
+        <table class="table table-striped table-hover table-bordered">
+            <thead>
+            <tr>
+                <th>{_scenarios.data.fields.name}</th>
+                <th>{_scenarios.data.fields.created_at}</th>
+                <th>{_scenarios.data.fields.modified_at}</th>
+                <th>{_system.actions}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {foreach $scenarios as $scenario}
+                <tr>
+                    <td>
+                        <a n:href="Edit $scenario->id">{$scenario->name}</a>
 
-              {if $scenario->enabled}
-                <label class="label label-success">{_'scenarios.admin.scenarios.default.enabled'}</label>
-              {else}
-                <label class="label label-default">{_'scenarios.admin.scenarios.default.disabled'}</label>
-              {/if}
-            </td>
-            <td>{$scenario->created_at|userDate}</td>
-            <td>{$scenario->modified_at|userDate}</td>
-            <td style="white-space: nowrap">
-              <p class="text-nowrap">
-                <a n:href="Edit $scenario->id" class="btn btn-sm btn-primary" title="{_system.edit}">
-                  <i class="fa fa-edit"></i>
-                </a>
+                        {if $scenario->enabled}
+                            <label class="label label-success">{_'scenarios.admin.scenarios.default.enabled'}</label>
+                        {else}
+                            <label class="label label-default">{_'scenarios.admin.scenarios.default.disabled'}</label>
+                        {/if}
+                    </td>
+                    <td>{$scenario->created_at|userDate}</td>
+                    <td>{$scenario->modified_at|userDate}</td>
+                    <td style="white-space: nowrap">
+                        <p class="text-nowrap">
+                            <a n:href="Edit $scenario->id" class="btn btn-sm btn-primary" title="{_system.edit}">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="#" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#copyModal" data-scenario-id="{$scenario->id}" title="{_'scenarios.admin.scenarios.default.copy'}">
+                                <i class="fa fa-copy"></i>
+                            </a>
 
-                {if $scenario->enabled}
-                  <a n:href="disable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.disable'}">
-                    <i class="fa fa-pause"></i>
-                  </a>
-                {else}
-                  <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.enable'}">
-                    <i class="fa fa-play"></i>
-                  </a>
-                  <a n:href="delete! $scenario->id" class="btn btn-sm btn-danger" title="{_'scenarios.admin.scenarios.default.delete'}">
-                    <i class="fa fa-trash"></i>
-                  </a>
-                {/if}
-              </p>
-            </td>
-          </tr>
-        {/foreach}
-      </tbody>
-    </table>
+                            {if $scenario->enabled}
+                                <a n:href="disable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.disable'}">
+                                    <i class="fa fa-pause"></i>
+                                </a>
+                            {else}
+                                <a n:href="enable! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.enable'}">
+                                    <i class="fa fa-play"></i>
+                                </a>
+                                <a n:href="delete! $scenario->id" class="btn btn-sm btn-danger" title="{_'scenarios.admin.scenarios.default.delete'}">
+                                    <i class="fa fa-trash"></i>
+                                </a>
+                            {/if}
+                        </p>
+                    </td>
+                </tr>
+            {/foreach}
+            </tbody>
+        </table>
 
-    {if $deletedScenarios->count('*')}
-      <h3>{_'scenarios.admin.scenarios.default.deleted_scenarios'}</h3>
-      <table class="table table-striped table-hover table-bordered">
-        <thead>
-        <tr>
-          <th>{_scenarios.data.fields.name}</th>
-          <th>{_scenarios.data.fields.created_at}</th>
-          <th>{_scenarios.data.fields.deleted_at}</th>
-          <th>{_system.actions}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {foreach $deletedScenarios as $scenario}
-          <tr>
-            <td>
-              <a n:href="Edit $scenario->id">{$scenario->name}</a>
-            </td>
-            <td>{$scenario->created_at|userDate}</td>
-            <td>{$scenario->deleted_at|userDate}</td>
-            <td style="white-space: nowrap">
-              <p class="text-nowrap">
-                <a n:href="Edit $scenario->id" class="btn btn-sm btn-info" title="{_system.show}">
-                  <i class="fa fa-eye"></i>
-                </a>
+        {if $deletedScenarios->count('*')}
+            <h3>{_'scenarios.admin.scenarios.default.deleted_scenarios'}</h3>
+            <table class="table table-striped table-hover table-bordered">
+                <thead>
+                <tr>
+                    <th>{_scenarios.data.fields.name}</th>
+                    <th>{_scenarios.data.fields.created_at}</th>
+                    <th>{_scenarios.data.fields.deleted_at}</th>
+                    <th>{_system.actions}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach $deletedScenarios as $scenario}
+                    <tr>
+                        <td>
+                            <a n:href="Edit $scenario->id">{$scenario->name}</a>
+                        </td>
+                        <td>{$scenario->created_at|userDate}</td>
+                        <td>{$scenario->deleted_at|userDate}</td>
+                        <td style="white-space: nowrap">
+                            <p class="text-nowrap">
+                                <a n:href="Edit $scenario->id" class="btn btn-sm btn-info" title="{_system.show}">
+                                    <i class="fa fa-eye"></i>
+                                </a>
 
-                <a n:href="restore! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.restore'}">
-                  <i class="fas fa-trash-restore"></i>
-                </a>
-              </p>
-            </td>
-          </tr>
-        {/foreach}
-        </tbody>
-      </table>
-    {/if}
-  </div>
+                                <a n:href="restore! $scenario->id" class="btn btn-sm btn-default" title="{_'scenarios.admin.scenarios.default.restore'}">
+                                    <i class="fas fa-trash-restore"></i>
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+                {/foreach}
+                </tbody>
+            </table>
+        {/if}
+    </div>
 
 </div>
+
+<div class="modal fade" id="copyModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">{_'scenarios.admin.scenarios.copy.title'}</h4>
+            </div>
+            {snippet duplicateScenarioModal}
+                <div class="modal-body">
+                    {control duplicateScenarioForm}
+                </div>
+            {/snippet}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const copyButtons = document.querySelectorAll('[data-target="#copyModal"]');
+
+        copyButtons.forEach((copyButton) => {
+            copyButton.addEventListener('click', () => {
+                const scenarioIdField = document.getElementById({$control["duplicateScenarioForm"]["scenario_id"]->htmlId});
+
+                if (!scenarioIdField) {
+                    console.error('Scenario ID field not found');
+                    return;
+                }
+
+                const scenarioId = copyButton.dataset.scenarioId;
+                if (!scenarioId) {
+                    console.error('Scenario ID not found on copy button');
+                    return;
+                }
+
+                scenarioIdField.value = scenarioId;
+            });
+        });
+    });
+</script>

@@ -4,25 +4,22 @@ namespace Crm\ScenariosModule\Presenters;
 
 use Crm\AdminModule\Presenters\AdminPresenter;
 use Crm\ApiModule\Models\Token\InternalToken;
+use Crm\ApplicationModule\UI\Form;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
+use Crm\ScenariosModule\Forms\DuplicateScenarioFormFactory;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Application\BadRequestException;
+use Nette\Database\Table\ActiveRow;
 
 class ScenariosAdminPresenter extends AdminPresenter
 {
-    private $scenariosRepository;
-
-    private $internalToken;
-
     public function __construct(
-        ScenariosRepository $scenariosRepository,
-        InternalToken $internalToken,
+        private readonly ScenariosRepository $scenariosRepository,
+        private readonly InternalToken $internalToken,
+        private readonly DuplicateScenarioFormFactory $duplicateScenarioFormFactory,
     ) {
         parent::__construct();
-
-        $this->scenariosRepository = $scenariosRepository;
-        $this->internalToken = $internalToken;
     }
 
     /**
@@ -60,7 +57,7 @@ class ScenariosAdminPresenter extends AdminPresenter
     /**
      * @admin-access-level write
      */
-    public function renderEmbed($id)
+    public function renderEmbed($id): void
     {
         // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
         // DO NOT move this to constructor, listener might not have been added yet
@@ -82,7 +79,7 @@ class ScenariosAdminPresenter extends AdminPresenter
     /**
      * @admin-access-level write
      */
-    public function handleEnable($id)
+    public function handleEnable($id): void
     {
         $scenario = $this->scenariosRepository->find($id);
         if (!$scenario) {
@@ -101,7 +98,7 @@ class ScenariosAdminPresenter extends AdminPresenter
     /**
      * @admin-access-level write
      */
-    public function handleDisable($id)
+    public function handleDisable($id): void
     {
         $scenario = $this->scenariosRepository->find($id);
         if (!$scenario) {
@@ -120,7 +117,7 @@ class ScenariosAdminPresenter extends AdminPresenter
     /**
      * @admin-access-level write
      */
-    public function handleDelete($id)
+    public function handleDelete($id): void
     {
         $scenario = $this->scenariosRepository->find($id);
         if (!$scenario) {
@@ -141,7 +138,7 @@ class ScenariosAdminPresenter extends AdminPresenter
     /**
      * @admin-access-level write
      */
-    public function handleRestore($id)
+    public function handleRestore($id): void
     {
         $scenario = $this->scenariosRepository->find($id);
         if (!$scenario) {
@@ -157,5 +154,21 @@ class ScenariosAdminPresenter extends AdminPresenter
             ],
         ));
         $this->redirect('default');
+    }
+
+    protected function createComponentDuplicateScenarioForm(): Form
+    {
+        $form = $this->duplicateScenarioFormFactory->create();
+
+        $form->onSubmit[] = function () {
+            $this->redrawControl('duplicateScenarioModal');
+        };
+
+        $this->duplicateScenarioFormFactory->onSuccess = function (ActiveRow $newScenario) {
+            $this->flashMessage($this->translator->translate('scenarios.admin.scenarios.messages.scenario_duplicated'));
+            $this->redirect('edit', $newScenario->id);
+        };
+
+        return $form;
     }
 }

@@ -27,6 +27,8 @@ services:
 	scenariosSelectedVariants: Crm\ScenariosModule\Repositories\SelectedVariantsRepository
 	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
 	beforeEventGenerator: Crm\ScenariosModule\Events\BeforeEventGenerator
+	scenarioDuplicator: Crm\ScenariosModule\Models\Scenario\ScenarioDuplicator
+	duplicateScenarioFormFactory: Crm\ScenariosModule\Forms\DuplicateScenarioFormFactory
 	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
 	generatedEventsRepository: Crm\ScenariosModule\Repositories\GeneratedEventsRepository
 	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator

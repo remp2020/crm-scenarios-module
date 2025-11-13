@@ -11,6 +11,7 @@ admin:
             disable: Zastaviť
             delete: Zmazať
             restore: Obnoviť
+            copy: Kopírovať
             deleted_scenarios: Zmazané scenáre
         messages:
             scenario_not_found: Vybraný scenár neexistuje.
@@ -18,6 +19,9 @@ admin:
             scenario_disabled: "Scenár <em>%name%</em> bol vypnutý."
             scenario_deleted: "Scenár <em>%name%</em> bol zmazaný."
             scenario_restored: "Scenár <em>%name%</em> bol obnovený."
+            scenario_duplicated: "Scenár bol úspešne skopírovaný."
+        copy:
+            title: Duplikovať scenár
         edit:
             title: Editácia scenára
         new:
@@ -27,6 +31,17 @@ admin:
             incompatible_criteria_with_trigger: "Podmienka nemôže byť použitá s týmto spúšťačom."
             empty_criterion: "Prázdna podmienka."
             empty_criterion_value: "Prázdna hodnota v podmienke."
+
+components:
+    duplicate_scenario_form:
+        name:
+            label: Názov
+            required: "Názov scenára je povinný."
+            unique: "Scenár s rovnakým názvom už existuje."
+        error:
+            missing_scenario_id: "Chýbajúce ID scenára."
+            scenario_not_found: "Vybraný scenár nebol nájdený."
+
 data:
     fields:
         name: Meno
