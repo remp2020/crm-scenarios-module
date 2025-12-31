@@ -25,7 +25,7 @@ class EventGeneratorCommand extends Command
             ->setDescription('Generates before events');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $results = $this->beforeEventGenerator->generate();
 

@@ -32,7 +32,7 @@ class TestUserCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $userId = $input->getOption('user_id');
         if (!$userId) {

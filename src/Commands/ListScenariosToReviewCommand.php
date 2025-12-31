@@ -36,7 +36,7 @@ class ListScenariosToReviewCommand extends Command
             ->setDescription('Will list scenarios recommended to manual review after migration to Trigger manager.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $recommendedTriggersToReviewCount = 0;
 

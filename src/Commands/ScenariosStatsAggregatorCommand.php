@@ -42,7 +42,7 @@ class ScenariosStatsAggregatorCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $from = $input->getOption('from');
 

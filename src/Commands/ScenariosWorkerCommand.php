@@ -23,7 +23,7 @@ class ScenariosWorkerCommand extends Command
             ->setDescription('Engine for scheduling scenarios jobs');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->engine->run();
         return Command::SUCCESS;

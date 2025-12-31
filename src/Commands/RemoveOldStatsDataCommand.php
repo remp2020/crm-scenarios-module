@@ -40,7 +40,7 @@ class RemoveOldStatsDataCommand extends Command
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $to = $input->getOption('date-to');
         if (!$to) {

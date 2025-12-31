@@ -48,7 +48,7 @@ class ReconstructWaitEventsCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $now = new DateTime();
         $jobsQuery = $this->jobsRepository->getTable()
