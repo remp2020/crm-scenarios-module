@@ -57,6 +57,7 @@ use Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentStateChangedTr
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionEndsTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionStartsTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\TestUserTriggerHandler;
+use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserConfirmedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserRegisteredTriggerHandler;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
 use Tomaj\Hermes\Dispatcher;
@@ -149,6 +150,7 @@ class ScenariosModule extends CrmModule
         $triggerManager->registerTriggerHandler($this->getInstance(RecurrentPaymentStateChangedTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(NewInvoiceTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(NewAddressTriggerHandler::class));
+        $triggerManager->registerTriggerHandler($this->getInstance(UserConfirmedTriggerHandler::class));
     }
 
     public function registerEvents(EventsStorage $eventsStorage)
