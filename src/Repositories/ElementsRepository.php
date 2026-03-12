@@ -33,7 +33,7 @@ class ElementsRepository extends Repository
         AuditLogRepository $auditLogRepository,
         Explorer $database,
         Emitter $emitter,
-        Storage $cacheStorage = null,
+        ?Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 

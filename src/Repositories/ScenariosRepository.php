@@ -25,8 +25,8 @@ class ScenariosRepository extends Repository
         private readonly TriggerElementsRepository $triggerElementsRepository,
         private readonly SegmentsRepository $segmentsRepository,
         Explorer $database,
-        AuditLogRepository $auditLogRepository = null,
-        Storage $cacheStorage = null,
+        ?AuditLogRepository $auditLogRepository = null,
+        ?Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 

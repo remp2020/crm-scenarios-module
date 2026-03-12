@@ -28,7 +28,7 @@ class TriggersRepository extends Repository
         Explorer $database,
         TriggerElementsRepository $triggerElementsRepository,
         EventsStorage $eventsStorage,
-        Storage $cacheStorage = null,
+        ?Storage $cacheStorage = null,
     ) {
         parent::__construct($database, $cacheStorage);
 

@@ -46,7 +46,7 @@ class OnboardingGoalsCheckEventHandler extends ScenariosJobsHandler
         $this->elementStatsRepository = $elementStatsRepository;
     }
 
-    public static function createHermesMessage($jobId, int $minutesDelay = null)
+    public static function createHermesMessage($jobId, ?int $minutesDelay = null)
     {
         $executeAt = null;
         if ($minutesDelay !== null) {

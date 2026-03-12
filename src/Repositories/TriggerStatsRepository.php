@@ -10,7 +10,7 @@ class TriggerStatsRepository extends Repository
 {
     protected $tableName = 'scenarios_trigger_stats';
 
-    final public function add(int $triggerId, string $state, int $count = 1, int $aggregatedMinutes = null, DateTime $createdAt = null)
+    final public function add(int $triggerId, string $state, int $count = 1, ?int $aggregatedMinutes = null, ?DateTime $createdAt = null)
     {
         return $this->insert([
             'trigger_id' => $triggerId,

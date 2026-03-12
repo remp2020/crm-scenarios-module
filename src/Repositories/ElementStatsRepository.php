@@ -14,7 +14,7 @@ class ElementStatsRepository extends Repository
 
     protected $tableName = 'scenarios_element_stats';
 
-    final public function add(int $elementId, string $state, int $count = 1, int $aggregatedMinutes = null, DateTime $createdAt = null)
+    final public function add(int $elementId, string $state, int $count = 1, ?int $aggregatedMinutes = null, ?DateTime $createdAt = null)
     {
         return $this->insert([
             'element_id' => $elementId,

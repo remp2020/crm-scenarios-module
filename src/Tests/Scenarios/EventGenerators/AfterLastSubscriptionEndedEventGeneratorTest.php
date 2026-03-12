@@ -243,8 +243,8 @@ class AfterLastSubscriptionEndedEventGeneratorTest extends BaseTestCase
     }
 
     private function addSubscription(
-        \DateTime $startTime = null,
-        \DateTime $endTime = null,
+        ?\DateTime $startTime = null,
+        ?\DateTime $endTime = null,
     ): ActiveRow {
         /** @var SubscriptionsRepository $subscriptionsRepository */
         $subscriptionsRepository = $this->getRepository(SubscriptionsRepository::class);
