@@ -1,3 +1,3 @@
 js:
-	yarn install
-	yarn build-prod
+	npm install
+	npm run build-prod
