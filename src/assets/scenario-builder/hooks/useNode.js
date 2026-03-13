@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
+import { useReactFlow } from 'reactflow';
 import { setCanvasZoomingAndPanning } from '../store/canvasSlice';
 import { store } from '../store';
 import { bemClassName } from '../utils/bem';
 
 export const useNode = (nodeProps) => {
+  const { deleteElements } = useReactFlow();
   const clickTimeout = useRef(null);
   const [nodeFormName, setNodeFormName] = useState(nodeProps.data.node.name);
   const [dialogOpened, setDialogOpened] = useState(false);
@@ -72,7 +74,7 @@ export const useNode = (nodeProps) => {
   };
 
   const deleteNode = () => {
-    nodeProps.data.deleteNode(nodeProps.id);
+    deleteElements({ nodes: [{ id: nodeProps.id }] });
   };
 
   const closePopover = () => {

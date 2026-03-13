@@ -159,6 +159,67 @@ class ScenarioDuplicatorTest extends BaseTestCase
         }
     }
 
+    public function testDuplicateStripsAbTestSegmentData(): void
+    {
+        $createdScenario = $this->scenariosRepository->createOrUpdate([
+            'name' => 'AB Test Scenario',
+            'enabled' => true,
+            'triggers' => [$this->createTrigger('trigger-uuid-1', ['element-uuid-1'])],
+            'elements' => [$this->createAbTestElement('element-uuid-1', [
+                ['code' => 'aaa111', 'name' => 'Variant A', 'distribution' => 50, 'segment_id' => 99, 'segment' => ['id' => 99, 'code' => 'old_segment', 'name' => 'Old Segment']],
+                ['code' => 'bbb222', 'name' => 'Variant B', 'distribution' => 50, 'segment_id' => 100, 'segment' => ['id' => 100, 'code' => 'old_segment_2', 'name' => 'Old Segment 2']],
+            ])],
+            'visual' => [
+                'trigger-uuid-1' => ['x' => 100, 'y' => 100],
+                'element-uuid-1' => ['x' => 200, 'y' => 200],
+            ],
+        ]);
+
+        $duplicatedScenario = $this->scenarioDuplicator->duplicate(
+            $createdScenario,
+            'AB Test Duplicated',
+        );
+
+        $duplicatedScenarioData = $this->scenariosRepository->getScenario($duplicatedScenario->id);
+
+        $abTestElement = null;
+        foreach ($duplicatedScenarioData['elements'] as $element) {
+            if ($element['type'] === ElementsRepository::ELEMENT_TYPE_ABTEST) {
+                $abTestElement = $element;
+                break;
+            }
+        }
+
+        $this->assertNotNull($abTestElement, 'Duplicated AB test element not found');
+
+        foreach ($abTestElement[ElementsRepository::ELEMENT_TYPE_ABTEST]['variants'] as $variant) {
+            $variant = (array)$variant;
+            $this->assertArrayNotHasKey('segment_id', $variant, 'segment_id should be stripped from duplicated variant');
+            $this->assertArrayNotHasKey('segment', $variant, 'segment should be stripped from duplicated variant');
+            $this->assertNotContains($variant['code'], ['aaa111', 'bbb222'], 'Variant code should be regenerated');
+            $this->assertEquals(6, strlen($variant['code']), 'Variant code should be 6 characters');
+        }
+
+        // Verify names and distributions are preserved
+        $variants = array_map(fn ($v) => (array)$v, $abTestElement[ElementsRepository::ELEMENT_TYPE_ABTEST]['variants']);
+        $this->assertEquals('Variant A', $variants[0]['name']);
+        $this->assertEquals('Variant B', $variants[1]['name']);
+        $this->assertEquals(50, $variants[0]['distribution']);
+        $this->assertEquals(50, $variants[1]['distribution']);
+    }
+
+    private function createAbTestElement(string $id, array $variants): stdClass
+    {
+        return self::obj([
+            'name' => '',
+            'id' => $id,
+            'type' => ElementsRepository::ELEMENT_TYPE_ABTEST,
+            'ab_test' => [
+                'variants' => $variants,
+            ],
+        ]);
+    }
+
     private function assertNoUuidsMatch(array $original, array $duplicate): void
     {
         $originalTriggerIds = array_map(fn ($t) => $t['id'], $original['triggers']);

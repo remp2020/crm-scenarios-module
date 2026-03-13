@@ -73,19 +73,19 @@ export default function FlowWidget(props) {
 
     // CTRL/CMD + V
     if (ctrlDown && (e.keyCode === vKey)) {
-      const {nodes, edges} = props.app.diagramService.copyNodes(nodesToCopy);
+      const {nodes: copiedNodes, edges: copiedEdges} = props.app.diagramService.copyNodes(nodesToCopy);
 
       setNodes((nds) =>
         nds.map((node) => ({
           ...node,
-          selected: nodes.find(n => n.id === node.id)
-        }))
+          selected: false
+        })).concat(copiedNodes.map(node => ({...node, selected: true})))
       );
       setEdges((eds) =>
         eds.map((edge) => ({
           ...edge,
-          selected: edges.find(e => e.id === edge.id)
-        }))
+          selected: false
+        })).concat(copiedEdges.map(edge => ({...edge, selected: true})))
       );
 
       nodesToCopy = [];
@@ -156,11 +156,6 @@ export default function FlowWidget(props) {
         node = Wait.createNode();
       } else if (type === 'email') {
         node = Email.createNode();
-      }
-
-      node.data = {
-        ...node.data,
-        deleteNode: (id) => props.app.diagramService.deleteNode(id)
       }
 
       node.position = screenToFlowPosition({

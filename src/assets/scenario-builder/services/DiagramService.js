@@ -135,11 +135,6 @@ export class DiagramService {
         node = BeforeTrigger.createNode(data);
       }
 
-      node.data = {
-        ...node.data,
-        deleteNode: (id) => this.deleteNode(id)
-      }
-
       node.position = payload.visual[data.id];
 
       // link triggers with nodes
@@ -232,11 +227,6 @@ export class DiagramService {
       });
     }
 
-    node.data = {
-      ...node.data,
-      deleteNode: (id) => this.deleteNode(id)
-    }
-
     return node;
   }
 
@@ -256,9 +246,6 @@ export class DiagramService {
       }))
       .filter(edge => newNodes.find(node => node.id === edge.source) && newNodes.find(node => node.id === edge.target));
 
-    this.instance.addNodes(newNodes);
-    this.instance.addEdges(newEdges);
-
     return {
       nodes: newNodes,
       edges: newEdges
@@ -275,12 +262,16 @@ export class DiagramService {
     newNode.selected = false;
     newNode.originalId = node.id;
     newNode.id = uuid();
+
+    if (newNode.type === 'ab_test') {
+      newNode.data.node.variants = newNode.data.node.variants.map(({ name, distribution }) => ({
+        code: uuid().slice(0, 6),
+        name,
+        distribution
+      }));
+    }
+
     return newNode;
   }
 
-  deleteNode(nodeId) {
-    this.instance.deleteElements({
-      nodes: [{ id: nodeId }]
-    })
-  }
 }

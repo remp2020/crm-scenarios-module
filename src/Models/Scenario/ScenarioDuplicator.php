@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Crm\ScenariosModule\Models\Scenario;
 
+use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Database\Table\ActiveRow;
 use Ramsey\Uuid\Uuid;
@@ -88,6 +89,11 @@ readonly class ScenarioDuplicator
                 $element[$elementType] = $this->replaceUuidsRecursively($element[$elementType], $uuidMap);
             }
 
+            // Strip segment references from AB test variants so new segments are created
+            if ($elementType === ElementsRepository::ELEMENT_TYPE_ABTEST && isset($element[$elementType]['variants'])) {
+                $element[$elementType]['variants'] = $this->sanitizeAbTestVariants($element[$elementType]['variants']);
+            }
+
             $newElements[] = $element;
         }
 
@@ -107,6 +113,15 @@ readonly class ScenarioDuplicator
             visual: $newVisual,
             enabled: $data->enabled,
         );
+    }
+
+    private function sanitizeAbTestVariants(array $variants): array
+    {
+        foreach ($variants as $variant) {
+            $variant->code = substr(Uuid::uuid4()->toString(), 0, 6);
+            unset($variant->segment_id, $variant->segment);
+        }
+        return $variants;
     }
 
     /**
