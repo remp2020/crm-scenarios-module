@@ -46,5 +46,5 @@ data:
     fields:
         name: Name
         created_at: Created at
-        modified_at: Modified at
+        updated_at: Modified at
         deleted_at: Deleted at

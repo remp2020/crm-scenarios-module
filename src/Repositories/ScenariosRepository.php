@@ -59,7 +59,7 @@ class ScenariosRepository extends Repository
         return $this->triggersRepository->getTransaction()->wrap(function () use ($data): ActiveRow|false {
             $scenarioData['name'] = $data['name'];
             $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
-            $scenarioData['modified_at'] = new DateTime();
+            $scenarioData['updated_at'] = new DateTime();
             if (isset($data['enabled'])) {
                 $scenarioData['enabled'] = $data['enabled'];
             }
@@ -78,7 +78,7 @@ class ScenariosRepository extends Repository
 
                 $this->update($scenario, $scenarioData);
             } else {
-                $scenarioData['created_at'] = $scenarioData['modified_at'];
+                $scenarioData['created_at'] = $scenarioData['updated_at'];
                 // If not specified, by default not enabled
                 $scenarioData['enabled'] = $scenarioData['enabled'] ?? false;
                 $scenario = $this->insert($scenarioData);
@@ -177,7 +177,7 @@ class ScenariosRepository extends Repository
 
         return $this->update($scenario, [
             'enabled' => $value,
-            'modified_at' => new DateTime(),
+            'updated_at' => new DateTime(),
         ]);
     }
 
@@ -185,7 +185,7 @@ class ScenariosRepository extends Repository
     {
         return $this->update($scenario, [
             'enabled' => false,
-            'modified_at' => new DateTime(),
+            'updated_at' => new DateTime(),
             'deleted_at' => new DateTime(),
             'restored_at' => null,
         ]);
@@ -195,7 +195,7 @@ class ScenariosRepository extends Repository
     {
         return $this->update($scenario, [
             'enabled' => false,
-            'modified_at' => new DateTime(),
+            'updated_at' => new DateTime(),
             'deleted_at' => null,
             'restored_at' => new DateTime(),
         ]);

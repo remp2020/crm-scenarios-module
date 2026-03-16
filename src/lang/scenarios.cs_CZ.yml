@@ -46,5 +46,5 @@ data:
     fields:
         name: Jméno
         created_at: Vytvořen
-        modified_at: Upraven
+        updated_at: Upraven
         deleted_at: Smazán

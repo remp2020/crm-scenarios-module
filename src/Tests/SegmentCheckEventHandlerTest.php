@@ -231,7 +231,7 @@ class SegmentCheckEventHandlerTest extends DatabaseTestCase
             'name' => 'Testing scenarios',
             'visual' => '{}',
             'created_at' => new \DateTime(),
-            'modified_at' => new \DateTime(),
+            'updated_at' => new \DateTime(),
             'enabled' => 1,
         ]);
 

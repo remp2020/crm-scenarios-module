@@ -22,7 +22,7 @@
             <tr>
                 <th>{_scenarios.data.fields.name}</th>
                 <th>{_scenarios.data.fields.created_at}</th>
-                <th>{_scenarios.data.fields.modified_at}</th>
+                <th>{_scenarios.data.fields.updated_at}</th>
                 <th>{_system.actions}</th>
             </tr>
             </thead>
@@ -39,7 +39,7 @@
                         {/if}
                     </td>
                     <td>{$scenario->created_at|userDate}</td>
-                    <td>{$scenario->modified_at|userDate}</td>
+                    <td>{$scenario->updated_at|userDate}</td>
                     <td style="white-space: nowrap">
                         <p class="text-nowrap">
                             <a n:href="Edit $scenario->id" class="btn btn-sm btn-primary" title="{_system.edit}">
