@@ -1,4 +1,4 @@
-@import '../../variables';
+@use '../../variables' as *;
 
 .react-flow__node.selected {
   .round-node.wait-node .node-container {

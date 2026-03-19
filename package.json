@@ -10,31 +10,24 @@
     "@mui/material": "^5.16.6",
     "@mui/styles": "^5.16.6",
     "@reduxjs/toolkit": "^2.2.7",
-    "axios": "^0.18.0",
-    "eslint-plugin-react-hooks": "^2.3.0",
+    "axios": "^1.13.6",
     "less": "^4.1.3",
-    "less-loader": "^11.1.3",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.23",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-redux": "^7.1.3",
-    "react-scripts": "^3.4.3",
     "react-select": "^5.8.0",
     "reactflow": "^11.11.4",
-    "recompose": "^0.30.0",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "uuid": "^10.0.0"
   },
   "scripts": {
-    "serve": "webpack serve --mode development",
-    "build-dev": "webpack --mode development",
-    "build-prod": "webpack --mode production"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "serve": "vite",
+    "build-dev": "vite build --mode development",
+    "build-prod": "vite build"
   },
   "browserslist": [
     ">0.2%",
@@ -43,20 +36,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@babel/core": "^7.24.7",
-    "@babel/preset-env": "^7.24.7",
-    "@babel/preset-react": "^7.24.7",
-    "babel-loader": "^9.1.3",
-    "cpx": "^1.5.0",
-    "css-loader": "^7.1.2",
-    "eslint-config-rallycoding": "^3.2.0",
-    "html-webpack-plugin": "^5.6.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "sass": "^1.77.6",
-    "sass-loader": "^14.2.1",
-    "style-loader": "^4.0.0",
-    "url-loader": "^4.1.1",
-    "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
+    "vite": "^6.0.0"
   }
 }

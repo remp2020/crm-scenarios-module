@@ -1,4 +1,4 @@
-@import '../../variables';
+@use '../../variables' as *;
 
 .react-flow__node.selected {
   .square-node.before-trigger-node .node-container {

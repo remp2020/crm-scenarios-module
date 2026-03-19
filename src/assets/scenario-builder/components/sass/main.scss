@@ -1,4 +1,5 @@
-@import '../elements/index';
+@use '../elements/variables' as *;
+@use '../elements/index';
 
 body {
   background-color: #fafafa;
