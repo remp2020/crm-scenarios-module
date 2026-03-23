@@ -31,7 +31,7 @@ class TriggerOutputParamsRetrieverTest extends TestCase
             ->with('some_event_code')
             ->willReturn($triggerHandler);
 
-        $eventsStorage = $this->createMock(EventsStorage::class);
+        $eventsStorage = $this->createStub(EventsStorage::class);
 
         $triggerOutputParamsRetriever = new TriggerOutputParamsRetriever($triggerManager, $eventsStorage);
         $outputParams = $triggerOutputParamsRetriever->retrieve([
@@ -46,7 +46,7 @@ class TriggerOutputParamsRetrieverTest extends TestCase
 
     public function testRetrieveFromBeforeEvent(): void
     {
-        $triggerManager = $this->createMock(TriggerManager::class);
+        $triggerManager = $this->createStub(TriggerManager::class);
 
         // PHPUnit 8.0 does not support creating a mocked objects with multiple interfaces anymore
         $eventGenerator = new class implements EventGeneratorInterface, EventGeneratorOutputProviderInterface {
@@ -83,8 +83,8 @@ class TriggerOutputParamsRetrieverTest extends TestCase
         $this->expectException(TriggerOutputParamsRetrieveException::class);
         $this->expectExceptionMessage("Unknown trigger type 'unknown_trigger'.");
 
-        $triggerManager = $this->createMock(TriggerManager::class);
-        $eventsStorage = $this->createMock(EventsStorage::class);
+        $triggerManager = $this->createStub(TriggerManager::class);
+        $eventsStorage = $this->createStub(EventsStorage::class);
 
         $triggerOutputParamsRetriever = new TriggerOutputParamsRetriever($triggerManager, $eventsStorage);
         $triggerOutputParamsRetriever->retrieve([

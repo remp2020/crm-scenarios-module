@@ -32,7 +32,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->registerConditionModel('subscription', $this->getSampleConditionModel());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -62,7 +62,7 @@ class ScenarioConditionValidatorTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -119,7 +119,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->registerConditionModel('subscription', $this->getSampleConditionModel());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -151,7 +151,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->registerConditionModel('subscription', $this->getSampleConditionModelWithoutRequirements());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -183,7 +183,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->register('trigger', 'with_requirements', $this->getSampleCriteria());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -234,7 +234,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->register('trigger', 'with_requirements', $this->getSampleCriteria());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -257,7 +257,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->register('trigger', 'without_requirements', $this->getSampleCriteriaWithoutRequirements());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -350,7 +350,7 @@ class ScenarioConditionValidatorTest extends TestCase
 
         $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
         $scenarioConditionValidator->validate([
@@ -366,7 +366,7 @@ class ScenarioConditionValidatorTest extends TestCase
     {
         $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
 
         $this->expectException(ScenarioElementValidationException::class);
@@ -394,7 +394,7 @@ class ScenarioConditionValidatorTest extends TestCase
     {
         $this->criteriaStorage->register('subscription', 'first_condition', $this->getSampleCriteria());
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
         $scenarioConditionValidator = new ScenarioConditionValidator($this->criteriaStorage, $translator);
 
         $this->expectException(ScenarioElementValidationException::class);

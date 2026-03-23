@@ -28,7 +28,7 @@ class ScenarioValidatorTest extends CrmTestCase
         $scenarioConditionValidator->expects($this->never())
             ->method('validate');
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         /**
          * GRAPH: TRIGGER >--- Element1
@@ -72,7 +72,7 @@ class ScenarioValidatorTest extends CrmTestCase
         $scenarioConditionValidator->expects($this->exactly(4))
             ->method('validate');
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         /**
          * GRAPH:
@@ -226,9 +226,9 @@ class ScenarioValidatorTest extends CrmTestCase
             ->method('retrieve')
             ->willThrowException(new TriggerOutputParamsRetrieveException());
 
-        $scenarioConditionValidator = $this->createMock(ScenarioConditionValidator::class);
+        $scenarioConditionValidator = $this->createStub(ScenarioConditionValidator::class);
 
-        $translator = $this->createMock(Translator::class);
+        $translator = $this->createStub(Translator::class);
 
         $scenarioValidator = new ScenarioValidator($triggerOutputParamsRetriever, $scenarioConditionValidator, $translator);
         $scenarioValidator->validate([

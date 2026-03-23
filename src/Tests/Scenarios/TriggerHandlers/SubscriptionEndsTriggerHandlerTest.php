@@ -58,7 +58,7 @@ class SubscriptionEndsTriggerHandlerTest extends BaseTestCase
             user: $user,
         );
 
-        $subscriptionsEndsSuppressionManager = $this->createMock(SubscriptionEndsSuppressionManager::class);
+        $subscriptionsEndsSuppressionManager = $this->createStub(SubscriptionEndsSuppressionManager::class);
         $subscriptionsEndsSuppressionManager->method('hasSuppressedNotifications')->willReturn(false);
 
         /** @var SubscriptionEndsTriggerHandler $subscriptionEndsTriggerHandler */
@@ -99,7 +99,7 @@ class SubscriptionEndsTriggerHandlerTest extends BaseTestCase
             user: $user,
         );
 
-        $subscriptionsEndsSuppressionManager = $this->createMock(SubscriptionEndsSuppressionManager::class);
+        $subscriptionsEndsSuppressionManager = $this->createStub(SubscriptionEndsSuppressionManager::class);
         $subscriptionsEndsSuppressionManager->method('hasSuppressedNotifications')->willReturn(true);
 
         $subscriptionEndsTriggerHandler = new SubscriptionEndsTriggerHandler($subscriptionsRepository, $subscriptionsEndsSuppressionManager);
