@@ -65,8 +65,8 @@ class ConditionElementTest extends BaseTestCase
         $usersModule = new UsersModule(
             $this->container,
             $this->inject(Translator::class),
-            $this->createMock(User::class),
-            $this->createMock(Permissions::class),
+            $this->createStub(User::class),
+            $this->createStub(Permissions::class),
         );
         $usersModule->registerScenariosCriteria($scenariosCriteriaStorage);
 
