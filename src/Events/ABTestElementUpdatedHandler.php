@@ -36,9 +36,6 @@ class ABTestElementUpdatedHandler extends AbstractListener
         }
 
         $elementRow = $event->getElement();
-        if (!$elementRow) {
-            throw new \Exception('ABTestElementCreatedEvent without scenario element');
-        }
 
         if ($elementRow->type !== ElementsRepository::ELEMENT_TYPE_ABTEST) {
             throw new \Exception("Wrong scenario element type: {$elementRow->type}");
