@@ -85,7 +85,8 @@ class ScenarioConditionValidatorTest extends TestCase
                 return match ($key) {
                     'scenarios.admin.scenarios.validation_errors.empty_criterion' => 'Empty criterion message',
                     'scenarios.admin.scenarios.validation_errors.empty_criterion_value' => 'Empty criterion value message',
-                    'scenarios.admin.scenarios.validation_errors.incompatible_criteria_with_trigger' => 'Translated error message'
+                    'scenarios.admin.scenarios.validation_errors.incompatible_criteria_with_trigger' => 'Translated error message',
+                    default => throw new \UnexpectedValueException('unexpected translation key: ' . $key),
                 };
             });
 
