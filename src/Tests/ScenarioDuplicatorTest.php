@@ -41,6 +41,7 @@ class ScenarioDuplicatorTest extends BaseTestCase
         $this->assertNotEquals($originalScenario->id, $duplicatedScenario->id);
         $this->assertEquals('Duplicated Scenario', $duplicatedScenario->name);
         $this->assertEquals(0, $duplicatedScenario->enabled);
+        $this->assertEquals($originalScenario->id, $duplicatedScenario->copied_from_scenario_id);
 
         $originalRefreshed = $this->scenariosRepository->getScenario($originalScenario->id);
         $this->assertNotFalse($originalRefreshed);

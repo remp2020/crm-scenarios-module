@@ -48,3 +48,4 @@ data:
         created_at: Vytvorený
         updated_at: Upravený
         deleted_at: Zmazaný
+        copied_from_scenario_id: Skopírované z

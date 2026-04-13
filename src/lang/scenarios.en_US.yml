@@ -48,3 +48,4 @@ data:
         created_at: Created at
         updated_at: Modified at
         deleted_at: Deleted at
+        copied_from_scenario_id: Copied from

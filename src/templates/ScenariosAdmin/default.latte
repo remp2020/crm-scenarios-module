@@ -37,6 +37,10 @@
                         {else}
                             <label class="label label-default">{_'scenarios.admin.scenarios.default.disabled'}</label>
                         {/if}
+
+                        <small n:if="$scenario->copied_from_scenario_id" class="text-muted">
+                            ({_scenarios.data.fields.copied_from_scenario_id}: <a n:href="Edit $scenario->copied_from_scenario_id">{$scenario->copied_from_scenario->name}</a>)
+                        </small>
                     </td>
                     <td>{$scenario->created_at|userDate}</td>
                     <td>{$scenario->updated_at|userDate}</td>

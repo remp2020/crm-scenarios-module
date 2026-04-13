@@ -29,7 +29,7 @@ readonly class ScenarioDuplicator
         // Regenerate UUIDs for the duplicate (prevents overwriting original scenario)
         $duplicatedData = $this->regenerateUuidsForDuplication($originalData);
 
-        return $this->scenariosRepository->createOrUpdate(
+        $newScenario = $this->scenariosRepository->createOrUpdate(
             ScenarioData::fromArray([
                 'name' => $newName,
                 'triggers' => $duplicatedData->triggers,
@@ -38,6 +38,14 @@ readonly class ScenarioDuplicator
                 'enabled' => false,
             ])->toArray(),
         );
+
+        if (!$newScenario instanceof ActiveRow) {
+            throw new RuntimeException('Failed to create duplicate scenario.');
+        }
+
+        $this->scenariosRepository->update($newScenario, ['copied_from_scenario_id' => $scenario->id]);
+
+        return $newScenario;
     }
 
     /**
