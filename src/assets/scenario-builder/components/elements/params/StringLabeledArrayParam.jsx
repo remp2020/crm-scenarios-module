@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import Autocomplete from '@mui/material/Autocomplete';
-import { createFilterOptions } from '@mui/material/Autocomplete';
-import { Box, TextField } from '@mui/material';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import { Box, Checkbox, TextField } from '@mui/material';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { makeStyles } from '@mui/styles';
 import { actionSetParamValues } from './actions';
 
@@ -16,13 +17,18 @@ const elementStyles = makeStyles(theme => ({
         position: 'absolute',
         left: '-20px',
       },
-      marginLeft: '20px'
+      marginLeft: '20px',
+      maxWidth: 'calc(100% - 20px)',
     },
     position: 'relative'
   }),
   subtitle: {
-    paddingLeft: '6px',
-    color: theme.palette.grey[600]
+    marginLeft: 'auto',
+    paddingLeft: '12px',
+    fontSize: '0.75rem',
+    color: theme.palette.grey[500],
+    fontFamily: 'monospace',
+    whiteSpace: 'nowrap',
   },
   autocomplete: {
     marginBottom: theme.spacing(1),
@@ -72,6 +78,15 @@ function optionGroup(option) {
   }
 }
 
+function isOptionEqualToValue(option, value) {
+  if (typeof option === 'string' || typeof value === 'string') {
+    return option === value;
+  }
+  return option.value === value.value;
+}
+
+const getOptionKey = option => typeof option === 'string' ? option : option.value;
+
 // Defines what values are searched within option
 const filterOptions = createFilterOptions({
   matchFrom: 'any',
@@ -85,6 +100,14 @@ const filterOptions = createFilterOptions({
 
 export default function StringLabeledArrayParam(props) {
   const classes = elementStyles({operator: props.blueprint.operator});
+  const [inputValue, setInputValue] = useState('');
+  // Memoize value by selection content (not reference) to prevent MUI from
+  // resetting the internal inputValue on every re-render.
+  const value = useMemo(
+    () => selectedOptions(props.values.selection, props.blueprint.options),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [props.values.selection?.join('\0') ?? '']
+  );
   const handleChange = (event, values) => {
     props.dispatch(actionSetParamValues(props.name, {
       operator: props.blueprint.operator, // TODO add ability to change operator
@@ -103,7 +126,17 @@ export default function StringLabeledArrayParam(props) {
   return (
     <Autocomplete
         multiple
+        limitTags={5}
         disableCloseOnSelect
+        sx={{
+          '& .MuiAutocomplete-inputRoot': {
+            maxHeight: '250px',
+            overflow: 'hidden auto',
+          },
+          '& .MuiInput-underline::before, & .MuiInput-underline::after': {
+            display: 'none',
+          },
+        }}
         ChipProps={{
           classes: {
             root: classes.chipRoot
@@ -112,10 +145,24 @@ export default function StringLabeledArrayParam(props) {
         options={props.blueprint.options}
         getOptionLabel={optionLabel}
         onChange={handleChange}
-        value={selectedOptions(props.values.selection, props.blueprint.options)}
+        value={value}
         freeSolo={props.blueprint.freeSolo}
         groupBy={optionGroup}
         filterOptions={filterOptions}
+        onClose={() => setInputValue('')}
+        inputValue={inputValue}
+        onInputChange={(event, newInputValue, reason) => {
+          if (reason !== 'reset') {
+            setInputValue(newInputValue);
+          }
+        }}
+        getOptionKey={getOptionKey}
+        isOptionEqualToValue={isOptionEqualToValue}
+        ListboxProps={{ style: {
+          maxHeight: '300px',
+          maskImage: 'linear-gradient(to bottom, transparent, black 8px, black calc(100% - 8px), transparent)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 8px, black calc(100% - 8px), transparent)',
+        } }}
         renderInput={params => (
           <TextField
             {...params}
@@ -126,12 +173,22 @@ export default function StringLabeledArrayParam(props) {
             fullWidth
           />
         )}
-        renderOption={(props, option, { selected }) => (
-          <Box component="li" {...props}>
-            {optionLabel(option)}
-            <small className={classes.subtitle}>{optionSubtitle(option)}</small>
-          </Box>
-        )}
+        renderOption={(props, option, { selected }) => {
+          const subtitle = optionSubtitle(option);
+          return (
+            <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center' }}>
+              <Checkbox
+                icon={<CheckBoxOutlineBlankIcon fontSize="small" />}
+                checkedIcon={<CheckBoxIcon fontSize="small" />}
+                checked={selected}
+                size="small"
+                sx={{ mr: 1, p: 0 }}
+              />
+              {optionLabel(option)}
+              {subtitle && <small className={classes.subtitle}>{subtitle}</small>}
+            </Box>
+          );
+        }}
       />
   );
 }
