@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useReactFlow } from 'reactflow';
-import { setCanvasZoomingAndPanning } from '../store/canvasSlice';
+import { setCanvasZoomingAndPanning, setNodeDetailOpened } from '../store/canvasSlice';
 import { store } from '../store';
 import { bemClassName } from '../utils/bem';
 
@@ -33,6 +33,7 @@ export const useNode = (nodeProps) => {
     setAnchorElementForTooltip(null);
     setAnchorElForPopover(null);
     store.dispatch(setCanvasZoomingAndPanning(false));
+    store.dispatch(setNodeDetailOpened(true));
     setNodeFormName(nodeProps.data.node.name)
 
     dialogOpenCallbacks.map(callback => callback())
@@ -41,6 +42,7 @@ export const useNode = (nodeProps) => {
   const closeDialog = () => {
     setDialogOpened(false);
     store.dispatch(setCanvasZoomingAndPanning(true));
+    store.dispatch(setNodeDetailOpened(false));
     dialogCloseCallbacks.map(callback => callback())
   };
 

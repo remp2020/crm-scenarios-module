@@ -5,6 +5,7 @@ export const canvasSlice = createSlice({
   initialState: {
     pannable: true,
     zoomable: true,
+    nodeDetailOpened: false,
     notification: {
       open: false,
       variant: 'success',
@@ -22,12 +23,15 @@ export const canvasSlice = createSlice({
       setCanvasPannable(action.payload?.pannable)
       setCanvasZoomable(action.payload?.zoomable)
     },
+    setNodeDetailOpened: (state, action) => {
+      state.nodeDetailOpened = action.payload
+    },
     setCanvasNotification: (state, action) => {
       state.notification = { ...state.notification, ...action.payload}
     }
   }
 })
 
-export const { setCanvasPannable, setCanvasZoomable, setCanvasZoomingAndPanning, setCanvasNotification } = canvasSlice.actions
+export const { setCanvasPannable, setCanvasZoomable, setCanvasZoomingAndPanning, setNodeDetailOpened, setCanvasNotification } = canvasSlice.actions
 
 export default canvasSlice.reducer

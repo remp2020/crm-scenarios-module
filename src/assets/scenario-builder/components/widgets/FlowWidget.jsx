@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import ReactFlow, { useNodesState, useEdgesState, addEdge, useReactFlow } from 'reactflow';
+import { store } from '../../store';
 import 'reactflow/dist/style.css';
 import GoalNodeWidget from '../elements/Goal/NodeWidget';
 import WaitNodeWidget from '../elements/Wait/NodeWidget';
@@ -41,7 +42,8 @@ const nodeTypes = {
 const ctrlKey = 17,
   cmdKey = 91,
   vKey = 86,
-  cKey = 67;
+  cKey = 67,
+  zKey = 90;
 
 const defaultEdgeOptions = {
   style: {
@@ -56,10 +58,93 @@ const connectionLineStyle = {
 let ctrlDown = false;
 let nodesToCopy = false;
 
+const HISTORY_LIMIT = 100;
+
 export default function FlowWidget(props) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const {screenToFlowPosition} = useReactFlow();
+
+  // Keep refs to latest nodes/edges so we can snapshot the pre-change state
+  // without the snapshot closure getting stale across renders.
+  const nodesRef = useRef(nodes);
+  const edgesRef = useRef(edges);
+  useEffect(() => { nodesRef.current = nodes; }, [nodes]);
+  useEffect(() => { edgesRef.current = edges; }, [edges]);
+
+  const historyRef = useRef([]);
+  // Dedupe multiple snapshot() calls fired within the same synchronous burst
+  // (e.g. delete of a node cascades into edge removal — still one undo step).
+  const snapshotPendingRef = useRef(false);
+
+  const snapshot = useCallback(() => {
+    if (snapshotPendingRef.current) {
+      return;
+    }
+    snapshotPendingRef.current = true;
+    Promise.resolve().then(() => { snapshotPendingRef.current = false; });
+
+    historyRef.current.push({
+      nodes: nodesRef.current.map(n => JSON.parse(JSON.stringify(n))),
+      edges: edgesRef.current.map(e => ({ ...e }))
+    });
+    if (historyRef.current.length > HISTORY_LIMIT) {
+      historyRef.current.shift();
+    }
+  }, []);
+
+  const undo = useCallback(() => {
+    const previous = historyRef.current.pop();
+    if (!previous) {
+      return;
+    }
+    setNodes(previous.nodes);
+    setEdges(previous.edges);
+  }, [setNodes, setEdges]);
+
+  // Intercept node changes to capture an undo point before destructive edits.
+  const handleNodesChange = useCallback((changes) => {
+    if (changes.some(c => c.type === 'remove')) {
+      snapshot();
+    }
+    onNodesChange(changes);
+  }, [onNodesChange, snapshot]);
+
+  const handleEdgesChange = useCallback((changes) => {
+    if (changes.some(c => c.type === 'remove')) {
+      snapshot();
+    }
+    onEdgesChange(changes);
+  }, [onEdgesChange, snapshot]);
+
+  // Snapshot before a drag begins — restore will bring the node back to its
+  // original position if the user regrets the move.
+  // On drag stop we check if the position actually changed; if not, we pop the
+  // snapshot so no-op drags (click without moving) don't pollute the stack.
+  const dragStartPositionsRef = useRef(null);
+
+  const onNodeDragStart = useCallback((_event, _node, draggedNodes) => {
+    snapshot();
+    dragStartPositionsRef.current = new Map(
+      draggedNodes.map(n => [n.id, { x: n.position.x, y: n.position.y }])
+    );
+  }, [snapshot]);
+
+  const onNodeDragStop = useCallback((_event, _node, draggedNodes) => {
+    const startPositions = dragStartPositionsRef.current;
+    if (!startPositions) return;
+
+    const moved = draggedNodes.some(n => {
+      const start = startPositions.get(n.id);
+      return start && (start.x !== n.position.x || start.y !== n.position.y);
+    });
+
+    if (!moved) {
+      // Nothing actually moved — discard the snapshot we pushed on drag start
+      historyRef.current.pop();
+    }
+    dragStartPositionsRef.current = null;
+  }, []);
 
   const keydownHandler = (e) => {
     if (e.keyCode === ctrlKey || e.keyCode === cmdKey) {
@@ -68,12 +153,20 @@ export default function FlowWidget(props) {
 
     // CTRL/CMD + C
     if (ctrlDown && (e.keyCode === cKey)) {
+      if (store.getState().canvas.nodeDetailOpened) {
+        return;
+      }
       nodesToCopy = props.app.diagramService.getSelectedNodes();
     }
 
     // CTRL/CMD + V
     if (ctrlDown && (e.keyCode === vKey)) {
+      if (store.getState().canvas.nodeDetailOpened) {
+        return;
+      }
       const {nodes: copiedNodes, edges: copiedEdges} = props.app.diagramService.copyNodes(nodesToCopy);
+
+      snapshot();
 
       setNodes((nds) =>
         nds.map((node) => ({
@@ -90,6 +183,15 @@ export default function FlowWidget(props) {
 
       nodesToCopy = [];
     }
+
+    // CTRL/CMD + Z — universal undo across delete/connect/move/drop/paste
+    if (ctrlDown && (e.keyCode === zKey)) {
+      if (store.getState().canvas.nodeDetailOpened) {
+        return;
+      }
+      e.preventDefault();
+      undo();
+    }
   };
 
   const keyupHandler = (e) => {
@@ -103,8 +205,11 @@ export default function FlowWidget(props) {
   };
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
+    (params) => {
+      snapshot();
+      setEdges((eds) => addEdge(params, eds));
+    },
+    [setEdges, snapshot]
   );
 
   const onDragOver = useCallback((event) => {
@@ -163,9 +268,10 @@ export default function FlowWidget(props) {
         y: event.clientY
       });
 
+      snapshot();
       setNodes((nds) => nds.concat(node));
     },
-    [screenToFlowPosition]
+    [screenToFlowPosition, setNodes, snapshot]
   );
 
   useEffect(() => {
@@ -182,8 +288,10 @@ export default function FlowWidget(props) {
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
+      onNodesChange={handleNodesChange}
+      onEdgesChange={handleEdgesChange}
+      onNodeDragStart={onNodeDragStart}
+      onNodeDragStop={onNodeDragStop}
       onConnect={onConnect}
       nodeTypes={nodeTypes}
       onDrop={onDrop}
