@@ -26,7 +26,7 @@ trait NotificationTemplateParamsTrait
     {
         $subscription = $this->getSubscription($scenarioJobParams);
         $payment = $this->getPayment($scenarioJobParams, $subscription);
-        $recurrentPayment = $this->getRecurrentPayment($scenarioJobParams, $payment);
+        $recurrentPayment = $this->getRecurrentPayment($scenarioJobParams, $payment, $subscription);
 
         return [
             ...$this->getUserParams($scenarioJobParams),
@@ -64,14 +64,21 @@ trait NotificationTemplateParamsTrait
         return $payment;
     }
 
-    private function getRecurrentPayment(object $scenarioJobParams, ?ActiveRow $payment): ?ActiveRow
+    private function getRecurrentPayment(object $scenarioJobParams, ?ActiveRow $payment, ?ActiveRow $subscription = null): ?ActiveRow
     {
         if (isset($scenarioJobParams->recurrent_payment_id)) {
             return $this->recurrentPaymentsRepository->find($scenarioJobParams->recurrent_payment_id);
         }
 
         if ($payment !== null) {
-            return $this->recurrentPaymentsRepository->recurrent($payment);
+            $recurrent = $this->recurrentPaymentsRepository->recurrent($payment);
+            if ($recurrent !== null) {
+                return $recurrent;
+            }
+        }
+
+        if ($subscription !== null) {
+            return $this->recurrentPaymentsRepository->recurrentBySubscription($subscription);
         }
 
         return null;
