@@ -70,15 +70,15 @@ trait NotificationTemplateParamsTrait
             return $this->recurrentPaymentsRepository->find($scenarioJobParams->recurrent_payment_id);
         }
 
+        if ($payment === null) {
+            $payment = $this->paymentsRepository->subscriptionPayment($subscription);
+        }
+
         if ($payment !== null) {
             $recurrent = $this->recurrentPaymentsRepository->recurrent($payment);
             if ($recurrent !== null) {
                 return $recurrent;
             }
-        }
-
-        if ($subscription !== null) {
-            return $this->recurrentPaymentsRepository->recurrentBySubscription($subscription);
         }
 
         return null;
