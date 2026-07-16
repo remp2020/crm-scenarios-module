@@ -198,6 +198,14 @@ Remove statistic data older than 31 days. To specify exact date use option `date
 php bin/command.php scenarios:remove_stats
 ```
 
+Retention on the `scenarios_job_history` table (the durable per-user job history) is enforced by the shared `application:cleanup` command. The table is partitioned by month-of-year into 12 fixed partitions; cleanup TRUNCATEs the partitions whose month falls outside the retention window, instantly reclaiming that month's storage. The window defaults to 3 months; to change it (1-10 months allowed), configure `jobHistoryRepository` in your project's `.neon` file:
+```neon
+services:
+	jobHistoryRepository:
+		setup:
+			- setRetentionMonths(6)
+```
+
 ### Before events
 
 For generating "Before Event" triggers, add the following command to your crontab. Optionally set it up to run every 10 minutes.

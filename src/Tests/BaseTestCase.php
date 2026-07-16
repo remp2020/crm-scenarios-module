@@ -28,6 +28,7 @@ use Crm\ScenariosModule\Engine\Engine;
 use Crm\ScenariosModule\Repositories\ElementElementsRepository;
 use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Crm\ScenariosModule\Repositories\TriggerElementsRepository;
@@ -90,6 +91,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             SegmentsRepository::class,
             // Scenario tables
             JobsRepository::class,
+            JobHistoryRepository::class,
             ScenariosRepository::class,
             TriggerElementsRepository::class,
             TriggersRepository::class,

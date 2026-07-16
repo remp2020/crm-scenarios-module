@@ -18,6 +18,7 @@ services:
 
 	elementsRepository: Crm\ScenariosModule\Repositories\ElementsRepository
 	jobsRepository: Crm\ScenariosModule\Repositories\JobsRepository
+	jobHistoryRepository: Crm\ScenariosModule\Repositories\JobHistoryRepository
 	elementStatsRepository: Crm\ScenariosModule\Repositories\ElementStatsRepository
 	elementElementsRepository: Crm\ScenariosModule\Repositories\ElementElementsRepository
 	scenariosRepository: Crm\ScenariosModule\Repositories\ScenariosRepository

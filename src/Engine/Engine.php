@@ -13,6 +13,7 @@ use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Events\SendPushNotificationEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
+use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
 use Exception;
@@ -50,6 +51,7 @@ class Engine
         private GraphConfiguration $graphConfiguration,
         private ElementsRepository $elementsRepository,
         private TriggerStatsRepository $triggerStatsRepository,
+        private JobHistoryRepository $jobHistoryRepository,
     ) {
         $this->startTime = new DateTime();
     }
@@ -159,6 +161,15 @@ class Engine
         return [$delay, false];
     }
 
+    private function trackHistory(ActiveRow $job): void
+    {
+        try {
+            $this->jobHistoryRepository->add($job);
+        } catch (\Throwable $e) {
+            Debugger::log($e, Debugger::EXCEPTION);
+        }
+    }
+
     private function processFailedJob(ActiveRow $job)
     {
         $result = Json::decode($job->result);
@@ -167,9 +178,11 @@ class Engine
         if (!$shouldRetry) {
             $this->logger->log(LogLevel::ERROR, 'Failed job found and retry is not allowed, cancelling', $this->jobLoggerContext($job));
             $this->jobsRepository->softDelete($job);
+            $this->trackHistory($job);
         } elseif ($job->retry_count >= self::MAX_RETRY_COUNT) {
             $this->logger->log(LogLevel::ERROR, "Failed job found, it has already failed {$job->retry_count} times, cancelling", $this->jobLoggerContext($job));
             $this->jobsRepository->softDelete($job);
+            $this->trackHistory($job);
         } else {
             $this->logger->log(LogLevel::WARNING, 'Failed job found (retry allowed), rescheduling', $this->jobLoggerContext($job));
             $this->jobsRepository->update($job, [
@@ -201,6 +214,7 @@ class Engine
             $this->logger->log(LogLevel::WARNING, $e->getMessage(), $this->jobLoggerContext($job));
         } finally {
             $this->jobsRepository->softDelete($job);
+            $this->trackHistory($job);
         }
     }
 

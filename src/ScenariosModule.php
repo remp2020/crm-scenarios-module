@@ -8,6 +8,7 @@ use Crm\ApiModule\Models\Router\ApiIdentifier;
 use Crm\ApiModule\Models\Router\ApiRoute;
 use Crm\ApplicationModule\Application\CommandsContainerInterface;
 use Crm\ApplicationModule\Application\Managers\AssetsManager;
+use Crm\ApplicationModule\Application\Managers\CallbackManagerInterface;
 use Crm\ApplicationModule\Application\Managers\SeederManager;
 use Crm\ApplicationModule\CrmModule;
 use Crm\ApplicationModule\Models\Criteria\ScenariosCriteriaStorage;
@@ -45,6 +46,7 @@ use Crm\ScenariosModule\Events\SendEmailEventHandler;
 use Crm\ScenariosModule\Events\SendPushNotificationEventHandler;
 use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Events\TestUserEvent;
+use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Scenarios\HasPaymentCriteria;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\AddressChangedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\NewAddressTriggerHandler;
@@ -60,6 +62,7 @@ use Crm\ScenariosModule\Scenarios\TriggerHandlers\TestUserTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserConfirmedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserRegisteredTriggerHandler;
 use Crm\ScenariosModule\Seeders\SegmentGroupsSeeder;
+use Nette\DI\Container;
 use Tomaj\Hermes\Dispatcher;
 
 class ScenariosModule extends CrmModule
@@ -121,6 +124,13 @@ class ScenariosModule extends CrmModule
         $commandsContainer->registerCommand($this->getInstance(RemoveOldStatsDataCommand::class));
         $commandsContainer->registerCommand($this->getInstance(ReconstructWaitEventsCommand::class));
         $commandsContainer->registerCommand($this->getInstance(ListScenariosToReviewCommand::class));
+    }
+
+    public function registerCleanupFunction(CallbackManagerInterface $cleanUpManager)
+    {
+        $cleanUpManager->add(JobHistoryRepository::class, function (Container $container) {
+            $container->getByType(JobHistoryRepository::class)->removeOldData();
+        });
     }
 
     public function registerHermesHandlers(Dispatcher $dispatcher)
