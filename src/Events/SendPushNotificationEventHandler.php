@@ -72,6 +72,7 @@ class SendPushNotificationEventHandler extends ScenariosJobsHandler
             $this->jobError($job, 'no user with given user_id found');
             return true;
         }
+        $job = $this->jobsRepository->startJob($job);
         // Not sending notification to people who are/should be not reachable
         if (!$this->reachChecker->isReachable($user)) {
             $this->jobsRepository->finishJob($job);

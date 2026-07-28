@@ -68,13 +68,12 @@ class ShowBannerEventHandler extends ScenariosJobsHandler
             $this->jobError($job, 'no user with given user_id found');
             return true;
         }
+        $job = $this->jobsRepository->startJob($job);
         // Not showing banner to people who are/should be not reachable
         if (!$this->reachChecker->isReachable($user)) {
             $this->jobsRepository->finishJob($job);
             return true;
         }
-
-        $job = $this->jobsRepository->startJob($job);
 
         $bannerId = $options->id;
         $expiresInMinutes = (int) $options->expiresInMinutes;
