@@ -34,6 +34,24 @@ class ScenariosAdminPresenter extends AdminPresenter
         $this->template->deletedScenarios = $deletedScenarios;
     }
 
+    private function prepareBuilderTemplate(?ActiveRow $scenario): void
+    {
+        $this->template->scenario = $scenario;
+
+        // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
+        // DO NOT move this to constructor, listener might not have been added yet
+        $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
+        $this->template->pushNotificationEnabled = false;
+        if (class_exists(OneSignalNotificationEvent::class)) {
+            // Enable Push notification element in ScenarioBuilder if OneSignalNotificationEvent has handlers (so it can be processed)
+            // DO NOT move this to constructor, listener might not have been added yet
+            $this->template->pushNotificationEnabled = $this->emitter->hasListeners(OneSignalNotificationEvent::class);
+        }
+
+        $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
+        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
+    }
+
     /**
      * @admin-access-level write
      */
@@ -44,7 +62,8 @@ class ScenariosAdminPresenter extends AdminPresenter
             $this->flashMessage($this->translator->translate('scenarios.admin.scenarios.messages.scenario_not_found'));
             $this->redirect('default');
         }
-        $this->template->scenario = $scenario;
+
+        $this->prepareBuilderTemplate($scenario);
     }
 
     /**
@@ -52,28 +71,8 @@ class ScenariosAdminPresenter extends AdminPresenter
      */
     public function renderNew()
     {
-    }
-
-    /**
-     * @admin-access-level write
-     */
-    public function renderEmbed($id): void
-    {
-        // Enable Banner element in ScenarioBuilder if BannerEvent has handlers (so it can be processed)
-        // DO NOT move this to constructor, listener might not have been added yet
-        $this->template->bannerEnabled = $this->emitter->hasListeners(BannerEvent::class);
-
-        $this->template->pushNotificationEnabled = false;
-        if (class_exists(OneSignalNotificationEvent::class)) {
-            // Enable Push notification element in ScenarioBuilder if OneSignalNotificationEvent has handlers (so it can be processed)
-            // DO NOT move this to constructor, listener might not have been added yet
-            $this->template->pushNotificationEnabled = $this->emitter->hasListeners(OneSignalNotificationEvent::class);
-        }
-
-        $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
-        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
-
-        $this->template->scenario = $this->scenariosRepository->find($id);
+        $this->setView('edit');
+        $this->prepareBuilderTemplate(null);
     }
 
     /**

@@ -12,10 +12,13 @@ window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 
 axios.defaults.headers.common['Authorization'] = config.AUTH_TOKEN;
 
-const domNode = document.getElementById('root')
+const domNode = document.getElementById('scenario-editor-root');
 
 const root = createRoot(domNode);
 const theme = createTheme({
+  typography: {
+    htmlFontSize: 10
+  },
   palette: {
     primary: {
       main: '#3f51b5',

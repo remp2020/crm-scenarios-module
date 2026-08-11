@@ -1,10 +1,6 @@
 @use '../elements/variables' as *;
 @use '../elements/index';
 
-body {
-  background-color: #fafafa;
-}
-
 .docs-preview-wrapper {
   background: rgb(60, 60, 60);
   border-radius: 10px;
@@ -20,15 +16,15 @@ body {
 
 .diagram-layer {
   position: relative;
-  top: 64px;
-  height: calc(100vh - 64px);
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .body {
-  flex-grow: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  min-height: 0;
 
   .tray-item {
     cursor: move;
@@ -57,6 +53,7 @@ body {
   width: 100%;
   border: 0;
   padding: 2px 5px;
+  color: #000;
 }
 
 .circular-loading {

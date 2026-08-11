@@ -5,7 +5,7 @@ import { makeStyles } from '@mui/styles';
 import Button from '@mui/material/Button';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
-import CssBaseline from '@mui/material/CssBaseline';
+import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import ListSubheader from '@mui/material/ListSubheader';
@@ -41,23 +41,29 @@ const drawerWidth = 240;
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex'
+    display: 'flex',
+    flex: '1 1 auto',
+    minHeight: 0
   },
   appBar: {
-    zIndex: theme.zIndex.drawer + 1,
+    zIndex: 1
   },
   drawer: {
     width: drawerWidth,
     flexShrink: 0
   },
   drawerPaper: {
-    width: drawerWidth
+    width: drawerWidth,
+    position: 'relative',
+    height: '100%'
   },
   content: {
     flexGrow: 1,
-    padding: 0
+    minWidth: 0,
+    padding: 0,
+    display: 'flex',
+    flexDirection: 'column'
   },
-  toolbar: theme.mixins.toolbar,
   divider: {
     marginLeft: '16px',
     marginRight: '16px'
@@ -179,10 +185,11 @@ const BodyWidget = ({ app }) => {
   };
 
   return (
-    <div className='body'>
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar position='fixed' className={classes.appBar}>
+    <ScopedCssBaseline
+      sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0 }}
+    >
+      <div className='body'>
+        <AppBar position='static' className={classes.appBar}>
           <Toolbar>
             <Grid container>
               <Grid item xs={4}>
@@ -258,119 +265,120 @@ const BodyWidget = ({ app }) => {
             </Grid>
           </Toolbar>
         </AppBar>
-        <Drawer
-          className={classes.drawer}
-          variant='permanent'
-          classes={{
-            paper: classes.drawerPaper
-          }}
-        >
-          <div className={classes.toolbar} />
-          <List
-            component='nav'
-            subheader={
-              <ListSubheader component='div'>Triggers</ListSubheader>
-            }
+        <div className={classes.root}>
+          <Drawer
+            className={classes.drawer}
+            variant='permanent'
+            classes={{
+              paper: classes.drawerPaper
+            }}
           >
-            <TrayItemWidget
-              model={{ type: 'trigger', shape: 'square' }}
-              name='Event'
-              icon={<TriggerIcon />}
-            />
-
-            <TrayItemWidget
-              model={{ type: 'before_trigger', shape: 'square' }}
-              name='Before/After Event'
-              icon={<NotificationsActiveIcon />}
-            />
-          </List>
-
-          <List
-            component='nav'
-            subheader={<ListSubheader component='div'>Actions</ListSubheader>}
-          >
-            <TrayItemWidget
-              model={{ type: 'email', shape: 'square' }}
-              name='Send email'
-              icon={<EmailIcon />}
-            />
-
-            <TrayItemWidget
-              model={{ type: 'generic', shape: 'square' }}
-              name='Run generic action'
-              icon={<ExtensionIcon />}
-            />
-
-            {config.BANNER_ENABLED &&
+            <List
+              component='nav'
+              subheader={
+                <ListSubheader component='div'>Triggers</ListSubheader>
+              }
+            >
               <TrayItemWidget
-                model={{ type: 'banner', shape: 'square' }}
-                name='Show banner'
-                icon={<BannerIcon />}
+                model={{ type: 'trigger', shape: 'square' }}
+                name='Event'
+                icon={<TriggerIcon />}
               />
-            }
 
-            {config.PUSH_NOTIFICATION_ENABLED &&
               <TrayItemWidget
-                model={{ type: 'push_notification', shape: 'square' }}
-                name='Send notification'
-                icon={<PushNotificationIcon />}
+                model={{ type: 'before_trigger', shape: 'square' }}
+                name='Before/After Event'
+                icon={<NotificationsActiveIcon />}
               />
-            }
-          </List>
+            </List>
 
-          <List
-            component='nav'
-            subheader={
-              <ListSubheader component='div'>Operations</ListSubheader>
-            }
-          >
-            <TrayItemWidget
-              model={{ type: 'segment', shape: 'diamond' }}
-              name='Segment'
-              icon={<SegmentIcon />}
-            />
+            <List
+              component='nav'
+              subheader={<ListSubheader component='div'>Actions</ListSubheader>}
+            >
+              <TrayItemWidget
+                model={{ type: 'email', shape: 'square' }}
+                name='Send email'
+                icon={<EmailIcon />}
+              />
 
-            <TrayItemWidget
-              model={{ type: 'condition', shape: 'diamond' }}
-              name='Condition'
-              icon={<ConditionIcon />}
-            />
+              <TrayItemWidget
+                model={{ type: 'generic', shape: 'square' }}
+                name='Run generic action'
+                icon={<ExtensionIcon />}
+              />
 
-            <TrayItemWidget
-              model={{ type: 'wait', shape: 'round' }}
-              name='Wait'
-              icon={<WaitIcon />}
-            />
+              {config.BANNER_ENABLED &&
+                <TrayItemWidget
+                  model={{ type: 'banner', shape: 'square' }}
+                  name='Show banner'
+                  icon={<BannerIcon />}
+                />
+              }
 
-            <TrayItemWidget
-              model={{ type: 'goal', shape: 'diamond' }}
-              name='Goal'
-              icon={<GoalIcon />}
-            />
+              {config.PUSH_NOTIFICATION_ENABLED &&
+                <TrayItemWidget
+                  model={{ type: 'push_notification', shape: 'square' }}
+                  name='Send notification'
+                  icon={<PushNotificationIcon />}
+                />
+              }
+            </List>
 
-            <TrayItemWidget
-              model={{ type: 'ab_test', shape: 'diamond' }}
-              name='AB Test'
-              icon={<ABTestIcon />}
-            />
-          </List>
-        </Drawer>
-        <Notification
-          variant={canvas.notification.variant}
-          text={canvas.notification.text}
-          open={canvas.notification.open}
-          handleClose={closeNotification}
-        />
+            <List
+              component='nav'
+              subheader={
+                <ListSubheader component='div'>Operations</ListSubheader>
+              }
+            >
+              <TrayItemWidget
+                model={{ type: 'segment', shape: 'diamond' }}
+                name='Segment'
+                icon={<SegmentIcon />}
+              />
 
-        <main className={classes.content}>
-          <div className='diagram-layer'>
-            <ReactFlowProvider>
-              <FlowWidget app={app} scenario={scenario} />
-            </ReactFlowProvider>
-          </div>
-        </main>
+              <TrayItemWidget
+                model={{ type: 'condition', shape: 'diamond' }}
+                name='Condition'
+                icon={<ConditionIcon />}
+              />
+
+              <TrayItemWidget
+                model={{ type: 'wait', shape: 'round' }}
+                name='Wait'
+                icon={<WaitIcon />}
+              />
+
+              <TrayItemWidget
+                model={{ type: 'goal', shape: 'diamond' }}
+                name='Goal'
+                icon={<GoalIcon />}
+              />
+
+              <TrayItemWidget
+                model={{ type: 'ab_test', shape: 'diamond' }}
+                name='AB Test'
+                icon={<ABTestIcon />}
+              />
+            </List>
+          </Drawer>
+          <Notification
+            variant={canvas.notification.variant}
+            text={canvas.notification.text}
+            open={canvas.notification.open}
+            handleClose={closeNotification}
+          />
+
+          <main className={classes.content}>
+            <div className='diagram-layer'>
+              <ReactFlowProvider>
+                <FlowWidget app={app} scenario={scenario} />
+              </ReactFlowProvider>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ScopedCssBaseline>
   );
 };
 
