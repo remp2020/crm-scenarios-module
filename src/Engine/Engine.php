@@ -304,9 +304,11 @@ class Engine
     {
         foreach ($this->graphConfiguration->triggerDescendants($job->trigger_id) as $elementId) {
             $this->jobsRepository->addElement(
-                $elementId,
-                Json::decode($job->parameters, Json::FORCE_ARRAY),
-                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
+                elementId: $elementId,
+                parameters: Json::decode($job->parameters, Json::FORCE_ARRAY),
+                context: $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
+                journeyId: $job->journey_id,
+                parentJobId: $job->id,
             );
         }
     }
@@ -369,9 +371,11 @@ class Engine
 
         foreach ($descendantIds as $elementId) {
             $this->jobsRepository->addElement(
-                $elementId,
-                Json::decode($job->parameters, Json::FORCE_ARRAY),
-                $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
+                elementId: $elementId,
+                parameters: Json::decode($job->parameters, Json::FORCE_ARRAY),
+                context: $job->context ? Json::decode($job->context, Json::FORCE_ARRAY) : null,
+                journeyId: $job->journey_id,
+                parentJobId: $job->id,
             );
         }
     }

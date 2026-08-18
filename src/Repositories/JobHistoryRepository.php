@@ -103,6 +103,8 @@ class JobHistoryRepository extends Repository
             'scenario_id' => $this->resolveScenarioId($job),
             'trigger_id' => $job->trigger_id,
             'element_id' => $job->element_id,
+            'journey_id' => $job->journey_id,
+            'parent_job_id' => $job->parent_job_id,
             'user_id' => $parameters['user_id'],
             'state' => $job->state,
             'retry_count' => $job->retry_count,

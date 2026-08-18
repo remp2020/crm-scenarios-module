@@ -68,16 +68,29 @@ class JobsRepository extends Repository
             $data['context'] = Json::encode($context);
         }
 
-        return $this->insert($data);
+        $job = $this->insert($data);
+        if ($job instanceof ActiveRow) {
+            // journey_id is meant as unique ID identifying one pass through scenario
+            // ID of the first trigger job is stored as journey_id
+            $this->update($job, ['journey_id' => $job->id]);
+        }
+        return $job;
     }
 
-    final public function addElement($elementId, array $parameters, ?array $context = null)
-    {
+    final public function addElement(
+        $elementId,
+        array $parameters,
+        ?array $context = null,
+        ?int $journeyId = null,
+        ?int $parentJobId = null,
+    ) {
         $data = [
             'element_id' => $elementId,
             'parameters' => Json::encode($parameters),
             'state' => self::STATE_CREATED,
             'retry_count' => 0,
+            'journey_id' => $journeyId,
+            'parent_job_id' => $parentJobId,
             'created_at' => new DateTime(),
             'updated_at' => new DateTime(),
         ];
@@ -85,7 +98,6 @@ class JobsRepository extends Repository
         if ($context) {
             $data['context'] = Json::encode($context);
         }
-
         return $this->insert($data);
     }
 
