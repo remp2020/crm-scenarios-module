@@ -21,6 +21,7 @@ import SegmentIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import ConditionIcon from '@mui/icons-material/CallSplit';
 import GoalIcon from '@mui/icons-material/CheckBox';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import RepeatIcon from '@mui/icons-material/Repeat';
 import PushNotificationIcon from '@mui/icons-material/PhonelinkRing';
 import ABTestIcon from '@mui/icons-material/SwapVert';
 import * as config from './../../config';
@@ -289,6 +290,12 @@ const BodyWidget = ({ app }) => {
                 model={{ type: 'before_trigger', shape: 'square' }}
                 name='Before/After Event'
                 icon={<NotificationsActiveIcon />}
+              />
+
+              <TrayItemWidget
+                model={{ type: 'repeating_trigger', shape: 'square' }}
+                name='Repeating'
+                icon={<RepeatIcon />}
               />
             </List>
 

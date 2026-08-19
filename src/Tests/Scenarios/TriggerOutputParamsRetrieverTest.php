@@ -78,6 +78,22 @@ class TriggerOutputParamsRetrieverTest extends TestCase
         self::assertSame(['first_input_param'], $outputParams);
     }
 
+    public function testRetrieveFromRepeating(): void
+    {
+        $triggerManager = $this->createStub(TriggerManager::class);
+        $eventsStorage = $this->createStub(EventsStorage::class);
+
+        $triggerOutputParamsRetriever = new TriggerOutputParamsRetriever($triggerManager, $eventsStorage);
+        $outputParams = $triggerOutputParamsRetriever->retrieve([
+            'type' => TriggersRepository::TRIGGER_TYPE_REPEATING,
+            'event' => [
+                'code' => 'some_segment_code',
+            ],
+        ]);
+
+        self::assertSame(['user_id'], $outputParams);
+    }
+
     public function testRetrieveFromUnknownTriggerType(): void
     {
         $this->expectException(TriggerOutputParamsRetrieveException::class);

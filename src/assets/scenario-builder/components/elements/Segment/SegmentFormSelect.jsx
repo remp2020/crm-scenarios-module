@@ -7,7 +7,7 @@ import { createFilterOptions } from '@mui/material/Autocomplete';
 
 const useStyles = makeStyles((theme) => ({
   autocomplete: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1, 0)
   },
   subtitle: {
     paddingLeft: '6px',
@@ -74,7 +74,14 @@ export default function SegmentFormSelect(props) {
         props.onSegmentSelectedChange(value);
       }}
       renderInput={params => (
-        <TextField {...params} variant="standard" label="Segment" fullWidth/>
+        <TextField
+          {...params}
+          variant="standard"
+          label="Segment"
+          fullWidth
+          error={!!props.error}
+          helperText={props.helperText}
+        />
       )}
       renderOption={(props, option, {selected}) => (
         <div {...props}>

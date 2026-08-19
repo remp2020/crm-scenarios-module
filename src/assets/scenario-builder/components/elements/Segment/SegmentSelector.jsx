@@ -47,12 +47,14 @@ export default function SegmentSelector(props) {
                     ))}
                 </ButtonGroup>
             </Grid>
-            <SegmentFormSelect
-                selectedSegment={props.selectedSegment}
-                selectedSegmentSourceTable={sourceTable}
-                onSegmentSelectedChange={props.onSegmentSelectedChange}
-            >
-            </SegmentFormSelect>
+            <Grid item xs={12}>
+                <SegmentFormSelect
+                    selectedSegment={props.selectedSegment}
+                    selectedSegmentSourceTable={sourceTable}
+                    onSegmentSelectedChange={props.onSegmentSelectedChange}
+                >
+                </SegmentFormSelect>
+            </Grid>
         </Grid>
     );
 }

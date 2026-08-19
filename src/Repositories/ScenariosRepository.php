@@ -220,6 +220,18 @@ class ScenariosRepository extends Repository
             if (isset($options['minutes'])) {
                 $trigger['options']['minutes'] = $options['minutes'];
             }
+            if (isset($options['segment_code'])) {
+                $trigger['options']['segment_code'] = $options['segment_code'];
+            }
+            if (isset($options['frequency'])) {
+                $trigger['options']['frequency'] = $options['frequency'];
+            }
+            if (isset($options['day'])) {
+                $trigger['options']['day'] = $options['day'];
+            }
+            if (isset($options['time'])) {
+                $trigger['options']['time'] = $options['time'];
+            }
 
             foreach ($scenarioTrigger->related('scenarios_trigger_elements') as $triggerElement) {
                 $trigger['elements'][] = $triggerElement->element->uuid;

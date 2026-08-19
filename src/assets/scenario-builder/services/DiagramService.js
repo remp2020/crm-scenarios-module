@@ -10,6 +10,7 @@ import * as Generic from '../components/elements/Generic/NodeFactory';
 import * as Segment from '../components/elements/Segment/NodeFactory';
 import * as Trigger from '../components/elements/Trigger/NodeFactory';
 import * as BeforeTrigger from '../components/elements/BeforeTrigger/NodeFactory';
+import * as RepeatingTrigger from '../components/elements/RepeatingTrigger/NodeFactory';
 import * as PushNotification from '../components/elements/PushNotification/NodeFactory';
 import * as Condition from '../components/elements/Condition/NodeFactory';
 
@@ -133,6 +134,15 @@ export class DiagramService {
         data.selectedTrigger = data.event.code;
 
         node = BeforeTrigger.createNode(data);
+
+      } else if (data.type === 'repeating') {
+
+        data.selectedSegment = data.options.segment_code;
+        data.frequency = data.options.frequency;
+        data.day = data.options.day;
+        data.time = data.options.time;
+
+        node = RepeatingTrigger.createNode(data);
       }
 
       node.position = payload.visual[data.id];

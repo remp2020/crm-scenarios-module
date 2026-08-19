@@ -30,6 +30,7 @@ use Crm\ScenariosModule\Repositories\ElementStatsRepository;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\RepeatingTriggerScheduleRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Crm\ScenariosModule\Repositories\TriggerElementsRepository;
 use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
@@ -94,6 +95,7 @@ abstract class BaseTestCase extends DatabaseTestCase
             JobHistoryRepository::class,
             ScenariosRepository::class,
             TriggerElementsRepository::class,
+            RepeatingTriggerScheduleRepository::class,
             TriggersRepository::class,
             ElementElementsRepository::class,
             ElementsRepository::class,

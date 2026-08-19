@@ -25,12 +25,15 @@ services:
 	triggersRepository: Crm\ScenariosModule\Repositories\TriggersRepository
 	triggerStatsRepository: Crm\ScenariosModule\Repositories\TriggerStatsRepository
 	triggerElementsRepository: Crm\ScenariosModule\Repositories\TriggerElementsRepository
+	repeatingTriggerScheduleRepository: Crm\ScenariosModule\Repositories\RepeatingTriggerScheduleRepository
 	scenariosSelectedVariants: Crm\ScenariosModule\Repositories\SelectedVariantsRepository
 	graphConfiguration: Crm\ScenariosModule\Engine\GraphConfiguration
 	beforeEventGenerator: Crm\ScenariosModule\Events\BeforeEventGenerator
+	repeatingTriggerGenerator: Crm\ScenariosModule\Events\RepeatingTriggerGenerator(@scenariosLogger)
 	scenarioDuplicator: Crm\ScenariosModule\Models\Scenario\ScenarioDuplicator
 	duplicateScenarioFormFactory: Crm\ScenariosModule\Forms\DuplicateScenarioFormFactory
 	eventGeneratorCommand: Crm\ScenariosModule\Commands\EventGeneratorCommand
+	repeatingTriggerGeneratorCommand: Crm\ScenariosModule\Commands\RepeatingTriggerGeneratorCommand
 	generatedEventsRepository: Crm\ScenariosModule\Repositories\GeneratedEventsRepository
 	subscriptionEndsEventGenerator: Crm\ScenariosModule\Events\EventGenerators\SubscriptionEndsEventGenerator
 	beforeRecurrentPaymentChargeEventGenerator: Crm\ScenariosModule\Events\EventGenerators\BeforeRecurrentPaymentChargeEventGenerator

@@ -1,0 +1,30 @@
+@use '../../variables' as *;
+
+.react-flow__node.selected {
+  .square-node.repeating-trigger-node .node-container {
+    box-shadow: 0 0 10px $violet;
+  }
+}
+
+.repeating-trigger-node {
+  .node-container {
+    border: solid 2px $violet;
+    color: $violet;
+  }
+
+  &__title {
+    color: $violet;
+  }
+
+  &__left,
+  &__right {
+    .port {
+      box-shadow: 0 0 10px $violet;
+
+      &:hover,
+      &.selected {
+        background: $violet;
+      }
+    }
+  }
+}

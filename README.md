@@ -19,7 +19,7 @@ After saving (and enabling) the scenario, it will be executed every time the sce
 
 ### Triggers
 
-Each scenario has to start with a trigger node. Currently, there is two trigger types - "Event" node and "Before Event".
+Each scenario has to start with a trigger node. Currently, there are three trigger types - "Event", "Before Event" and "Repeating".
 
 #### Event
 
@@ -41,6 +41,27 @@ Currently it supports event types:
 - Subscription ends
 - Recurrent payment charge
 - Recurrent payment expires
+
+#### Repeating
+
+Unlike the other two triggers, a Repeating trigger is not started by anything happening to a user. It requires
+a **user segment** and a **schedule**, and on every scheduled occurrence it enrolls every user currently in that
+segment into the scenario.
+
+The schedule has three frequencies:
+
+| Frequency | Configured with | Example |
+|---|---|---|
+| Daily | time of day | every day at 09:00 |
+| Weekly | day of week + time of day | every Thursday at 09:00 |
+| Monthly | day of month (1-31) + time of day | on the 15th of every month at 09:00 |
+
+Requirements and limitations:
+
+- The segment has to be based on the **`users` table** (the segment row ID is used directly as the user ID).
+  Saving a scenario with a segment based on any other table is rejected.
+- The segment's fields have to include `id`.
+- The only parameter passed down the graph is `user_id`. User conditions and Segment nodes work normally.
 
 ### Conditions
 
@@ -213,6 +234,29 @@ For generating "Before Event" triggers, add the following command to your cronta
 ```bash
 php bin/command.php scenarios:event_generator
 ```
+
+### Repeating triggers
+
+For enrolling segment users into scenarios started by "Repeating" triggers, add the following command to your
+crontab. Running it every 10 minutes is recommended.
+
+```bash
+php bin/command.php scenarios:repeating_trigger_generator
+```
+
+Options:
+
+- `--now="2026-08-03 09:05"` - evaluate the schedules against the given wall-clock time instead of the current
+  one. Useful for firing an occurrence that the cron did not see in time.
+- `--scan-minutes=20` - how long after its scheduled time an occurrence may still be fired. Keep it at least
+  as long as the cron interval, otherwise occurrences fall between two runs and are never fired.
+- `--catch-up-minutes=60` - how far back a due occurrence is still looked up.
+
+The two windows do different jobs. Every run looks back `--catch-up-minutes` for a due occurrence; if the one
+it finds is already older than `--scan-minutes`, it is recorded in `scenarios_repeating_trigger_schedule` as
+`skipped` instead of being fired. Anything older than `--catch-up-minutes` is not seen at all and leaves no
+trace, so keep the catch-up window the longer of the two - that is what makes a missed occurrence visible in
+the table rather than silently gone. Use `--now` to fire such an occurrence deliberately.
 
 ### Graceful shutdown of workers
 

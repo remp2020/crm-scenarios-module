@@ -1,3 +1,6 @@
+// Repeating triggers have no event behind them, the backend stores this placeholder as their event code.
+const REPEATING_TRIGGER_EVENT_CODE = '__repeating_trigger';
+
 function unitTimeToMinutes(time, unit) {
   switch (unit) {
     case 'minutes':
@@ -19,7 +22,7 @@ export class ExportService {
 
   exportPayload() {
     const payload = {};
-    const triggers = ['trigger', 'before_trigger'];
+    const triggers = ['trigger', 'before_trigger', 'repeating_trigger'];
 
     payload.triggers = {};
     payload.elements = {};
@@ -147,6 +150,31 @@ export class ExportService {
         options: {
           minutes: unitTimeToMinutes(node.data.node.time, node.data.node.timeUnit)
         }
+      };
+    } else if (node.type === 'repeating_trigger') {
+      const options = {
+        segment_code: node.data.node.selectedSegment ?? null,
+        frequency: node.data.node.frequency,
+        time: node.data.node.time
+      };
+
+      // The daily frequency has no day to pick.
+      if (node.data.node.frequency !== 'daily') {
+        options.day = node.data.node.day;
+      }
+
+      return {
+        id: node.id,
+        name: node.data.node.name || '',
+        type: 'repeating',
+        event: {
+          // Repeating triggers are not bound to an event, they are configured with a segment in the options.
+          code: REPEATING_TRIGGER_EVENT_CODE
+        },
+        elements: this.getAllChildrenNodes(node).map(
+          descendantNode => descendantNode.id
+        ),
+        options: options
       };
     } else if (node.type === 'wait') {
       return {

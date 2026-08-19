@@ -22,6 +22,7 @@ class JobsRepository extends Repository
 
     public const CONTEXT_HERMES_MESSAGE_TYPE = 'hermes_message_type';
     public const CONTEXT_BEFORE_EVENT = 'before_event';
+    public const CONTEXT_REPEATING = 'repeating';
 
     final public static function allStates(): array
     {

@@ -11,6 +11,7 @@ import GenericNodeWidget from '../elements/Generic/NodeWidget';
 import SegmentNodeWidget from '../elements/Segment/NodeWidget';
 import TriggerNodeWidget from '../elements/Trigger/NodeWidget';
 import BeforeTriggerNodeWidget from '../elements/BeforeTrigger/NodeWidget';
+import RepeatingTriggerNodeWidget from '../elements/RepeatingTrigger/NodeWidget';
 import PushNotificationNodeWidget from '../elements/PushNotification/NodeWidget';
 import ConditionNodeWidget from '../elements/Condition/NodeWidget';
 import * as Goal from '../elements/Goal/NodeFactory';
@@ -22,6 +23,7 @@ import * as Generic from '../elements/Generic/NodeFactory';
 import * as Segment from '../elements/Segment/NodeFactory';
 import * as Trigger from '../elements/Trigger/NodeFactory';
 import * as BeforeTrigger from '../elements/BeforeTrigger/NodeFactory';
+import * as RepeatingTrigger from '../elements/RepeatingTrigger/NodeFactory';
 import * as PushNotification from '../elements/PushNotification/NodeFactory';
 import * as Condition from '../elements/Condition/NodeFactory';
 
@@ -34,6 +36,7 @@ const nodeTypes = {
   condition: ConditionNodeWidget,
   trigger: TriggerNodeWidget,
   before_trigger: BeforeTriggerNodeWidget,
+  repeating_trigger: RepeatingTriggerNodeWidget,
   wait: WaitNodeWidget,
   goal: GoalNodeWidget,
   ab_test: ABTestNodeWidget
@@ -249,6 +252,8 @@ export default function FlowWidget(props) {
         node = Trigger.createNode();
       } else if (type === 'before_trigger') {
         node = BeforeTrigger.createNode();
+      } else if (type === 'repeating_trigger') {
+        node = RepeatingTrigger.createNode();
       } else if (type === 'segment') {
         node = Segment.createNode();
       } else if (type === 'condition') {

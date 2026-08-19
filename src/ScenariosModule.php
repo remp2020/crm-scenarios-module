@@ -27,6 +27,7 @@ use Crm\ScenariosModule\Commands\EventGeneratorCommand;
 use Crm\ScenariosModule\Commands\ListScenariosToReviewCommand;
 use Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand;
 use Crm\ScenariosModule\Commands\RemoveOldStatsDataCommand;
+use Crm\ScenariosModule\Commands\RepeatingTriggerGeneratorCommand;
 use Crm\ScenariosModule\Commands\ScenariosStatsAggregatorCommand;
 use Crm\ScenariosModule\Commands\ScenariosWorkerCommand;
 use Crm\ScenariosModule\Commands\TestUserCommand;
@@ -120,6 +121,7 @@ class ScenariosModule extends CrmModule
         $commandsContainer->registerCommand($this->getInstance(ScenariosWorkerCommand::class));
         $commandsContainer->registerCommand($this->getInstance(TestUserCommand::class));
         $commandsContainer->registerCommand($this->getInstance(EventGeneratorCommand::class));
+        $commandsContainer->registerCommand($this->getInstance(RepeatingTriggerGeneratorCommand::class));
         $commandsContainer->registerCommand($this->getInstance(ScenariosStatsAggregatorCommand::class));
         $commandsContainer->registerCommand($this->getInstance(RemoveOldStatsDataCommand::class));
         $commandsContainer->registerCommand($this->getInstance(ReconstructWaitEventsCommand::class));

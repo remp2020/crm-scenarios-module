@@ -6,6 +6,7 @@ namespace Crm\ScenariosModule\Engine\Validator;
 use Crm\ApplicationModule\Models\Event\EventGeneratorOutputProviderInterface;
 use Crm\ApplicationModule\Models\Event\EventsStorage;
 use Crm\ApplicationModule\Models\Scenario\TriggerManager;
+use Crm\ScenariosModule\Models\RepeatingTrigger\RepeatingTrigger;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Exception;
 
@@ -54,6 +55,10 @@ class TriggerOutputParamsRetriever
             }
 
             return $eventGenerator->getOutputParams();
+        }
+
+        if ($triggerType === TriggersRepository::TRIGGER_TYPE_REPEATING) {
+            return RepeatingTrigger::OUTPUT_PARAMS;
         }
 
         throw new TriggerOutputParamsRetrieveException(sprintf("Unknown trigger type '%s'.", $triggerType));
