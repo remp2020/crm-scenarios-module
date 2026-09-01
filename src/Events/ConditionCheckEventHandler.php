@@ -136,6 +136,10 @@ class ConditionCheckEventHandler extends ScenariosJobsHandler
                 $paramValues[$param->key] = $param->values;
             }
 
+            if (!$itemRow) {
+                throw new ConditionCheckException('Item row is not available anymore.');
+            }
+
             if (!$criterion->addConditions($itemQuery, $paramValues, $itemRow)) {
                 return false;
             }
