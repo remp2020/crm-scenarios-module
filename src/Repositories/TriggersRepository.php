@@ -63,14 +63,18 @@ class TriggersRepository extends Repository
 
     final public function deleteByUuids(array $uuids)
     {
-        foreach ($this->getTable()->where('uuid IN ?', $uuids) as $trigger) {
+        foreach ($this->scopeNotDeleted()->where('uuid IN ?', $uuids) as $trigger) {
             $this->delete($trigger);
         }
     }
 
     final public function delete(ActiveRow &$row)
     {
-        // Soft-delete
+        if ($row->deleted_at !== null) {
+            return true;
+        }
+
+        // Soft-delete;
         return $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
@@ -108,10 +112,21 @@ class TriggersRepository extends Repository
             'options' => empty($options) ? null : Json::encode($options),
         ];
 
-        $triggerRow = $this->findByUuid($triggerData['uuid']);
+        // soft-deleted triggers are revived rather than inserted again, see ElementsRepository::upsert
+        $triggerRow = $this->getTable()->where(['uuid' => $triggerData['uuid']])->fetch();
         if (!$triggerRow) {
             $triggerRow = $this->insert($triggerData);
         } else {
+            if ($triggerRow->scenario_id !== $triggerData['scenario_id']) {
+                throw new ScenarioInvalidDataException(
+                    "Trigger uuid [{$triggerData['uuid']}] already belongs to scenario [{$triggerRow->scenario_id}].",
+                );
+            }
+
+            if ($triggerRow->deleted_at !== null) {
+                $triggerData['deleted_at'] = null;
+            }
+
             $this->update($triggerRow, $triggerData);
         }
 

@@ -75,7 +75,11 @@ class ElementsRepository extends Repository
 
     final public function delete(ActiveRow &$row)
     {
-        // Soft-delete
+        if ($row->deleted_at !== null) {
+            return true;
+        }
+
+        // Soft-delete;
         return $this->update($row, ['deleted_at' => new DateTime()]);
     }
 
@@ -225,9 +229,22 @@ class ElementsRepository extends Repository
 
     final public function upsert(array $elementData)
     {
-        $element = $this->findByUuid($elementData['uuid']);
+        // soft-deleted elements are searched too - UUID coming back is the same node coming back
+        // (undo after a save or a restored scenario), and it may be references by running jobs,
+        // so the row is undeleted instead of inserted again
+        $element = $this->getTable()->where(['uuid' => $elementData['uuid']])->fetch();
         if (!$element) {
             return $this->insert($elementData);
+        }
+
+        if ($element->scenario_id !== $elementData['scenario_id']) {
+            throw new ScenarioInvalidDataException(
+                "Element uuid [{$elementData['uuid']}] already belongs to scenario [{$element->scenario_id}].",
+            );
+        }
+
+        if ($element->deleted_at !== null) {
+            $elementData['deleted_at'] = null;
         }
 
         $this->update($element, $elementData);
