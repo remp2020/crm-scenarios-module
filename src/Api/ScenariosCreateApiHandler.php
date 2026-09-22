@@ -10,6 +10,7 @@ use Crm\ScenariosModule\Repositories\ScenarioInvalidDataException;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Http\IResponse;
 use Nette\Http\Request;
+use Nette\Security\User;
 use Tomaj\NetteApi\Response\JsonApiResponse;
 use Tomaj\NetteApi\Response\ResponseInterface;
 use Tracy\Debugger;
@@ -22,7 +23,9 @@ class ScenariosCreateApiHandler extends ApiHandler
         private readonly Request $request,
         private readonly ScenariosRepository $scenariosRepository,
         private readonly ScenarioValidator $scenarioValidator,
+        private readonly User $user,
     ) {
+        parent::__construct();
     }
 
     public function params(): array
@@ -86,7 +89,7 @@ class ScenariosCreateApiHandler extends ApiHandler
 
         $data = (array)$requestValidationResult->getParsedObject();
         try {
-            $scenario = $this->scenariosRepository->createOrUpdate($data);
+            $scenario = $this->scenariosRepository->createOrUpdate($data, (int) $this->user->getId());
         } catch (ScenarioInvalidDataException $exception) {
             return new JsonApiResponse(
                 IResponse::S409_Conflict,

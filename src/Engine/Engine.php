@@ -15,6 +15,7 @@ use Crm\ScenariosModule\Events\ShowBannerEventHandler;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
+use Crm\ScenariosModule\Repositories\ScenariosVersionsRepository;
 use Crm\ScenariosModule\Repositories\TriggerStatsRepository;
 use Exception;
 use Nette\Database\Table\ActiveRow;
@@ -44,6 +45,9 @@ class Engine
 
     private DateTime $startTime;
 
+    // map of scenario_id => (current) scenario_version_id
+    private array $scenarioCurrentVersions = [];
+
     public function __construct(
         private LoggerInterface $logger,
         private Emitter $hermesEmitter,
@@ -52,6 +56,7 @@ class Engine
         private ElementsRepository $elementsRepository,
         private TriggerStatsRepository $triggerStatsRepository,
         private JobHistoryRepository $jobHistoryRepository,
+        private ScenariosVersionsRepository $scenariosVersionsRepository,
     ) {
         $this->startTime = new DateTime();
     }
@@ -80,6 +85,7 @@ class Engine
             while ($times === null || $i > 0) {
                 // For fixed amount of iterations, always reload graph
                 $this->graphConfiguration->reload($times !== null ? 0 : $this->minGraphReloadDelay);
+                $this->scenarioCurrentVersions = [];
 
                 // Single job processing
 
@@ -161,6 +167,37 @@ class Engine
         return [$delay, false];
     }
 
+    private function stampScenarioVersion(ActiveRow $job): void
+    {
+        try {
+            $scenarioId = $this->resolveScenarioId($job);
+
+            if (!array_key_exists($scenarioId, $this->scenarioCurrentVersions)) {
+                $this->scenarioCurrentVersions[$scenarioId] = $this->scenariosVersionsRepository
+                    ->current($scenarioId)->id;
+            }
+
+            $versionId = $this->scenarioCurrentVersions[$scenarioId];
+            if ($versionId !== $job->scenario_version_id) {
+                $this->jobsRepository->update($job, ['scenario_version_id' => $versionId]);
+            }
+        } catch (\Throwable $e) {
+            Debugger::log($e, Debugger::EXCEPTION);
+        }
+    }
+
+    private function resolveScenarioId(ActiveRow $job): int
+    {
+        if ($job->trigger_id) {
+            return $job->trigger?->scenario_id;
+        }
+        if ($job->element_id) {
+            return $job->element?->scenario_id;
+        }
+
+        throw new \RuntimeException("No associated scenario id found for job [$job->id].");
+    }
+
     private function trackHistory(ActiveRow $job): void
     {
         try {
@@ -221,6 +258,8 @@ class Engine
     private function processCreatedJob(ActiveRow $job)
     {
         $this->logger->log(LogLevel::INFO, 'Processing newly created job', $this->jobLoggerContext($job));
+
+        $this->stampScenarioVersion($job);
 
         if ($job->trigger_id) {
             // Triggers can be directly finished

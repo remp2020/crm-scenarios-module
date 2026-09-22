@@ -8,6 +8,7 @@ use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\JobHistoryRepository;
 use Crm\ScenariosModule\Repositories\JobsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
+use Crm\ScenariosModule\Repositories\ScenariosVersionsRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\UsersModule\Models\Auth\UserManager;
 use Nette\Database\Table\ActiveRow;
@@ -19,6 +20,8 @@ class JourneyTrackingTest extends BaseTestCase
     private JobHistoryRepository $jobHistoryRepository;
     private ScenariosRepository $scenariosRepository;
     private ScenariosGenericEventsManager $genericEventManager;
+    private ScenariosVersionsRepository $scenariosVersionsRepository;
+    private bool $genericEventRegistered = false;
 
     public function setUp(): void
     {
@@ -29,6 +32,7 @@ class JourneyTrackingTest extends BaseTestCase
         $this->jobHistoryRepository = $this->getRepository(JobHistoryRepository::class);
         $this->scenariosRepository = $this->getRepository(ScenariosRepository::class);
         $this->genericEventManager = $this->inject(ScenariosGenericEventsManager::class);
+        $this->scenariosVersionsRepository = $this->getRepository(ScenariosVersionsRepository::class);
     }
 
     public function testJourneyIdIsPropagatedFromTriggerToAllDescendants(): void
@@ -127,6 +131,74 @@ class JourneyTrackingTest extends BaseTestCase
         $this->assertSame($journeyId, $retriedJob->journey_id);
     }
 
+    public function testJobsRecordTheScenarioVersionTheyRunOn(): void
+    {
+        $scenario = $this->createScenario();
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        $versionId = $this->scenariosVersionsRepository->current($scenario->id)->id;
+
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3); // trigger done, first element job created under the first version
+
+        $this->assertSame($versionId, $this->jobOfElement('element_run_generic_1')->scenario_version_id);
+
+        $this->dispatcher->handle(); // job(generic 1): scheduled -> started -> finished
+        $this->engine->run(2); // job(generic 1) deleted, both descendants created -> scheduled
+        $this->dispatcher->handle(); // descendants: scheduled -> started -> finished
+        $this->engine->run(1); // descendants deleted
+
+        $historyRows = $this->jobHistoryRepository->getTable()->where('user_id', $user->id)->fetchAll();
+        $this->assertCount(4, $historyRows);
+        foreach ($historyRows as $row) {
+            $this->assertSame($versionId, $row->scenario_version_id);
+        }
+    }
+
+    public function testOneJourneyCanSpanSeveralScenarioVersions(): void
+    {
+        $scenario = $this->createScenario();
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        $firstVersionId = $this->scenariosVersionsRepository->current($scenario->id)->id;
+
+        $this->dispatcher->handle();
+        $triggerJobId = $this->jobsRepository->getAllJobs()->fetch()->id;
+        $this->engine->run(3); // trigger done, first element job created under the first version
+
+        $firstElementJob = $this->jobOfElement('element_run_generic_1');
+        $this->assertSame($firstVersionId, $firstElementJob->scenario_version_id);
+        $firstElementJobId = $firstElementJob->id;
+
+        // the scenario is edited while the user is already inside it
+        $this->createScenario($scenario->id, elementName: 'Renamed');
+        $secondVersionId = $this->scenariosVersionsRepository->current($scenario->id)->id;
+        $this->assertNotSame($firstVersionId, $secondVersionId);
+
+        $this->dispatcher->handle();
+        $this->engine->run(2); // descendants are picked up under the new version
+        $secondElementJobId = $this->jobOfElement('element_run_generic_2')->id;
+        $thirdElementJobId = $this->jobOfElement('element_run_generic_3')->id;
+        $this->dispatcher->handle();
+        $this->engine->run(1);
+
+        $versionsByJob = $this->jobHistoryRepository->getTable()
+            ->where('user_id', $user->id)
+            ->fetchPairs('job_id', 'scenario_version_id');
+
+        // one pass through the scenario, but the jobs ran on two different definitions of it
+        $journeyIds = $this->jobHistoryRepository->getTable()
+            ->where('user_id', $user->id)
+            ->fetchPairs(null, 'journey_id');
+        $this->assertCount(1, array_unique($journeyIds));
+        $this->assertEquals([
+            $triggerJobId => $firstVersionId,
+            $firstElementJobId => $firstVersionId,
+            $secondElementJobId => $secondVersionId,
+            $thirdElementJobId => $secondVersionId,
+        ], $versionsByJob);
+    }
+
     private function jobOfElement(string $elementUuid): ActiveRow
     {
         $job = $this->jobsRepository->getAllJobs()
@@ -138,8 +210,13 @@ class JourneyTrackingTest extends BaseTestCase
         return $job;
     }
 
-    private function createScenario(): ActiveRow
+    private function registerGenericEvent(): void
     {
+        if ($this->genericEventRegistered) {
+            return;
+        }
+        $this->genericEventRegistered = true;
+
         $this->genericEventManager->register('test_generic_event_code', new class implements ScenarioGenericEventInterface {
             public function getLabel(): string
             {
@@ -156,8 +233,13 @@ class JourneyTrackingTest extends BaseTestCase
                 return [];
             }
         });
+    }
 
-        return $this->scenariosRepository->createOrUpdate([
+    private function createScenario(?int $scenarioId = null, string $elementName = ''): ActiveRow
+    {
+        $this->registerGenericEvent();
+
+        $data = [
             'name' => 'journey test',
             'enabled' => true,
             'triggers' => [
@@ -171,7 +253,7 @@ class JourneyTrackingTest extends BaseTestCase
             ],
             'elements' => [
                 self::obj([
-                    'name' => '',
+                    'name' => $elementName,
                     'id' => 'element_run_generic_1',
                     'type' => ElementsRepository::ELEMENT_TYPE_GENERIC,
                     'generic' => [
@@ -195,6 +277,12 @@ class JourneyTrackingTest extends BaseTestCase
                     'generic' => ['code' => 'test_generic_event_code'],
                 ]),
             ],
-        ]);
+        ];
+
+        if ($scenarioId !== null) {
+            $data['id'] = $scenarioId;
+        }
+
+        return $this->scenariosRepository->createOrUpdate($data);
     }
 }

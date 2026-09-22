@@ -6,6 +6,7 @@ namespace Crm\ScenariosModule\Models\Scenario;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
 use Crm\ScenariosModule\Repositories\ScenariosRepository;
 use Nette\Database\Table\ActiveRow;
+use Nette\Security\User;
 use Ramsey\Uuid\Uuid;
 use RuntimeException;
 use stdClass;
@@ -14,6 +15,7 @@ readonly class ScenarioDuplicator
 {
     public function __construct(
         private ScenariosRepository $scenariosRepository,
+        private User $user,
     ) {
     }
 
@@ -37,6 +39,7 @@ readonly class ScenarioDuplicator
                 'visual' => $duplicatedData->visual,
                 'enabled' => false,
             ])->toArray(),
+            $this->user->getId(),
         );
 
         if (!$newScenario instanceof ActiveRow) {

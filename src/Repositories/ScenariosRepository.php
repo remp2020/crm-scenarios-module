@@ -10,6 +10,7 @@ use Exception;
 use Nette\Caching\Storage;
 use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
+use Nette\Database\Table\Selection;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
 use Nette\Utils\JsonException;
@@ -24,6 +25,7 @@ class ScenariosRepository extends Repository
         private readonly TriggersRepository $triggersRepository,
         private readonly TriggerElementsRepository $triggerElementsRepository,
         private readonly SegmentsRepository $segmentsRepository,
+        private readonly ScenariosVersionsRepository $scenariosVersionsRepository,
         Explorer $database,
         ?AuditLogRepository $auditLogRepository = null,
         ?Storage $cacheStorage = null,
@@ -48,15 +50,21 @@ class ScenariosRepository extends Repository
         return $query;
     }
 
-    /**
-     * @param array $data
-     * @return false|ActiveRow - Returns false when scenarioID provided for update is not found
-     * @throws ScenarioInvalidDataException - when unable to create / update scenario because of invalid data
-     * @throws \Exception - when internal error occurs
-     */
-    final public function createOrUpdate(array $data)
+    final public function scenariosWithoutVersion(): Selection
     {
-        return $this->triggersRepository->getTransaction()->wrap(function () use ($data): ActiveRow|false {
+        return $this->all(deleted: false)->where(':scenarios_versions.id IS NULL');
+    }
+
+    /**
+     * @param array    $data
+     * @param int|null $userId ID of user creating/updating scenario
+     *
+     * @return false|ActiveRow - Returns false when scenarioID provided for update is not found
+     * @throws \Throwable
+     */
+    final public function createOrUpdate(array $data, ?int $userId = null): false|ActiveRow
+    {
+        return $this->triggersRepository->getTransaction()->wrap(function () use ($data, $userId): ActiveRow|false {
             $scenarioData['name'] = $data['name'];
             $scenarioData['visual'] = Json::encode($data['visual'] ?? new \stdClass());
             $scenarioData['updated_at'] = new DateTime();
@@ -134,6 +142,11 @@ class ScenariosRepository extends Repository
             // Delete old triggers
             $this->triggersRepository->deleteByUuids(array_keys($oldTriggers));
 
+            $this->scenariosVersionsRepository->add(
+                scenarioId: $scenarioId,
+                payload: $this->getScenario($scenarioId),
+                userId: $userId,
+            );
             return $scenario;
         });
     }

@@ -105,6 +105,7 @@ class JobHistoryRepository extends Repository
             'element_id' => $job->element_id,
             'journey_id' => $job->journey_id,
             'parent_job_id' => $job->parent_job_id,
+            'scenario_version_id' => $job->scenario_version_id,
             'user_id' => $parameters['user_id'],
             'state' => $job->state,
             'retry_count' => $job->retry_count,
