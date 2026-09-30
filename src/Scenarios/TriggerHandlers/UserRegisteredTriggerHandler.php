@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace Crm\ScenariosModule\Scenarios\TriggerHandlers;
 
+use Crm\ApplicationModule\Models\Scenario\SensitiveTriggerParamsInterface;
 use Crm\ApplicationModule\Models\Scenario\TriggerData;
 use Crm\ApplicationModule\Models\Scenario\TriggerHandlerInterface;
 use Exception;
 
-class UserRegisteredTriggerHandler implements TriggerHandlerInterface
+class UserRegisteredTriggerHandler implements TriggerHandlerInterface, SensitiveTriggerParamsInterface
 {
     public function getName(): string
     {
@@ -27,6 +28,11 @@ class UserRegisteredTriggerHandler implements TriggerHandlerInterface
     public function getOutputParams(): array
     {
         return ['user_id', 'password'];
+    }
+
+    public function getSensitiveParams(): array
+    {
+        return ['password'];
     }
 
     public function handleEvent(array $data): TriggerData

@@ -3,6 +3,9 @@
 namespace Crm\ScenariosModule\Repositories;
 
 use Crm\ApplicationModule\Models\Database\Repository;
+use Crm\ScenariosModule\Engine\JobParamsRedactor;
+use Nette\Caching\Storage;
+use Nette\Database\Explorer;
 use Nette\Database\Table\ActiveRow;
 use Nette\Utils\DateTime;
 use Nette\Utils\Json;
@@ -15,6 +18,14 @@ class JobHistoryRepository extends Repository
     private const MAX_RETENTION_MONTHS = 10;
 
     private int $retentionMonths = self::DEFAULT_RETENTION_MONTHS;
+
+    public function __construct(
+        private readonly JobParamsRedactor $jobParamsRedactor,
+        Explorer $database,
+        ?Storage $cacheStorage = null,
+    ) {
+        parent::__construct($database, $cacheStorage);
+    }
 
     public function setRetentionMonths(int $retentionMonths): void
     {
@@ -109,9 +120,9 @@ class JobHistoryRepository extends Repository
             'user_id' => $parameters['user_id'],
             'state' => $job->state,
             'retry_count' => $job->retry_count,
-            'parameters' => $job->parameters,
+            'parameters' => $job->parameters ? $this->jobParamsRedactor->redactJson($job->parameters) : $job->parameters,
             'result' => $job->result,
-            'context' => $job->context,
+            'context' => $job->context ? $this->jobParamsRedactor->redactJson($job->context) : $job->context,
             'job_created_at' => $job->created_at,
             'started_at' => $job->started_at,
             'finished_at' => $job->finished_at,

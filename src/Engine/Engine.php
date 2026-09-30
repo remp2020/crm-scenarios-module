@@ -57,6 +57,7 @@ class Engine
         private TriggerStatsRepository $triggerStatsRepository,
         private JobHistoryRepository $jobHistoryRepository,
         private ScenariosVersionsRepository $scenariosVersionsRepository,
+        private JobParamsRedactor $jobParamsRedactor,
     ) {
         $this->startTime = new DateTime();
     }
@@ -421,25 +422,12 @@ class Engine
 
     private function jobLoggerContext(ActiveRow $job): array
     {
-        $params = Json::decode($job->parameters, Json::FORCE_ARRAY);
-        $redactedParams = [];
-        // Do not log passwords in cleartext
-        if ($params) {
-            foreach ($params as $name => $value) {
-                if ($name == 'pass' || $name == 'password') {
-                    $redactedParams[$name] = 'REDACTED';
-                } else {
-                    $redactedParams[$name] = $value;
-                }
-            }
-        }
-
         return [
             'trigger_id' => $job->trigger_id,
             'element_id' => $job->element_id,
             'state' => $job->state,
             'retry_count' => $job->retry_count,
-            'parameters' => Json::encode($redactedParams),
+            'parameters' => $job->parameters ? $this->jobParamsRedactor->redactJson($job->parameters) : $job->parameters,
             'result' => $job->result,
             'started_at' => $job->started_at,
             'finished_at' => $job->finished_at,

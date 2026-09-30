@@ -2,6 +2,7 @@
 
 namespace Crm\ScenariosModule\Tests;
 
+use Crm\ScenariosModule\Engine\JobParamsRedactor;
 use Crm\ScenariosModule\Events\ScenarioGenericEventInterface;
 use Crm\ScenariosModule\Events\ScenariosGenericEventsManager;
 use Crm\ScenariosModule\Repositories\ElementsRepository;
@@ -12,6 +13,7 @@ use Crm\ScenariosModule\Repositories\ScenariosVersionsRepository;
 use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\UsersModule\Models\Auth\UserManager;
 use Nette\Database\Table\ActiveRow;
+use Nette\Utils\Json;
 
 class JourneyTrackingTest extends BaseTestCase
 {
@@ -86,6 +88,34 @@ class JourneyTrackingTest extends BaseTestCase
         $triggerHistory = reset($historyRows);
         $this->assertSame($journeyId, $triggerHistory->job_id); // the journey id is the trigger job id
         $this->assertNull($triggerHistory->parent_job_id);
+    }
+
+    public function testSensitiveParamsAreRedactedInHistoryOnly(): void
+    {
+        $this->createScenario();
+        $user = $this->userManager->addNewUser('test@email.com', false, 'unknown', null, false);
+
+        $this->dispatcher->handle(); // run Hermes to create trigger job
+        $this->engine->run(3); // trigger: created -> finished -> (generic 1) created -> scheduled
+
+        // live jobs keep the password, following elements (e.g. welcome email) need it
+        $firstElementJob = $this->jobOfElement('element_run_generic_1');
+        $parameters = Json::decode($firstElementJob->parameters, forceArrays: true);
+        $this->assertNotEmpty($parameters['password']);
+        $this->assertNotSame(JobParamsRedactor::REDACTED, $parameters['password']);
+
+        $this->dispatcher->handle();
+        $this->engine->run(2);
+        $this->dispatcher->handle();
+        $this->engine->run(1);
+
+        $historyRows = $this->jobHistoryRepository->getTable()->where('user_id', $user->id)->fetchAll();
+        $this->assertCount(4, $historyRows);
+        foreach ($historyRows as $row) {
+            $parameters = Json::decode($row->parameters, forceArrays: true);
+            $this->assertSame(JobParamsRedactor::REDACTED, $parameters['password']);
+            $this->assertSame($user->id, $parameters['user_id']);
+        }
     }
 
     public function testEachTriggerFiringStartsItsOwnJourney(): void
