@@ -9,3 +9,5 @@ export * from './CriteriaActions';
 export * from './BeforeTriggersActions';
 export * from './PushNotificationActions';
 export * from './StatisticActions';
+export * from './UsersActions';
+export * from './JourneysActions';

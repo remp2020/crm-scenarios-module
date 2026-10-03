@@ -50,6 +50,9 @@ services:
 	- Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler
 	- Crm\ScenariosModule\Api\ScenariosStatsApiHandler
 	- Crm\ScenariosModule\Api\ScenariosListTriggersApiHandler
+	- Crm\ScenariosModule\Api\ScenariosUsersApiHandler
+	- Crm\ScenariosModule\Api\ScenariosUserJourneysApiHandler
+	- Crm\ScenariosModule\Api\ScenariosJourneyJobsApiHandler
 
 	- Crm\ScenariosModule\Events\FinishWaitEventHandler
 	- Crm\ScenariosModule\Events\SegmentCheckEventHandler

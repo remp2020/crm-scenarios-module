@@ -131,6 +131,15 @@
     pointer-events: all;
   }
 
+  &.journey-edge path {
+    stroke: $grey !important;
+    stroke-width: 3px !important;
+  }
+
+  &.journey-edge .react-flow__edge-path {
+    filter: drop-shadow(0 0 8px $grey) drop-shadow(0 0 32px $grey);
+  }
+
   &.selected {
 
     path {
@@ -156,4 +165,26 @@
   &--point-selected {
     fill: rgb(0, 192, 255);
   }
+}
+
+.journey-node .node-container {
+  box-shadow: 0 0 0 4px $grey, 0 0 22px 8px rgba($grey, 0.7);
+}
+
+.journey-node--hovered .node-container {
+  background-color: $lightGrey;
+}
+
+// node where the journey currently is (e.g. a running wait)
+@keyframes journey-node-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px $blue, 0 0 22px 8px rgba($blue, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 4px $blue, 0 0 34px 14px rgba($blue, 0.35);
+  }
+}
+
+.journey-node--in-progress .node-container {
+  animation: journey-node-pulse 1.6s ease-in-out infinite;
 }

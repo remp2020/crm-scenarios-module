@@ -28,17 +28,21 @@ import * as config from './../../config';
 import { TrayItemWidget } from './TrayItemWidget';
 import { ExportService } from '../../services';
 import Notification from '../Notification';
-import { ZoomIn, ZoomOut, ZoomOutMap } from '@mui/icons-material';
-import { Divider } from '@mui/material';
+import { Close, People, ZoomIn, ZoomOut, ZoomOutMap } from '@mui/icons-material';
+import { Divider, IconButton } from '@mui/material';
 import FlowWidget from './FlowWidget';
+import ScenarioUsersWidget from './ScenarioUsersWidget';
+import ScenarioUserJourney from './ScenarioUserJourney';
 import { ReactFlowProvider } from 'reactflow';
 import { setScenarioId, setScenarioLoading, setScenarioName } from '../../store/scenarioSlice';
 import { setCanvasNotification } from '../../store/canvasSlice';
+import { setSelectedJourney } from '../../store/journeysSlice';
 import { v1 } from '../../api_routes';
 import { store } from '../../store';
 
 const {dispatch} = store;
 const drawerWidth = 240;
+const usersSidebarWidth = 380;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -68,6 +72,29 @@ const useStyles = makeStyles(theme => ({
   divider: {
     marginLeft: '16px',
     marginRight: '16px'
+  },
+  usersSidebar: {
+    width: usersSidebarWidth,
+    flexShrink: 0
+  },
+  usersSidebarPaper: {
+    width: usersSidebarWidth,
+    position: 'relative',
+    height: '100%',
+    backgroundColor: '#fff'
+  },
+  usersSidebarHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '8px 8px 8px 16px'
+  },
+  usersSidebarContent: {
+    padding: '12px 16px 16px'
+  },
+  usersSidebarHint: {
+    color: theme.palette.grey[600],
+    marginBottom: '4px'
   }
 }));
 
@@ -78,6 +105,7 @@ const BodyWidget = ({ app }) => {
 
   const [editingName, setEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [usersSidebarOpen, setUsersSidebarOpen] = useState(false);
 
   const saveChanges = useCallback(() => {
     if (app.isCorruptedPayload()) {
@@ -169,6 +197,20 @@ const BodyWidget = ({ app }) => {
     setEditedName(event.target.value);
   };
 
+  const toggleUsersSidebar = () => {
+    if (usersSidebarOpen) {
+      closeUsersSidebar();
+      return;
+    }
+    setUsersSidebarOpen(true);
+  };
+
+  // journey highlight must not stay on canvas once the sidebar is gone
+  const closeUsersSidebar = () => {
+    setUsersSidebarOpen(false);
+    dispatch(setSelectedJourney(null));
+  };
+
   const closeNotification = () => {
     dispatch(setCanvasNotification({ open: false }));
   };
@@ -186,206 +228,247 @@ const BodyWidget = ({ app }) => {
   };
 
   return (
-    <ScopedCssBaseline
-      sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0 }}
-    >
-      <div className='body'>
-        <AppBar position='static' className={classes.appBar}>
-          <Toolbar>
-            <Grid container>
-              <Grid item xs={4}>
-                <Typography variant='h6' color='inherit' noWrap>
-                  {editingName ? (
-                    <input
-                      autoFocus
-                      type='text'
-                      value={editedName}
-                      onChange={handleNameTyping}
-                      onKeyDown={handleCloseAndSaveDuringChangingName}
-                      onBlur={submitEditingName}
-                      className='changing-name-input'
-                    />
-                  ) : (
-                    <span
-                      onClick={startEditingName}
-                      className='scenario-name'
-                    >
-                      {scenario.name}
-                    </span>
-                  )}
-                </Typography>
-              </Grid>
+    <ReactFlowProvider>
+      <ScopedCssBaseline
+        sx={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0 }}
+      >
+        <div className='body'>
+          <AppBar position='static' className={classes.appBar}>
+            <Toolbar>
+              <Grid container>
+                <Grid item xs={4}>
+                  <Typography variant='h6' color='inherit' noWrap>
+                    {editingName ? (
+                      <input
+                        autoFocus
+                        type='text'
+                        value={editedName}
+                        onChange={handleNameTyping}
+                        onKeyDown={handleCloseAndSaveDuringChangingName}
+                        onBlur={submitEditingName}
+                        className='changing-name-input'
+                      />
+                    ) : (
+                      <span
+                        onClick={startEditingName}
+                        className='scenario-name'
+                      >
+                        {scenario.name}
+                      </span>
+                    )}
+                  </Typography>
+                </Grid>
 
-              <Grid item xs={8}>
-                <Grid container direction='row' justifyContent='flex-end'>
-                  {!!scenario.loading && (
-                    <CircularProgress
-                      className='circular-loading'
-                      size={19}
-                      color='inherit'
-                    />
-                  )}
-                  <Button
-                    title="Zoom in"
-                    size='small'
-                    variant='contained'
-                    color='primary'
-                    onClick={zoomIn}
-                  >
-                    <ZoomIn />
-                  </Button>
-                  <Button
-                    title="Zoom out"
-                    size='small'
-                    variant='contained'
-                    color='primary'
-                    onClick={zoomOut}
-                  >
-                    <ZoomOut titleAccess="Test" />
-                  </Button>
-                  <Button
-                    title="Zoom to fit"
-                    size='small'
-                    variant='contained'
-                    color='primary'
-                    onClick={zoomToFit}
-                  >
-                    <ZoomOutMap />
-                  </Button>
-                  <Divider orientation="vertical" variant="middle" flexItem className={classes.divider} />
-                  <Button
-                    size='small'
-                    variant='contained'
-                    color='secondary'
-                    onClick={saveChanges}
-                  >
-                    {scenario.id ? 'Update' : 'Save'}
-                  </Button>
+                <Grid item xs={8}>
+                  <Grid container direction='row' justifyContent='flex-end'>
+                    {!!scenario.loading && (
+                      <CircularProgress
+                        className='circular-loading'
+                        size={19}
+                        color='inherit'
+                      />
+                    )}
+                    <Button
+                      title="Users"
+                      size='small'
+                      variant='contained'
+                      color='primary'
+                      onClick={toggleUsersSidebar}
+                    >
+                      <People />
+                    </Button>
+                    <Button
+                      title="Zoom in"
+                      size='small'
+                      variant='contained'
+                      color='primary'
+                      onClick={zoomIn}
+                    >
+                      <ZoomIn />
+                    </Button>
+                    <Button
+                      title="Zoom out"
+                      size='small'
+                      variant='contained'
+                      color='primary'
+                      onClick={zoomOut}
+                    >
+                      <ZoomOut titleAccess="Test" />
+                    </Button>
+                    <Button
+                      title="Zoom to fit"
+                      size='small'
+                      variant='contained'
+                      color='primary'
+                      onClick={zoomToFit}
+                    >
+                      <ZoomOutMap />
+                    </Button>
+                    <Divider orientation="vertical" variant="middle" flexItem className={classes.divider} />
+                    <Button
+                      size='small'
+                      variant='contained'
+                      color='secondary'
+                      onClick={saveChanges}
+                    >
+                      {scenario.id ? 'Update' : 'Save'}
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <div className={classes.root}>
-          <Drawer
-            className={classes.drawer}
-            variant='permanent'
-            classes={{
-              paper: classes.drawerPaper
-            }}
-          >
-            <List
-              component='nav'
-              subheader={
-                <ListSubheader component='div'>Triggers</ListSubheader>
-              }
+            </Toolbar>
+          </AppBar>
+          <div className={classes.root}>
+            <Drawer
+              className={classes.drawer}
+              variant='permanent'
+              classes={{
+                paper: classes.drawerPaper
+              }}
             >
-              <TrayItemWidget
-                model={{ type: 'trigger', shape: 'square' }}
-                name='Event'
-                icon={<TriggerIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'before_trigger', shape: 'square' }}
-                name='Before/After Event'
-                icon={<NotificationsActiveIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'repeating_trigger', shape: 'square' }}
-                name='Repeating'
-                icon={<RepeatIcon />}
-              />
-            </List>
-
-            <List
-              component='nav'
-              subheader={<ListSubheader component='div'>Actions</ListSubheader>}
-            >
-              <TrayItemWidget
-                model={{ type: 'email', shape: 'square' }}
-                name='Send email'
-                icon={<EmailIcon />}
-              />
-
-              <TrayItemWidget
-                model={{ type: 'generic', shape: 'square' }}
-                name='Run generic action'
-                icon={<ExtensionIcon />}
-              />
-
-              {config.BANNER_ENABLED &&
+              <List
+                component='nav'
+                subheader={
+                  <ListSubheader component='div'>Triggers</ListSubheader>
+                }
+              >
                 <TrayItemWidget
-                  model={{ type: 'banner', shape: 'square' }}
-                  name='Show banner'
-                  icon={<BannerIcon />}
+                  model={{ type: 'trigger', shape: 'square' }}
+                  name='Event'
+                  icon={<TriggerIcon />}
                 />
-              }
 
-              {config.PUSH_NOTIFICATION_ENABLED &&
                 <TrayItemWidget
-                  model={{ type: 'push_notification', shape: 'square' }}
-                  name='Send notification'
-                  icon={<PushNotificationIcon />}
+                  model={{ type: 'before_trigger', shape: 'square' }}
+                  name='Before/After Event'
+                  icon={<NotificationsActiveIcon />}
                 />
-              }
-            </List>
 
-            <List
-              component='nav'
-              subheader={
-                <ListSubheader component='div'>Operations</ListSubheader>
-              }
-            >
-              <TrayItemWidget
-                model={{ type: 'segment', shape: 'diamond' }}
-                name='Segment'
-                icon={<SegmentIcon />}
-              />
+                <TrayItemWidget
+                  model={{ type: 'repeating_trigger', shape: 'square' }}
+                  name='Repeating'
+                  icon={<RepeatIcon />}
+                />
+              </List>
 
-              <TrayItemWidget
-                model={{ type: 'condition', shape: 'diamond' }}
-                name='Condition'
-                icon={<ConditionIcon />}
-              />
+              <List
+                component='nav'
+                subheader={<ListSubheader component='div'>Actions</ListSubheader>}
+              >
+                <TrayItemWidget
+                  model={{ type: 'email', shape: 'square' }}
+                  name='Send email'
+                  icon={<EmailIcon />}
+                />
 
-              <TrayItemWidget
-                model={{ type: 'wait', shape: 'round' }}
-                name='Wait'
-                icon={<WaitIcon />}
-              />
+                <TrayItemWidget
+                  model={{ type: 'generic', shape: 'square' }}
+                  name='Run generic action'
+                  icon={<ExtensionIcon />}
+                />
 
-              <TrayItemWidget
-                model={{ type: 'goal', shape: 'diamond' }}
-                name='Goal'
-                icon={<GoalIcon />}
-              />
+                {config.BANNER_ENABLED &&
+                  <TrayItemWidget
+                    model={{ type: 'banner', shape: 'square' }}
+                    name='Show banner'
+                    icon={<BannerIcon />}
+                  />
+                }
 
-              <TrayItemWidget
-                model={{ type: 'ab_test', shape: 'diamond' }}
-                name='AB Test'
-                icon={<ABTestIcon />}
-              />
-            </List>
-          </Drawer>
-          <Notification
-            variant={canvas.notification.variant}
-            text={canvas.notification.text}
-            open={canvas.notification.open}
-            handleClose={closeNotification}
-          />
+                {config.PUSH_NOTIFICATION_ENABLED &&
+                  <TrayItemWidget
+                    model={{ type: 'push_notification', shape: 'square' }}
+                    name='Send notification'
+                    icon={<PushNotificationIcon />}
+                  />
+                }
+              </List>
 
-          <main className={classes.content}>
-            <div className='diagram-layer'>
-              <ReactFlowProvider>
+              <List
+                component='nav'
+                subheader={
+                  <ListSubheader component='div'>Operations</ListSubheader>
+                }
+              >
+                <TrayItemWidget
+                  model={{ type: 'segment', shape: 'diamond' }}
+                  name='Segment'
+                  icon={<SegmentIcon />}
+                />
+
+                <TrayItemWidget
+                  model={{ type: 'condition', shape: 'diamond' }}
+                  name='Condition'
+                  icon={<ConditionIcon />}
+                />
+
+                <TrayItemWidget
+                  model={{ type: 'wait', shape: 'round' }}
+                  name='Wait'
+                  icon={<WaitIcon />}
+                />
+
+                <TrayItemWidget
+                  model={{ type: 'goal', shape: 'diamond' }}
+                  name='Goal'
+                  icon={<GoalIcon />}
+                />
+
+                <TrayItemWidget
+                  model={{ type: 'ab_test', shape: 'diamond' }}
+                  name='AB Test'
+                  icon={<ABTestIcon />}
+                />
+              </List>
+            </Drawer>
+            <Notification
+              variant={canvas.notification.variant}
+              text={canvas.notification.text}
+              open={canvas.notification.open}
+              handleClose={closeNotification}
+            />
+
+            <main className={classes.content}>
+              <div className='diagram-layer'>
                 <FlowWidget app={app} scenario={scenario} />
-              </ReactFlowProvider>
-            </div>
-          </main>
+              </div>
+            </main>
+
+            {usersSidebarOpen && (
+              <Drawer
+                anchor='right'
+                variant='permanent'
+                className={classes.usersSidebar}
+                classes={{
+                  paper: classes.usersSidebarPaper
+                }}
+              >
+                <div className={classes.usersSidebarHeader}>
+                  <Typography variant='subtitle1'>
+                    User journey
+                  </Typography>
+                  <IconButton
+                    title='Close'
+                    size='small'
+                    onClick={closeUsersSidebar}
+                  >
+                    <Close />
+                  </IconButton>
+                </div>
+                <Divider />
+                <div className={classes.usersSidebarContent}>
+                  <Typography variant='body2' className={classes.usersSidebarHint}>
+                    Pick a user to see how they passed through this scenario.
+                  </Typography>
+                  <ScenarioUsersWidget scenarioId={scenario.id}/>
+                  <ScenarioUserJourney scenarioId={scenario.id}/>
+                </div>
+              </Drawer>
+            )}
+          </div>
         </div>
-      </div>
-    </ScopedCssBaseline>
+      </ScopedCssBaseline>
+    </ReactFlowProvider>
   );
 };
 

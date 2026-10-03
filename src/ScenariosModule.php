@@ -20,9 +20,12 @@ use Crm\ApplicationModule\Models\Scenario\TriggerManager;
 use Crm\ScenariosModule\Api\ScenariosCreateApiHandler;
 use Crm\ScenariosModule\Api\ScenariosCriteriaHandler;
 use Crm\ScenariosModule\Api\ScenariosInfoApiHandler;
+use Crm\ScenariosModule\Api\ScenariosJourneyJobsApiHandler;
 use Crm\ScenariosModule\Api\ScenariosListGenericsApiHandler;
 use Crm\ScenariosModule\Api\ScenariosListTriggersApiHandler;
 use Crm\ScenariosModule\Api\ScenariosStatsApiHandler;
+use Crm\ScenariosModule\Api\ScenariosUserJourneysApiHandler;
+use Crm\ScenariosModule\Api\ScenariosUsersApiHandler;
 use Crm\ScenariosModule\Commands\EventGeneratorCommand;
 use Crm\ScenariosModule\Commands\ListScenariosToReviewCommand;
 use Crm\ScenariosModule\Commands\ReconstructWaitEventsCommand;
@@ -112,6 +115,24 @@ class ScenariosModule extends CrmModule
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'list-triggers'),
             ScenariosListTriggersApiHandler::class,
+            BearerTokenAuthorization::class,
+        ));
+
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'users'),
+            ScenariosUsersApiHandler::class,
+            BearerTokenAuthorization::class,
+        ));
+
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'journeys'),
+            ScenariosUserJourneysApiHandler::class,
+            BearerTokenAuthorization::class,
+        ));
+
+        $apiRoutersContainer->attachRouter(new ApiRoute(
+            new ApiIdentifier('1', 'scenarios', 'journey-jobs'),
+            ScenariosJourneyJobsApiHandler::class,
             BearerTokenAuthorization::class,
         ));
     }

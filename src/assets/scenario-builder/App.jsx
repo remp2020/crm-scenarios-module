@@ -24,6 +24,12 @@ const App = () => {
   const scenarioPayload = useSelector(state => state.scenario.payload);
 
   useEffect(() => {
+    if (config.SCENARIO_ID) {
+      dispatch(fetchScenario(config.SCENARIO_ID));
+    } else {
+      dispatch(setScenarioName('Unnamed scenario'));
+    }
+
     dispatch(fetchSegments());
     dispatch(fetchCriteria());
     dispatch(fetchGoals());
@@ -41,10 +47,7 @@ const App = () => {
     }
 
     if (config.SCENARIO_ID) {
-      dispatch(fetchScenario(config.SCENARIO_ID));
       dispatch(fetchStatistics(config.SCENARIO_ID));
-    } else {
-      dispatch(setScenarioName('Unnamed scenario'));
     }
   }, []);
 

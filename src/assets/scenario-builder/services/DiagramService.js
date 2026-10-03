@@ -248,7 +248,8 @@ export class DiagramService {
     const newNodes = nodesToCopy.map((node) => this.copyNode(node));
     const newEdges = this.instance.getEdges()
       .filter(edge => nodesToCopy.find(node => node.id === edge.source) || nodesToCopy.find(node => node.id === edge.target))
-      .map(edge => ({
+      // drop journey highlight, copies must not stay highlighted
+      .map(({ className, animated, zIndex, ...edge }) => ({
         ...edge,
         id: uuid(),
         source: newNodes.find(node => node.originalId === edge.source)?.id || edge.source,

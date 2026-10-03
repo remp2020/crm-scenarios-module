@@ -5,6 +5,9 @@ export const scenario = {
   create: `${config.CRM_HOST}/api/v1/scenarios/create`,
   criteria: `${config.CRM_HOST}/api/v1/scenarios/criteria`,
   statistics: (id) => `${config.CRM_HOST}/api/v1/scenarios/stats?id=${id}`,
+  users: `${config.CRM_HOST}/api/v1/scenarios/users`,
+  journeys: `${config.CRM_HOST}/api/v1/scenarios/journeys`,
+  journeyJobs: `${config.CRM_HOST}/api/v1/scenarios/journey-jobs`,
 }
 export const segments = {
   index: `${config.CRM_HOST}/api/v1/segments/list`,

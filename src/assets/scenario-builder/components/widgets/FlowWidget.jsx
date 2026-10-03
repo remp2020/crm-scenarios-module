@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import ReactFlow, { useNodesState, useEdgesState, addEdge, useReactFlow } from 'reactflow';
 import { store } from '../../store';
+import { journeyEdgeKey, selectJourneyEdgeKeys } from '../../store/journeysSelectors';
 import 'reactflow/dist/style.css';
 import GoalNodeWidget from '../elements/Goal/NodeWidget';
 import WaitNodeWidget from '../elements/Wait/NodeWidget';
@@ -59,7 +61,7 @@ const connectionLineStyle = {
 };
 
 let ctrlDown = false;
-let nodesToCopy = false;
+let nodesToCopy = [];
 
 const HISTORY_LIMIT = 100;
 
@@ -67,6 +69,19 @@ export default function FlowWidget(props) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const {screenToFlowPosition} = useReactFlow();
+  const journeyEdgeKeys = useSelector(selectJourneyEdgeKeys);
+
+  // derived only for rendering, highlight must not end up in saved payload or undo history
+  const displayedEdges = useMemo(() => {
+    if (journeyEdgeKeys.size === 0) {
+      return edges;
+    }
+
+    return edges.map(edge => journeyEdgeKeys.has(journeyEdgeKey(edge.source, edge.target))
+      ? { ...edge, className: 'journey-edge', animated: true, zIndex: 1 }
+      : edge
+    );
+  }, [edges, journeyEdgeKeys]);
 
   // Keep refs to latest nodes/edges so we can snapshot the pre-change state
   // without the snapshot closure getting stale across renders.
@@ -152,6 +167,12 @@ export default function FlowWidget(props) {
   const keydownHandler = (e) => {
     if (e.keyCode === ctrlKey || e.keyCode === cmdKey) {
       ctrlDown = true;
+    }
+
+    // let text fields handle their own copy/paste/undo
+    const target = e.target;
+    if (target && (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable)) {
+      return;
     }
 
     // CTRL/CMD + C
@@ -292,7 +313,7 @@ export default function FlowWidget(props) {
   return (
     <ReactFlow
       nodes={nodes}
-      edges={edges}
+      edges={displayedEdges}
       onNodesChange={handleNodesChange}
       onEdgesChange={handleEdgesChange}
       onNodeDragStart={onNodeDragStart}

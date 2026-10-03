@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useReactFlow } from 'reactflow';
 import { setCanvasZoomingAndPanning, setNodeDetailOpened } from '../store/canvasSlice';
 import { store } from '../store';
 import { bemClassName } from '../utils/bem';
+import { selectJourneyInProgressNodeIds, selectJourneyNodeIds } from '../store/journeysSelectors';
 
 export const useNode = (nodeProps) => {
   const { deleteElements } = useReactFlow();
@@ -13,6 +15,9 @@ export const useNode = (nodeProps) => {
   const [anchorElementForTooltip, setAnchorElementForTooltip] = useState(null);
   const dialogOpenCallbacks = []
   const dialogCloseCallbacks = []
+  const inJourney = useSelector(state => selectJourneyNodeIds(state).has(nodeProps.id));
+  const inProgressInJourney = useSelector(state => selectJourneyInProgressNodeIds(state).has(nodeProps.id));
+  const hoveredInJourney = useSelector(state => inJourney && state.journeys.hoveredNodeUuid === nodeProps.id);
 
   const bem = (selector) => bemClassName(
     selector,
@@ -21,7 +26,10 @@ export const useNode = (nodeProps) => {
   )
 
   const getClassName = () => {
-    return nodeProps.data.node.classBaseName + ' ' + nodeProps.data.node.className;
+    return nodeProps.data.node.classBaseName + ' ' + nodeProps.data.node.className
+      + (inJourney ? ' journey-node' : '')
+      + (inProgressInJourney ? ' journey-node--in-progress' : '')
+      + (hoveredInJourney ? ' journey-node--hovered' : '');
   };
 
   const openDialog = () => {
