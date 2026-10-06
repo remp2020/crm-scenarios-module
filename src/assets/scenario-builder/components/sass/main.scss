@@ -137,6 +137,7 @@
   }
 
   &.journey-edge .react-flow__edge-path {
+    stroke-dasharray: 6, 4;
     filter: drop-shadow(0 0 8px $grey) drop-shadow(0 0 32px $grey);
   }
 
@@ -176,15 +177,6 @@
 }
 
 // node where the journey currently is (e.g. a running wait)
-@keyframes journey-node-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 4px $blue, 0 0 22px 8px rgba($blue, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 4px $blue, 0 0 34px 14px rgba($blue, 0.35);
-  }
-}
-
 .journey-node--in-progress .node-container {
-  animation: journey-node-pulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 0 4px $blue, 0 0 22px 8px rgba($blue, 0.7);
 }

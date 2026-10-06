@@ -78,7 +78,7 @@ export default function FlowWidget(props) {
     }
 
     return edges.map(edge => journeyEdgeKeys.has(journeyEdgeKey(edge.source, edge.target))
-      ? { ...edge, className: 'journey-edge', animated: true, zIndex: 1 }
+      ? { ...edge, className: 'journey-edge', zIndex: 1 }
       : edge
     );
   }, [edges, journeyEdgeKeys]);
