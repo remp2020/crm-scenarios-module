@@ -21,6 +21,7 @@ use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\ScenariosModule\Tests\BaseTestCase;
 use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\UsersModule\Repositories\UsersRepository;
+use DateInterval;
 use DateTime;
 use Nette\Database\Table\ActiveRow;
 
@@ -280,7 +281,7 @@ class BeforeRecurrentPaymentExpiresEventGeneratorTest extends BaseTestCase
         );
 
         $updateData = [
-            'expires_at' => new DateTime("+$expiresAt minutes"),
+            'expires_at' => (new DateTime())->add(new DateInterval("PT{$expiresAt}M")),
         ];
         if (!$active) {
             $updateData['state'] = RecurrentPaymentStateEnum::SystemStop->value;
