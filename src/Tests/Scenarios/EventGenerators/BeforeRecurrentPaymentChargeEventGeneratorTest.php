@@ -20,6 +20,7 @@ use Crm\ScenariosModule\Repositories\TriggersRepository;
 use Crm\ScenariosModule\Tests\BaseTestCase;
 use Crm\SubscriptionsModule\Models\Builder\SubscriptionTypeBuilder;
 use Crm\UsersModule\Repositories\UsersRepository;
+use DateInterval;
 use DateTime;
 
 class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
@@ -170,7 +171,7 @@ class BeforeRecurrentPaymentChargeEventGeneratorTest extends BaseTestCase
         return $this->recurrentPaymentsRepository->add(
             $paymentMethod,
             $payment,
-            new DateTime("+ {$minutes} minutes"),
+            (new DateTime())->add(new DateInterval("PT{$minutes}M")),
             0,
             5,
         );
