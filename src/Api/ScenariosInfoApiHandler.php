@@ -28,13 +28,6 @@ class ScenariosInfoApiHandler extends ApiHandler
 
     public function handle(array $params): ResponseInterface
     {
-        $authorization = $this->getAuthorization();
-        $data = $authorization->getAuthorizedData();
-        if (!isset($data['token'])) {
-            $response = new JsonApiResponse(Response::S403_FORBIDDEN, ['status' => 'error', 'message' => 'Cannot authorize user']);
-            return $response;
-        }
-
         try {
             $result = $this->scenariosRepository->getScenario((int)$params['id']);
         } catch (\Exception $exception) {

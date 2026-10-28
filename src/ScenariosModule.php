@@ -3,7 +3,7 @@
 namespace Crm\ScenariosModule;
 
 use Crm\ApiModule\Models\Api\ApiRoutersContainerInterface;
-use Crm\ApiModule\Models\Authorization\BearerTokenAuthorization;
+use Crm\ApiModule\Models\Authorization\AdminLoggedAuthorization;
 use Crm\ApiModule\Models\Router\ApiIdentifier;
 use Crm\ApiModule\Models\Router\ApiRoute;
 use Crm\ApplicationModule\Application\CommandsContainerInterface;
@@ -88,52 +88,52 @@ class ScenariosModule extends CrmModule
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'info'),
             ScenariosInfoApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'create'),
             ScenariosCreateApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'criteria'),
             ScenariosCriteriaHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'generics'),
             ScenariosListGenericsApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'stats'),
             ScenariosStatsApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'list-triggers'),
             ScenariosListTriggersApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'users'),
             ScenariosUsersApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'journeys'),
             ScenariosUserJourneysApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
 
         $apiRoutersContainer->attachRouter(new ApiRoute(
             new ApiIdentifier('1', 'scenarios', 'journey-jobs'),
             ScenariosJourneyJobsApiHandler::class,
-            BearerTokenAuthorization::class,
+            AdminLoggedAuthorization::class,
         ));
     }
 

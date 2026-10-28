@@ -15,7 +15,6 @@
     <script>
         window.Scenario = {
             config: {
-                AUTH_TOKEN: {$apiToken},
                 CRM_HOST: {$crmHost},
                 SCENARIO_ID: {if $scenario}{$scenario->id}{else}null{/if},
                 BANNER_ENABLED: {$bannerEnabled},

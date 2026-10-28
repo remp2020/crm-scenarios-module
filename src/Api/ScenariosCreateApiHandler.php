@@ -35,19 +35,6 @@ class ScenariosCreateApiHandler extends ApiHandler
 
     public function handle(array $params): ResponseInterface
     {
-        $authorization = $this->getAuthorization();
-        $data = $authorization->getAuthorizedData();
-        if (!isset($data['token'])) {
-            return new JsonApiResponse(
-                IResponse::S403_Forbidden,
-                [
-                    'status' => 'error',
-                    'message' => 'Cannot authorize user',
-                    'code' => 'unauthorized_user',
-                ],
-            );
-        }
-
         $contentType = $this->request->getHeader('Content-Type');
 
         // check if Content Type header contains `application/json`

@@ -3,7 +3,6 @@
 namespace Crm\ScenariosModule\Presenters;
 
 use Crm\AdminModule\Presenters\AdminPresenter;
-use Crm\ApiModule\Models\Token\InternalToken;
 use Crm\ApplicationModule\UI\Form;
 use Crm\OneSignalModule\Events\OneSignalNotificationEvent;
 use Crm\ScenariosModule\Events\BannerEvent;
@@ -16,7 +15,6 @@ class ScenariosAdminPresenter extends AdminPresenter
 {
     public function __construct(
         private readonly ScenariosRepository $scenariosRepository,
-        private readonly InternalToken $internalToken,
         private readonly DuplicateScenarioFormFactory $duplicateScenarioFormFactory,
     ) {
         parent::__construct();
@@ -49,7 +47,6 @@ class ScenariosAdminPresenter extends AdminPresenter
         }
 
         $this->template->crmHost = $this->getHttpRequest()->getUrl()->getBaseUrl();
-        $this->template->apiToken = 'Bearer ' . $this->internalToken->tokenValue();
     }
 
     /**

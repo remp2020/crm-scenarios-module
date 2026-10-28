@@ -167,7 +167,6 @@ Be sure to have scenario config filled in a global scope. It should look like th
 ```js
 window.Scenario = {
   config: {
-    AUTH_TOKEN: '',
     CRM_HOST: '',
     CANCEL_PATH: '',
     SEGMENT_ID: null
