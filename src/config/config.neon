@@ -89,6 +89,7 @@ services:
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewSubscriptionTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionStartsTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionEndsTriggerHandler
+	- Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionUpgradedTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\NewPaymentTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\PaymentStatusChangeTriggerHandler
 	- Crm\ScenariosModule\Scenarios\TriggerHandlers\AddressChangedTriggerHandler

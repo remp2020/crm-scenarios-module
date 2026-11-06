@@ -62,6 +62,7 @@ use Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentRenewedTrigger
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\RecurrentPaymentStateChangedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionEndsTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionStartsTriggerHandler;
+use Crm\ScenariosModule\Scenarios\TriggerHandlers\SubscriptionUpgradedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\TestUserTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserConfirmedTriggerHandler;
 use Crm\ScenariosModule\Scenarios\TriggerHandlers\UserRegisteredTriggerHandler;
@@ -176,6 +177,7 @@ class ScenariosModule extends CrmModule
         $triggerManager->registerTriggerHandler($this->getInstance(NewSubscriptionTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(SubscriptionStartsTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(SubscriptionEndsTriggerHandler::class));
+        $triggerManager->registerTriggerHandler($this->getInstance(SubscriptionUpgradedTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(NewPaymentTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(PaymentStatusChangeTriggerHandler::class));
         $triggerManager->registerTriggerHandler($this->getInstance(AddressChangedTriggerHandler::class));
